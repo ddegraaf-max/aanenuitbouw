@@ -2189,13 +2189,13 @@ img, svg { display: block; max-width: 100%; }
             <div class="value">+31 646 150 160</div>
           </div>
         </a>
-        <a href="mailto:info@aanenuitbouw.nl" class="contact-info-item">
+        <a href="mailto:project@aanenuitbouw.nl" class="contact-info-item">
           <div class="contact-info-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
           </div>
           <div>
             <div class="label">E-mail</div>
-            <div class="value">info@aanenuitbouw.nl</div>
+            <div class="value">project@aanenuitbouw.nl</div>
           </div>
         </a>
         <div class="contact-info-item">
@@ -2249,13 +2249,13 @@ img, svg { display: block; max-width: 100%; }
         <a href="#over-ons">Over ons</a>
         <a href="#werk" data-nav="werk">Recent werk</a>
         <a href="#contact">Contact</a>
-        <a href="#">Privacybeleid</a>
-        <a href="#">Algemene voorwaarden</a>
+        <a href="documenten/privacyverklaring.pdf" target="_blank" rel="noopener">Privacyverklaring</a>
+        <a href="documenten/algemene-voorwaarden.pdf" target="_blank" rel="noopener">Algemene voorwaarden</a>
       </div>
       <div class="footer-col">
         <h5>Contact</h5>
         <a href="tel:+31646150160">+31 646 150 160</a>
-        <a href="mailto:info@aanenuitbouw.nl">info@aanenuitbouw.nl</a>
+        <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -2382,7 +2382,7 @@ const state = {
   doorColor: 'wit',
   bovenkozijn: 'metselwerk',
   dakrand: 'metselwerk_zink',
-  dakrandKleur: 'antraciet',
+  dakrandKleur: 'antra',
   gevel: { type: 'baksteen', style: 'rood' },
   regenpijp: { links: false, rechts: false, materiaal: 'pvc', pvcKleur: 'grijs' },
   extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
@@ -3261,7 +3261,7 @@ function buildSummaryRows() {
     { label: 'Afmetingen',    value: `${state.width.toFixed(1)} × ${state.depth.toFixed(1)} m` },
     { label: 'Oppervlak',     value: c.area.toFixed(1) + ' m²' },
     { label: 'Daktype',       value: ROOF_TYPES[state.roof].label },
-    { label: 'Dakrand',       value: DAKRAND_TYPES[state.dakrand].label.replace('Metselen tot boven met ', '').replace('Overstek met ', 'Overstek + ') + ' (' + (COLORS.find(c => c.id === state.dakrandKleur) || {}).label + ')' },
+    { label: 'Dakrand',       value: DAKRAND_TYPES[state.dakrand].label.replace('Metselen tot boven met ', '').replace('Overstek met ', 'Overstek + ') + ' (' + ((COLORS.find(c => c.id === state.dakrandKleur) || {}).label || 'standaard') + ')' },
     { label: 'Plan',          value: PLANS[state.plan].name },
     { label: 'Gevel',         value: GEVEL_TYPES[state.gevel.type].label + ' (' + (GEVEL_TYPES[state.gevel.type].styles.find(s => s.id === state.gevel.style) || {}).label + ')' },
     { label: 'Pui',           value: DOORS[state.doors].label },
@@ -3810,7 +3810,7 @@ function resetConfig() {
     step: 0, type: 'uitbouw', width: 6, depth: 3, roof: 'plat', plan: 'cplus',
     doors: 'openslaand', doorColor: 'wit',
     bovenkozijn: 'metselwerk',
-    dakrand: 'metselwerk_zink', dakrandKleur: 'antraciet',
+    dakrand: 'metselwerk_zink', dakrandKleur: 'antra',
     gevel: { type: 'baksteen', style: 'rood' },
     regenpijp: { links: false, rechts: false, materiaal: 'pvc', pvcKleur: 'grijs' },
     extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },

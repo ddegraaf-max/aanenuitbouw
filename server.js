@@ -11,13 +11,14 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 // Resend e-mail configuratie
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const QUOTE_FROM = process.env.QUOTE_FROM || 'AanEnUitbouw.nl <onboarding@resend.dev>';
-const QUOTE_TO = process.env.QUOTE_TO || 'info@aanenuitbouw.nl';
+const QUOTE_TO = process.env.QUOTE_TO || 'project@aanenuitbouw.nl';
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css':  'text/css',
   '.js':   'application/javascript',
   '.json': 'application/json',
+  '.pdf':  'application/pdf',
   '.svg':  'image/svg+xml',
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
@@ -115,7 +116,7 @@ function buildQuoteEmail(data) {
     `<td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(r.value)}</td></tr>`
   ).join('');
 
-  const html = `<!DOCTYPE html><html><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
     <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
       <div style="background:#1E4FC7;padding:24px 28px;">
         <h1 style="margin:0;color:#fff;font-size:20px;">Nieuwe offerte-aanvraag</h1>
@@ -160,13 +161,10 @@ function buildCustomerEmail(data) {
 
   const firstName = oneLine(data.name).split(' ')[0] || '';
 
-  const html = `<!DOCTYPE html><html><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
     <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
       <div style="background:#1E4FC7;padding:28px;">
-        <div style="display:inline-block;vertical-align:middle;">
-          <span style="display:inline-block;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:16px solid #fff;vertical-align:middle;"></span>
-          <span style="display:inline-block;width:14px;height:11px;background:#4ECD6B;vertical-align:middle;margin-left:-2px;"></span>
-        </div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFkAAABOCAYAAABL2LqMAAAEDklEQVR4nO2cPYgkRRTH/697ZvZDWDRQMFK5TEHU4JITdjPNRDE38DgzETEQk9kxukBQNBPBS0wOBAPBQOFY4SIzRQxcYQ0XwVPudMfpj79Bv7LL3hlv79x93dPzfjD0NN0z/fo3VdVdr6sGcBzHcRznbCApJJO24+glJKWx7qJPEy29qb7/hOSb+n7YbmQ9guRAl5dZ82K8zfkfhNJK8m2VOyOZk8xIPq/bXPTdEgl+QwVnuiz1lZPc0X1c9J0SCb4YCS6j5qLQ9V9Jntd9XfRJiQS/1BDapNDlDZJP6mdc9O2ILnLPaOldJDiQ6/KA5MP62bTVk+gyDcHTqO29HUH0PsmH9DtcdBPW98FPkPyj0RychHBR/I7kln6Xd1gCkeDHSR7eheCm6Oskt+hd8IpI8COR4Py4vzsW/TXJdOVFR4IfJPn9KQgOzHR5NUhmI/exEoTSRfL+UxYcCCX6qh4nXSnRkeANVtU6lnKahBL9nh5vNUSzqroJyU2SX52h4Kbod/T4/e6s8N8py88aEs6ScIy39Nj9TJGq4NDZuGIomKw6NKG2vKox9Et0Q/BHerJn2UQsEh0urJc0lv6IjgSHnLC14EAQnbPORS+/aNYZtUnLggNxLvo5jW15L4asS/AreoLNnHBbhMzeEetc9PIllFgLfllPrCuCA3EuuvOij93ck0xFpCD5AoBPARQAknn7tkyJKq4bAM6LyD7JRETKluM6xrzxEARwAcCXAEa6T9cEBwoAKYCfADwN4BAARIRtBtWkmeFKNMALANZRnURXBQOV4BLAOQDnNPbOZe0WBXSEqkR3WXBAUInO2g5kEYskd7EN/i86HW/nqlYfcckGuGQDXLIBLtkAl2yASzbAJRuwvLnYBkc4SrevjQfv//hFun1tbN8x2QF2gHIik2MJqmaCaCAiOcnXALwLIEf3f4jQ/X9URH5oO5h5dF3giShY4vL+hxef/ebSwWa6nmQsjNOd5NrWukxvZt9+/tQHexiPE0zqEr3UkrUIS8ECB+nh66N715FghDXjTCfzEqP7NvDXb9OPAext7yDZm6AfkmOKW1mRZVOKFCDM08m5pDKAyM15G3sjGYK0vecLBEQGsuBuzW/hDHDJBrhkA1yyAS7ZAJdsgEs2wCUb4JINcMkGuGQDXLIBLtkAl2yASzbAJRvgkg1wyQa4ZAMWPeMjqvkinZ4zEgZckPxnPbwsEaAgICKYOxRhkeQRqkkvnZ0bB9TVcC0dYbg5wnAwxFCG5k+rWZTp8J4RZr9PN+Ztb0oO0f0M4DrqKVydZlbmyP6cIZvNkAjtJYsU6a1ZKqhGMD3wy2OdmuK2Esxtb1n9DU1n2+J57O7uYgJg3GIMk90JIfYjaxzHcRzHWTX+Bhq6zFcSK8tdAAAAAElFTkSuQmCC" alt="AanEnUitbouw.nl" width="50" height="44" style="display:block;border:0;">
         <h1 style="margin:14px 0 0;color:#fff;font-size:22px;">Bedankt voor uw aanvraag${firstName ? ', ' + esc(firstName) : ''}!</h1>
         <p style="margin:8px 0 0;color:#cdd9f5;font-size:14px;line-height:1.5;">We hebben uw configuratie goed ontvangen en nemen zo snel mogelijk contact met u op.</p>
       </div>
@@ -186,7 +184,7 @@ function buildCustomerEmail(data) {
       </div>
       <div style="background:#0F1A2E;padding:20px 28px;">
         <p style="margin:0 0 4px;color:#fff;font-size:14px;font-weight:700;">AanEnUitbouw.nl</p>
-        <p style="margin:0;color:#8493ad;font-size:12px;line-height:1.6;">Creditline BV · KvK 59683198 · BTW NL853603108B01<br>info@aanenuitbouw.nl · +31 646 150 160</p>
+        <p style="margin:0;color:#8493ad;font-size:12px;line-height:1.6;">Creditline BV · KvK 59683198 · BTW NL853603108B01<br>project@aanenuitbouw.nl · +31 646 150 160</p>
       </div>
     </div>
   </body></html>`;
@@ -197,25 +195,55 @@ function buildCustomerEmail(data) {
     `Uw configuratie:\n${lines}\nIndicatieve totaalprijs: ${cfg.total}\n\n` +
     `De genoemde prijs is een richtprijs. Na een vrijblijvend gesprek stellen we een definitieve offerte op.\n\n` +
     `Vragen? Bel ons op +31 646 150 160.\n\n` +
-    `AanEnUitbouw.nl\nCreditline BV · KvK 59683198\ninfo@aanenuitbouw.nl`;
+    `AanEnUitbouw.nl\nCreditline BV · KvK 59683198\nproject@aanenuitbouw.nl`;
 
   return { html, text };
 }
 
-async function sendEmail(payload) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error(`Resend ${res.status}: ${errText}`);
+function _sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Eén poging tot verzenden, met een harde timeout zodat de server niet blijft hangen
+async function _sendOnce(payload, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      const err = new Error(`Resend ${res.status}: ${errText}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json();
+}
+
+// Verstuurt met timeout + één retry bij tijdelijke fouten (timeout of 5xx / 429)
+async function sendEmail(payload) {
+  const TIMEOUT_MS = 15000;
+  try {
+    return await _sendOnce(payload, TIMEOUT_MS);
+  } catch (e) {
+    // Bepaal of opnieuw proberen zinvol is: timeout (AbortError) of tijdelijke serverfout
+    const isTimeout = e.name === 'AbortError';
+    const isTemporary = isTimeout || e.status === 429 || (e.status >= 500 && e.status <= 599);
+    if (!isTemporary) throw e; // 4xx zoals ongeldig adres: niet opnieuw proberen
+    console.warn('Resend tijdelijke fout, opnieuw proberen over 2s:', isTimeout ? 'timeout' : e.message);
+    await _sleep(2000);
+    return await _sendOnce(payload, TIMEOUT_MS);
+  }
 }
 
 async function sendQuoteEmails(data) {
