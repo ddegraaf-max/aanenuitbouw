@@ -1,0 +1,12 @@
+{
+  "name": "aanenuitbouw-site",
+  "version": "1.0.0",
+  "description": "AanEnUitbouw.nl — vakkundige aan- en uitbouwen op maat",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

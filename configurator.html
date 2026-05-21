@@ -1,0 +1,4183 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 56'><path d='M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z' fill='%231E4FC7'/><rect x='36' y='32' width='24' height='18' fill='%234ECD6B'/></svg>">
+<meta name="description" content="Transformeer uw huis met deskundige aan- en uitbouwen. Stel direct online uw uitbouw samen en ontvang een prijsindicatie.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════ */
+:root {
+  --color-primary:        #1E4FC7;
+  --color-primary-hover:  #1740A8;
+  --color-primary-dark:   #143391;
+  --color-primary-soft:   #E8EEFA;
+  --color-primary-line:   #C9D6F2;
+
+  --color-ink:            #1A2540;
+  --color-ink-light:      #3A4566;
+  --color-mute:           #6B7280;
+  --color-line:           #E1E5EA;
+
+  --color-bg:             #F2F4F6;
+  --color-bg-soft:        #F7F9FB;
+  --color-paper:          #FFFFFF;
+
+  --color-accent-green:   #4ECD6B;
+  --color-success:        #2E7D45;
+
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-sans:    "DM Sans", system-ui, sans-serif;
+
+  --shadow-card:     0 1px 2px rgba(26,37,64,0.04), 0 4px 14px rgba(26,37,64,0.06);
+  --shadow-elevated: 0 2px 6px rgba(26,37,64,0.08), 0 16px 40px rgba(26,37,64,0.12);
+  --shadow-floating: 0 4px 12px rgba(26,37,64,0.10), 0 24px 60px rgba(26,37,64,0.14);
+
+  --radius:    6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+
+  --header-h: 72px;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; }
+a { color: inherit; }
+img, svg { display: block; max-width: 100%; }
+
+.container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+
+/* ═══════════════════════════════════════════════════
+   SITE HEADER
+   ═══════════════════════════════════════════════════ */
+.site-header {
+  background: var(--color-paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--color-line);
+  height: var(--header-h);
+}
+.header-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+}
+.brand {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.brand-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+.brand-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--color-mute);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 10px;
+  border-left: 1px solid var(--color-line);
+  padding-left: 12px;
+}
+.main-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+.main-nav a {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-light);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+  letter-spacing: 0.005em;
+}
+.main-nav a:hover { color: var(--color-primary); background: var(--color-primary-soft); }
+.contact-cta {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  background: var(--color-primary);
+  padding: 12px 22px;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.contact-cta:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+
+/* Hamburger-knop — alleen zichtbaar op mobiel */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: var(--color-ink);
+  border-radius: 2px;
+  margin: 0 auto;
+  transition: transform 0.25s, opacity 0.2s;
+}
+.nav-toggle.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+@media (max-width: 1100px) {
+  .brand-tag { display: none; }
+  .main-nav { gap: 0; }
+  .main-nav a { padding: 8px 10px; font-size: 13px; }
+}
+@media (max-width: 880px) {
+  .nav-toggle { display: flex; }
+  /* Bel-knop wordt compact icoon-only op mobiel */
+  .contact-cta {
+    font-size: 0;
+    padding: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .contact-cta::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
+  }
+  .header-inner { gap: 12px; }
+  /* Mobiel uitklapmenu */
+  .main-nav {
+    display: flex;
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+    box-shadow: 0 16px 32px rgba(26,37,64,0.12);
+    padding: 8px 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+  }
+  .main-nav.open {
+    max-height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .main-nav a {
+    font-size: 16px;
+    padding: 14px 32px;
+    border-radius: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--color-soft);
+  }
+  .main-nav a:last-child { border-bottom: none; }
+}
+
+/* ═══════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════ */
+.hero {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 88px 0 110px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at 25% 50%, #000 25%, transparent 75%);
+          mask-image: radial-gradient(ellipse at 25% 50%, #000 25%, transparent 75%);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -180px; top: -120px;
+  width: 540px; height: 540px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent-green);
+  margin-bottom: 22px;
+  font-weight: 700;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(36px, 4.8vw, 60px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+}
+.hero h1 .highlight {
+  background: rgba(78,205,107,0.22);
+  padding: 0 12px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.hero-sub {
+  margin-top: 24px;
+  max-width: 520px;
+  color: rgba(255,255,255,0.85);
+  font-size: 17.5px;
+  line-height: 1.6;
+}
+.hero-actions {
+  margin-top: 36px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.btn {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  letter-spacing: 0.005em;
+}
+.btn-white {
+  background: #fff;
+  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.12);
+}
+.btn-white:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.14), 0 12px 32px rgba(0,0,0,0.18); }
+.btn-ghost {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.35);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.10); border-color: #fff; }
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(30,79,199,0.20), 0 4px 14px rgba(30,79,199,0.18);
+}
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(30,79,199,0.20), 0 8px 22px rgba(30,79,199,0.25);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-line);
+}
+.btn-secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.hero-stats {
+  margin-top: 48px;
+  display: flex;
+  gap: 36px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+  flex-wrap: wrap;
+}
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.hero-stat-label {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+/* Hero illustratie SVG */
+.hero-illustration {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.25));
+}
+
+@media (max-width: 880px) {
+  .hero { padding: 64px 0 84px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+  .hero-illustration { max-width: 420px; margin: 0 auto; }
+  .hero-stats { gap: 24px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTIONS — basis
+   ═══════════════════════════════════════════════════ */
+.section { padding: 96px 0; }
+.section-light { background: var(--color-bg); }
+.section-paper { background: var(--color-paper); }
+.section-blue  { background: var(--color-primary); color: #fff; }
+.section-eyebrow {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: block;
+  text-align: center;
+}
+.section-blue .section-eyebrow { color: var(--color-accent-green); }
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.section-sub {
+  text-align: center;
+  color: var(--color-mute);
+  font-size: 17px;
+  max-width: 620px;
+  margin: 0 auto 56px;
+  line-height: 1.6;
+}
+.section-blue .section-sub { color: rgba(255,255,255,0.8); }
+
+@media (max-width: 640px) {
+  .section { padding: 64px 0; }
+  .section-sub { margin-bottom: 40px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   DIENSTEN
+   ═══════════════════════════════════════════════════ */
+.diensten-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.dienst-hero-card {
+  background: var(--color-paper);
+  border-radius: var(--radius-xl);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+}
+.dienst-hero-card:hover { box-shadow: var(--shadow-elevated); transform: translateY(-2px); }
+.dienst-hero-visual {
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary-line) 100%);
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.dienst-hero-visual svg { width: 100%; height: 100%; }
+.dienst-hero-body { padding: 32px 30px 30px; }
+.dienst-hero-body h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.dienst-hero-body p { color: var(--color-mute); font-size: 15px; line-height: 1.6; }
+
+.diensten-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.dienst-card {
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: 26px 24px;
+  transition: all 0.2s;
+}
+.dienst-card:hover { border-color: var(--color-primary-line); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.dienst-card-icon {
+  width: 44px; height: 44px;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--color-primary);
+}
+.dienst-card h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.dienst-card p { color: var(--color-mute); font-size: 13.5px; line-height: 1.5; }
+
+@media (max-width: 880px) {
+  .diensten-hero-grid { grid-template-columns: 1fr; }
+  .diensten-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .diensten-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════
+   PLANNEN
+   ═══════════════════════════════════════════════════ */
+.plannen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.plan-card {
+  background: var(--color-paper);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s;
+}
+.plan-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-elevated); }
+.plan-card.featured {
+  border-color: var(--color-primary);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--color-primary-soft) 200%);
+}
+.plan-badge {
+  position: absolute;
+  top: -12px;
+  right: 24px;
+  background: var(--color-accent-green);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(78,205,107,0.30);
+}
+.plan-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+.plan-price {
+  margin-top: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.plan-price-main {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.025em;
+  color: var(--color-primary);
+}
+.plan-price-unit {
+  font-size: 14px;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.plan-price-from {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.plan-features {
+  list-style: none;
+  margin-bottom: 28px;
+  flex: 1;
+}
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--color-ink-light);
+  border-bottom: 1px solid var(--color-line);
+}
+.plan-features li:last-child { border-bottom: none; }
+.plan-features li::before {
+  content: "✓";
+  color: var(--color-accent-green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.plan-features li.extra::before { content: "+"; color: var(--color-mute); }
+
+@media (max-width: 880px) {
+  .plannen-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+}
+
+/* ═══════════════════════════════════════════════════
+   PROCES
+   ═══════════════════════════════════════════════════ */
+.proces-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  position: relative;
+}
+.proces-grid::before {
+  content: "";
+  position: absolute;
+  top: 38px; left: 16.66%; right: 16.66%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary-line) 0%, var(--color-primary) 50%, var(--color-primary-line) 100%);
+  z-index: 0;
+}
+.proces-step { text-align: center; position: relative; z-index: 1; }
+.proces-num {
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 16px rgba(30,79,199,0.30), 0 0 0 6px var(--color-paper);
+  letter-spacing: -0.02em;
+}
+.proces-step h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+.proces-step p { color: var(--color-mute); font-size: 14.5px; line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .proces-grid { grid-template-columns: 1fr; gap: 36px; }
+  .proces-grid::before { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════
+   RECENT WERK — projectenkaarten (verborgen tot er foto's zijn)
+   ═══════════════════════════════════════════════════ */
+.werk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 8px;
+}
+/* Bij 1 of 2 projecten: gecentreerd tonen i.p.v. links met lege gaten */
+.werk-grid.few {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.werk-grid.few .werk-card {
+  width: 100%;
+  max-width: 380px;
+}
+.werk-card {
+  background: var(--color-paper);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  box-shadow: 0 1px 3px rgba(26,37,64,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.werk-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(26,37,64,0.12);
+}
+.werk-card-img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--color-soft);
+}
+.werk-card-body { padding: 18px 20px 20px; }
+.werk-card-tag {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 10px;
+}
+.werk-card-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  margin: 0 0 6px;
+}
+.werk-card-desc {
+  color: var(--color-mute);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+@media (max-width: 880px) {
+  .werk-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .werk-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════
+   CONFIGURATOR — section wrapper
+   ═══════════════════════════════════════════════════ */
+.configurator-section { padding: 80px 0 100px; }
+.configurator-section .section-eyebrow,
+.configurator-section .section-title,
+.configurator-section .section-sub { /* keep centered */ }
+
+/* ═══════════════════════════════════════════════════
+   CONFIGURATOR — app
+   ═══════════════════════════════════════════════════ */
+.app {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+}
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* Stepper: numbered circles */
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 22px 28px;
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  gap: 4px;
+}
+.step-node { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.step-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-line);
+  color: var(--color-mute);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+.step-node.active .step-circle {
+  background: var(--color-primary); border-color: var(--color-primary); color: #fff;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+.step-node.done .step-circle { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.step-label-stepper {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-mute); margin-top: 8px; white-space: nowrap;
+}
+.step-node.active .step-label-stepper { color: var(--color-primary); }
+.step-node.done   .step-label-stepper { color: var(--color-ink); }
+.step-line {
+  flex: 1; height: 2px; background: var(--color-line); margin: 0 6px 26px;
+  transition: background 0.4s; min-width: 12px;
+}
+.step-line.done { background: var(--color-primary); }
+@media (max-width: 720px) {
+  .step-label-stepper { display: none; }
+  .step-line { margin-bottom: 0; }
+}
+
+/* Main panel */
+.main {
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  padding: 44px;
+  box-shadow: var(--shadow-card);
+}
+.step-label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--color-primary); font-weight: 700; margin-bottom: 12px;
+}
+.step-title {
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 34px; line-height: 1.1; letter-spacing: -0.025em;
+  margin-bottom: 12px; color: var(--color-ink);
+}
+.step-desc { color: var(--color-mute); margin-bottom: 32px; max-width: 540px; font-size: 15px; }
+
+/* Dimension fields */
+.dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.dim-field {
+  background: var(--color-bg); border: 1.5px solid transparent;
+  border-radius: var(--radius); padding: 22px; transition: all 0.2s;
+}
+.dim-field:focus-within {
+  border-color: var(--color-primary); background: var(--color-paper);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+.dim-label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-mute); font-weight: 700;
+}
+.dim-input-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+.dim-input {
+  font-family: var(--font-display);
+  font-size: 42px; font-weight: 700; border: none; background: transparent;
+  width: 100%; outline: none; color: var(--color-ink); letter-spacing: -0.025em;
+  -moz-appearance: textfield;
+}
+.dim-input::-webkit-outer-spin-button,
+.dim-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.dim-unit { font-size: 15px; color: var(--color-mute); font-weight: 500; }
+.dim-slider {
+  width: 100%; -webkit-appearance: none; appearance: none;
+  height: 4px; background: var(--color-line); border-radius: 2px;
+  margin-top: 18px; outline: none;
+}
+.dim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--color-primary); cursor: pointer;
+  border: 4px solid var(--color-paper);
+  box-shadow: 0 0 0 1px var(--color-primary), 0 2px 6px rgba(30,79,199,0.25);
+  transition: transform 0.15s;
+}
+.dim-slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.dim-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--color-primary); cursor: pointer; border: 4px solid var(--color-paper);
+}
+.dim-summary {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--color-primary-soft);
+  border: 1.5px solid var(--color-primary-line);
+  border-radius: var(--radius); padding: 22px;
+}
+.dim-summary-num {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 700; margin-top: 4px;
+  letter-spacing: -0.02em; color: var(--color-primary);
+}
+
+/* Option cards */
+.option-grid { display: grid; gap: 10px; }
+.option-card {
+  border: 1.5px solid var(--color-line); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--color-paper); position: relative; overflow: hidden;
+}
+.option-card:hover { border-color: var(--color-primary-line); background: #FBFCFE; }
+.option-card.selected { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.option-card.selected::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--color-primary);
+}
+.option-card.locked { opacity: 0.65; cursor: default; }
+.option-card.locked:hover { border-color: var(--color-line); background: var(--color-paper); }
+.option-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--color-line); flex-shrink: 0; margin-top: 2px;
+  position: relative; transition: all 0.2s; background: #fff;
+}
+.option-card.selected .option-radio { border-color: var(--color-primary); background: var(--color-primary); }
+.option-card.selected .option-radio::after {
+  content: ""; position: absolute; inset: 4px; background: #fff; border-radius: 50%;
+}
+.check-card .option-radio { border-radius: 4px; }
+.check-card.selected .option-radio { background: var(--color-primary); }
+.check-card.selected .option-radio::after {
+  content: "✓"; position: absolute; inset: 0; background: transparent;
+  color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; border-radius: 0;
+}
+.option-body { flex: 1; min-width: 0; }
+.option-title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px; flex-wrap: wrap; color: var(--color-ink);
+}
+.option-price {
+  font-family: var(--font-display);
+  font-size: 13px; color: var(--color-mute); font-weight: 600; white-space: nowrap;
+}
+.option-price strong { color: var(--color-primary); font-weight: 700; }
+.option-card.selected .option-price strong { color: var(--color-primary-dark); }
+.option-desc { margin-top: 4px; color: var(--color-mute); font-size: 14px; line-height: 1.5; }
+.option-features { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+.feature-tag {
+  font-family: var(--font-display);
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 5px 10px; background: var(--color-bg);
+  border-radius: 3px; color: var(--color-ink); font-weight: 600;
+}
+.option-card.selected .feature-tag { background: var(--color-paper); color: var(--color-primary); }
+.badge-included {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--color-accent-green); color: #fff;
+  font-size: 10.5px; font-weight: 700; padding: 3px 8px;
+  border-radius: 3px; text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* Daktype thumbnail */
+.dak-thumb {
+  width: 76px; height: 56px; flex-shrink: 0;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 6px;
+  transition: all 0.2s;
+}
+.option-card.selected .dak-thumb { background: #fff; }
+
+/* Counter */
+.counter {
+  display: flex; align-items: center; gap: 4px;
+  border: 1.5px solid var(--color-line); border-radius: var(--radius);
+  padding: 4px; background: var(--color-paper);
+}
+.counter button {
+  width: 32px; height: 32px; border: none; background: var(--color-bg);
+  cursor: pointer; font-size: 16px; font-weight: 700;
+  border-radius: 3px; transition: all 0.15s; color: var(--color-ink);
+}
+.counter button:hover:not(:disabled) { background: var(--color-primary); color: #fff; }
+.counter button:disabled { opacity: 0.3; cursor: not-allowed; }
+.counter-value {
+  min-width: 32px; text-align: center; font-weight: 700;
+  font-variant-numeric: tabular-nums; font-family: var(--font-display);
+}
+.extra-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid var(--color-line);
+}
+.extra-row:last-child { border-bottom: none; }
+
+/* Kleur mini-previews — Step 4 */
+.kleur-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kleur-mini {
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: 8px 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--color-paper);
+  text-align: center;
+}
+.kleur-mini:hover { border-color: var(--color-primary-line); transform: translateY(-2px); }
+.kleur-mini.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.kleur-mini-svg {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(180deg, #EEF3FB 0%, #FBFCFE 100%);
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+.kleur-mini-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.kleur-mini-price {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-mute);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+@media (max-width: 540px) {
+  .kleur-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Form */
+.contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { display: flex; flex-direction: column; }
+.form-field.full { grid-column: 1 / -1; }
+.form-field label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--color-mute); margin-bottom: 8px; font-weight: 700;
+}
+.form-field input, .form-field textarea {
+  font-family: inherit; font-size: 15px;
+  border: 1.5px solid var(--color-line); border-radius: var(--radius);
+  padding: 13px 16px; background: var(--color-bg); outline: none;
+  transition: all 0.2s; color: var(--color-ink);
+}
+.form-field input:focus, .form-field textarea:focus {
+  border-color: var(--color-primary); background: var(--color-paper);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+.form-field textarea { resize: vertical; min-height: 90px; }
+.form-consent {
+  margin-top: 20px; display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; color: var(--color-mute);
+}
+.form-consent input { margin-top: 3px; accent-color: var(--color-primary); }
+
+/* Nav row */
+.nav-row {
+  display: flex; justify-content: space-between; margin-top: 40px;
+  padding-top: 28px; border-top: 1px solid var(--color-line); gap: 12px;
+}
+
+/* Sidebar */
+.sidebar { position: sticky; top: calc(var(--header-h) + 20px); align-self: start; }
+.summary {
+  background: var(--color-primary); color: #fff;
+  border-radius: var(--radius-lg); padding: 32px;
+  box-shadow: var(--shadow-elevated);
+  position: relative; overflow: hidden;
+}
+.summary::before {
+  content: ""; position: absolute;
+  right: -80px; top: -80px; width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.summary > * { position: relative; }
+.summary-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--color-accent-green); margin-bottom: 8px; font-weight: 700;
+}
+.summary-title {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 800; letter-spacing: -0.015em;
+  margin-bottom: 22px;
+  display: flex; align-items: center; gap: 10px;
+}
+.live-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-accent-green);
+  box-shadow: 0 0 0 3px rgba(78,205,107,0.25);
+  animation: livePulse 2.2s ease-in-out infinite; flex-shrink: 0;
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(78,205,107,0.25); }
+  50%      { box-shadow: 0 0 0 6px rgba(78,205,107,0.10); }
+}
+.preview-wrap { position: relative; margin-bottom: 24px; }
+.preview-wrap.morphing .preview-svg {
+  animation: previewMorph 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes previewMorph {
+  0%   { opacity: 0.35; transform: scale(0.96); }
+  60%  { opacity: 1;    transform: scale(1.01); }
+  100% { opacity: 1;    transform: scale(1); }
+}
+.preview-tag {
+  position: absolute; top: 10px; left: 12px;
+  font-family: var(--font-display);
+  font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-primary); font-weight: 700;
+  background: rgba(255,255,255,0.85);
+  padding: 4px 8px; border-radius: 3px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.preview-controls {
+  position: absolute; top: 10px; right: 10px;
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.preview-view-btn {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 7px 11px;
+  background: rgba(255,255,255,0.88);
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.preview-view-btn:not(:first-child) { border-left: 1px solid rgba(30,79,199,0.15); }
+.preview-view-btn:hover { background: rgba(30,79,199,0.10); }
+.preview-view-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+.preview-svg {
+  width: 100%; background: #fff; border-radius: var(--radius);
+  display: block; box-shadow: inset 0 0 0 1px rgba(30,79,199,0.10);
+}
+.summary-list { list-style: none; }
+.summary-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12);
+  font-size: 13.5px; gap: 12px;
+}
+.summary-row:last-of-type { border-bottom: none; }
+.summary-row .label { color: rgba(255,255,255,0.65); }
+.summary-row .value { font-weight: 600; text-align: right; }
+.total-row {
+  margin-top: 18px; padding-top: 22px;
+  border-top: 1.5px solid rgba(255,255,255,0.25);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.total-label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.65); font-weight: 700;
+}
+.total-value {
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 800; letter-spacing: -0.03em; line-height: 1;
+}
+.total-suffix { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 6px; text-align: right; }
+.summary-disclaimer {
+  margin-top: 18px; padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  font-size: 11.5px; color: rgba(255,255,255,0.55); line-height: 1.5;
+}
+
+/* Waardestijging module */
+.value-gain {
+  background: var(--color-paper); border-radius: var(--radius-lg);
+  padding: 28px; margin-top: 16px;
+  box-shadow: var(--shadow-card);
+  position: relative; overflow: hidden;
+}
+.value-gain::before {
+  content: ""; position: absolute; left: 0; top: 0; right: 0;
+  height: 4px; background: var(--color-accent-green);
+}
+.value-gain-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--color-success); margin-bottom: 8px; font-weight: 700;
+}
+.value-gain-title {
+  font-family: var(--font-display);
+  font-size: 19px; font-weight: 800; letter-spacing: -0.015em;
+  margin-bottom: 4px; color: var(--color-ink);
+}
+.value-gain-sub { color: var(--color-mute); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+.value-slider-block {
+  background: var(--color-bg); border-radius: var(--radius);
+  padding: 14px 16px 12px; margin-bottom: 18px;
+}
+.value-slider-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.value-slider-label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--color-mute); font-weight: 700;
+}
+.value-slider-value {
+  font-family: var(--font-display);
+  font-weight: 800; color: var(--color-primary);
+  font-size: 17px; letter-spacing: -0.01em;
+}
+.value-slider {
+  width: 100%; -webkit-appearance: none; appearance: none;
+  height: 3px; background: var(--color-line); border-radius: 2px;
+  outline: none; margin: 4px 0;
+}
+.value-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--color-primary); cursor: pointer;
+  border: 3px solid var(--color-paper);
+  box-shadow: 0 0 0 1px var(--color-primary), 0 2px 4px rgba(30,79,199,0.20);
+}
+.value-slider-tickmarks {
+  display: flex; justify-content: space-between;
+  font-size: 10.5px; color: var(--color-mute); font-weight: 600; margin-top: 4px;
+}
+.value-rows { margin-bottom: 16px; }
+.value-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13.5px; padding: 9px 0;
+  border-bottom: 1px solid var(--color-line); gap: 12px;
+}
+.value-row:last-of-type { border-bottom: none; }
+.value-row .label { color: var(--color-mute); }
+.value-row .value {
+  font-family: var(--font-display);
+  font-weight: 700; color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.value-row .value.plus { color: var(--color-success); }
+.value-result {
+  background: var(--color-primary-soft);
+  border: 1.5px solid var(--color-primary-line);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: all 0.3s;
+}
+.value-result.positive {
+  background: rgba(78,205,107,0.10);
+  border-color: var(--color-accent-green);
+}
+.value-result-label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-mute); font-weight: 700; margin-bottom: 2px;
+}
+.value-result.positive .value-result-label { color: var(--color-success); }
+.value-result-value {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 800; letter-spacing: -0.025em;
+  color: var(--color-primary); line-height: 1;
+}
+.value-result.positive .value-result-value { color: var(--color-success); }
+.value-result-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--color-primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700;
+}
+.value-result.positive .value-result-icon { background: var(--color-accent-green); }
+.value-explanation {
+  margin-top: 16px;
+  font-size: 12.5px; color: var(--color-mute); line-height: 1.55;
+}
+.value-explanation strong { color: var(--color-ink); font-weight: 700; }
+
+/* Confirmation */
+.confirmation { text-align: center; padding: 48px 20px; }
+.check-icon {
+  width: 72px; height: 72px;
+  background: var(--color-accent-green); color: white;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 28px; font-size: 32px;
+  box-shadow: 0 8px 24px rgba(78,205,107,0.3);
+}
+
+/* Step content fade */
+.step-content { animation: fadeIn 0.35s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════
+   OVER ONS
+   ═══════════════════════════════════════════════════ */
+.over-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.over-block {
+  padding: 32px 28px;
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-line);
+}
+.over-block h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: var(--color-ink);
+}
+.over-block p {
+  color: var(--color-mute);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+@media (max-width: 880px) {
+  .over-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   CONTACT
+   ═══════════════════════════════════════════════════ */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.contact-info-list { display: grid; gap: 18px; }
+.contact-info-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 22px;
+  background: rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.contact-info-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius);
+  background: rgba(78,205,107,0.18);
+  color: var(--color-accent-green);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.contact-info-item .label {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.65); font-weight: 700;
+}
+.contact-info-item .value {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 700;
+  color: #fff; margin-top: 2px;
+}
+.contact-info-item a { text-decoration: none; }
+.contact-info-item a:hover .value { color: var(--color-accent-green); }
+.contact-cta-block {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-xl);
+  padding: 40px 36px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.contact-cta-block h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: #fff;
+}
+.contact-cta-block p {
+  color: rgba(255,255,255,0.8);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+@media (max-width: 880px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════ */
+.site-footer {
+  background: var(--color-ink);
+  color: rgba(255,255,255,0.7);
+  padding: 56px 0 32px;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.footer-brand .brand-logo { height: 42px; }
+.footer-brand p {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.55);
+  max-width: 280px;
+}
+.footer-col h5 {
+  font-family: var(--font-display);
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-accent-green); font-weight: 700;
+  margin-bottom: 16px;
+}
+.footer-col a {
+  display: block; padding: 6px 0;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.15s;
+}
+.footer-col a:hover { color: #fff; }
+.footer-bottom {
+  margin-top: 24px;
+  display: flex; justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; font-size: 13px; color: rgba(255,255,255,0.45);
+}
+@media (max-width: 880px) {
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 540px) {
+  .footer-top { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════
+   ADMIN PANEEL — Beheerder login + prijsbeheer
+   ═══════════════════════════════════════════════════ */
+.beheer-link {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s;
+}
+.beheer-link:hover { color: rgba(255,255,255,0.85); }
+.beheer-link svg { width: 13px; height: 13px; }
+
+.admin-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,26,46,0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.admin-overlay.open { display: flex; }
+.admin-modal {
+  background: #FFFFFF;
+  border-radius: 14px;
+  width: min(760px, 100%);
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(15,26,46,0.4);
+}
+.admin-modal.small { width: min(420px, 100%); }
+.admin-header {
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--color-line);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+.admin-header h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+.admin-header .admin-subtitle {
+  font-size: 12px;
+  color: var(--color-mute);
+  margin-top: 3px;
+  font-weight: 500;
+}
+.admin-close {
+  background: transparent;
+  border: 0;
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  font-size: 22px;
+  color: var(--color-mute);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.admin-close:hover { background: var(--color-bg); color: var(--color-ink); }
+.admin-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+.admin-section {
+  margin-bottom: 28px;
+}
+.admin-section:last-child { margin-bottom: 0; }
+.admin-section h3 {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--color-primary);
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-line);
+}
+.admin-row {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: 14px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #F2F4F6;
+}
+.admin-row:last-child { border-bottom: 0; }
+.admin-row label {
+  font-size: 13.5px;
+  color: var(--color-ink);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.admin-row label .hint {
+  display: block;
+  font-size: 11.5px;
+  color: var(--color-mute);
+  font-weight: 400;
+  margin-top: 1px;
+}
+.price-input-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  background: #FFFFFF;
+  transition: border-color 0.15s;
+}
+.price-input-wrap:focus-within { border-color: var(--color-primary); }
+.price-input-wrap .prefix,
+.price-input-wrap .suffix {
+  color: var(--color-mute);
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.price-input-wrap .prefix { margin-right: 6px; }
+.price-input-wrap .suffix { margin-left: 6px; }
+.price-input-wrap input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  padding: 9px 0;
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-ink);
+  text-align: right;
+  background: transparent;
+}
+.admin-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: var(--color-soft);
+}
+.admin-footer .group { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-admin {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.btn-admin-primary { background: var(--color-primary); color: #FFFFFF; }
+.btn-admin-primary:hover { background: var(--color-primary-hover); }
+.btn-admin-ghost { background: transparent; color: var(--color-ink); border-color: var(--color-line); }
+.btn-admin-ghost:hover { background: var(--color-bg); }
+.btn-admin-danger { background: transparent; color: #dc2626; border-color: #fca5a5; }
+.btn-admin-danger:hover { background: #fef2f2; }
+.admin-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-ink);
+  color: #FFFFFF;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+.admin-toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+.admin-toast.success { background: var(--color-success); }
+.admin-toast.error { background: #dc2626; }
+.admin-error {
+  font-size: 13px;
+  color: #dc2626;
+  font-weight: 600;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-radius: 6px;
+  margin-top: 12px;
+  display: none;
+}
+.admin-error.show { display: block; }
+.admin-divider {
+  margin: 24px 0 20px;
+  border: 0;
+  height: 1px;
+  background: var(--color-line);
+}
+
+/* ═══════════════════════════════════════════════════
+   MOBILE CONFIGURATOR ADJUSTMENTS
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .container, .header-inner { padding: 0 18px; }
+  .app { padding: 0 18px; }
+  .main { padding: 26px 22px; }
+  .step-title { font-size: 26px; }
+  .dim-grid { grid-template-columns: 1fr; }
+  .contact-form { grid-template-columns: 1fr; }
+  .summary { padding: 24px; }
+  .total-value { font-size: 32px; }
+  .stepper { padding: 14px 16px; gap: 2px; }
+  .step-circle { width: 30px; height: 30px; font-size: 12px; }
+  .step-line { margin-left: 3px; margin-right: 3px; min-width: 6px; }
+}
+@media (max-width: 400px) {
+  .container, .header-inner { padding: 0 14px; }
+  .app { padding: 0 14px; }
+  .main { padding: 22px 16px; }
+  .step-title { font-size: 23px; }
+  .stepper { padding: 12px 10px; }
+  .step-circle { width: 26px; height: 26px; font-size: 11px; border-width: 1.5px; }
+  .summary { padding: 20px; }
+  .total-value { font-size: 28px; }
+  /* Bel-knop in hero stat-rij voorkomt overlopen */
+  .hero-stat-num { font-size: 23px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#start" class="brand" aria-label="AanEnUitbouw.nl - terug naar start">
+      <svg class="brand-logo" viewBox="0 0 360 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AanEnUitbouw.nl">
+        <g transform="translate(2, 7)">
+          <path d="M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z" fill="#1E4FC7"/>
+          <rect x="36" y="32" width="24" height="18" fill="#4ECD6B"/>
+        </g>
+        <text x="76" y="44" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="800" fill="#1A2540" letter-spacing="-0.8">AanEnUitbouw<tspan fill="#1E4FC7">.nl</tspan></text>
+      </svg>
+      <span class="brand-tag">Uw huis uitbreiden</span>
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="#start">Start</a>
+      <a href="#diensten">Diensten</a>
+      <a href="#plannen">Plannen</a>
+      <a href="#proces">Proces</a>
+      <a href="#configurator">Configurator</a>
+      <a href="#over-ons">Over ons</a>
+      <a href="#werk" data-nav="werk">Werk</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="tel:+31646150160" class="contact-cta">BEL ONS: +31 646 150 160</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu openen" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════ -->
+<section id="start" class="hero">
+  <div class="container hero-inner">
+    <div>
+      <div class="hero-eyebrow">Vakkundig en zorgvuldig</div>
+      <h1>Transformeer uw huis met deskundige <span class="highlight">aan- en uitbouwen</span></h1>
+      <p class="hero-sub">Met meer dan 20 jaar ervaring transformeren we uw woning naar uw wensen. Stel direct online uw uitbouw samen en ontvang binnen 48 uur een persoonlijke offerte op maat.</p>
+      <div class="hero-actions">
+        <a href="#configurator" class="btn btn-white">Start de configurator →</a>
+        <a href="tel:+31646150160" class="btn btn-ghost">Bel direct</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">20+</div>
+          <div class="hero-stat-label">Jaar ervaring</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">1000+</div>
+          <div class="hero-stat-label">Tevreden klanten</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">48u</div>
+          <div class="hero-stat-label">Reactietijd offerte</div>
+        </div>
+      </div>
+    </div>
+    <svg class="hero-illustration" viewBox="0 0 460 380" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="heroSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="230" cy="340" rx="180" ry="14" fill="rgba(0,0,0,0.18)"/>
+      <!-- Bestaande woning (achtergrond, wit-doorzichtig) -->
+      <polygon points="80,340 80,180 230,90 380,180 380,340" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <line x1="80" y1="180" x2="230" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <line x1="230" y1="90" x2="380" y2="180" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <!-- Ramen verdieping -->
+      <rect x="115" y="200" width="50" height="60" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
+      <rect x="295" y="200" width="50" height="60" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
+      <line x1="140" y1="200" x2="140" y2="260" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+      <line x1="320" y1="200" x2="320" y2="260" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+      <!-- Uitbouw (voorkant) -->
+      <polygon points="130,340 330,340 330,260 130,260" fill="#fff" stroke="#fff" stroke-width="2"/>
+      <!-- Plat dak -->
+      <line x1="120" y1="260" x2="340" y2="260" stroke="#fff" stroke-width="3"/>
+      <!-- Pui (4-vlaks: vast | deur | deur | vast) -->
+      <rect x="148" y="278" width="164" height="58" fill="rgba(78,205,107,0.18)" stroke="#4ECD6B" stroke-width="2.5"/>
+      <line x1="189" y1="280" x2="189" y2="334" stroke="#4ECD6B" stroke-width="1.2"/>
+      <line x1="230" y1="280" x2="230" y2="334" stroke="#4ECD6B" stroke-width="1.8"/>
+      <line x1="271" y1="280" x2="271" y2="334" stroke="#4ECD6B" stroke-width="1.2"/>
+      <circle cx="222" cy="307" r="2" fill="#4ECD6B"/>
+      <circle cx="238" cy="307" r="2" fill="#4ECD6B"/>
+      <!-- Lichtkoepel indicator op dak -->
+      <rect x="210" y="248" width="40" height="10" fill="rgba(78,205,107,0.5)" stroke="#4ECD6B" stroke-width="1.5" rx="2"/>
+      <!-- "+ m²" badge -->
+      <g transform="translate(360, 90)">
+        <circle r="34" fill="#4ECD6B" filter="drop-shadow(0 8px 16px rgba(0,0,0,0.25))"/>
+        <text y="-2" text-anchor="middle" font-family="Manrope" font-size="14" font-weight="800" fill="#fff">+18m²</text>
+        <text y="14" text-anchor="middle" font-family="Manrope" font-size="9" font-weight="700" fill="#fff" letter-spacing="1">EXTRA</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     DIENSTEN
+     ═══════════════════════════════════════════════════ -->
+<section id="diensten" class="section section-paper">
+  <div class="container">
+    <div class="section-eyebrow">Wat we doen</div>
+    <h2 class="section-title">Onze diensten</h2>
+    <p class="section-sub">Van complete aan- en uitbouwen tot afwerkingsdetails: ons team levert vakwerk op elk niveau.</p>
+
+    <div class="diensten-hero-grid">
+      <div class="dienst-hero-card">
+        <div class="dienst-hero-visual">
+          <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bestaande woning plattegrond (voorste deel) -->
+            <path d="M 60 38 L 260 38 L 260 105 L 60 105 Z" fill="#FFFFFF" stroke="#1E4FC7" stroke-width="2"/>
+            <line x1="60" y1="72" x2="170" y2="72" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+            <line x1="170" y1="38" x2="170" y2="105" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+            <rect x="72" y="48" width="20" height="16" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+            <rect x="180" y="48" width="36" height="22" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+            <text x="160" y="92" font-family="Manrope" font-size="10" font-weight="600" fill="#1E4FC7" text-anchor="middle" opacity="0.85">Bestaande woning</text>
+            <!-- AANBOUW: 3 nieuwe wanden (groen), bestaande achtergevel blijft staan -->
+            <rect x="60" y="105" width="200" height="75" fill="#4ECD6B" fill-opacity="0.18"/>
+            <line x1="60" y1="105" x2="60" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+            <line x1="260" y1="105" x2="260" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+            <line x1="60" y1="180" x2="260" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+            <!-- KERNVERSCHIL: bestaande achtergevel blijft intact — extra dik blauw -->
+            <line x1="60" y1="105" x2="260" y2="105" stroke="#1E4FC7" stroke-width="4"/>
+            <!-- Doorgang (deur) door de bestaande achtergevel -->
+            <line x1="148" y1="105" x2="172" y2="105" stroke="#FFFFFF" stroke-width="4"/>
+            <!-- Meubels in aanbouw (bijv. bureau, bed, kast) -->
+            <rect x="80" y="120" width="55" height="40" fill="rgba(78,205,107,0.35)" stroke="#4ECD6B" stroke-width="0.5"/>
+            <rect x="185" y="120" width="55" height="48" fill="rgba(78,205,107,0.35)" stroke="#4ECD6B" stroke-width="0.5"/>
+            <text x="160" y="170" font-family="Manrope" font-size="11" font-weight="700" fill="#2E7D45" text-anchor="middle">NIEUW</text>
+            <!-- Badge: achtergevel blijft staan -->
+            <g transform="translate(160, 202)">
+              <rect x="-86" y="-9" width="172" height="18" rx="9" fill="#1E4FC7"/>
+              <text x="0" y="3.5" font-family="Manrope" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.4">ACHTERGEVEL BLIJFT STAAN</text>
+            </g>
+          </svg>
+        </div>
+        <div class="dienst-hero-body">
+          <h3>Aanbouw</h3>
+          <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, waarbij de bestaande achtergevel intact blijft — wij maken alleen waar gewenst een doorgang. Ideaal voor een extra slaapkamer, kantoor, berging of speelkamer.</p>
+        </div>
+      </div>
+
+      <div class="dienst-hero-card">
+        <div class="dienst-hero-visual">
+          <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bestaande woning plattegrond (voorste deel) -->
+            <path d="M 60 38 L 260 38 L 260 105 L 60 105 Z" fill="#FFFFFF" stroke="#1E4FC7" stroke-width="2"/>
+            <line x1="60" y1="72" x2="170" y2="72" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+            <line x1="170" y1="38" x2="170" y2="105" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+            <rect x="72" y="48" width="20" height="16" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+            <rect x="180" y="48" width="36" height="22" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+            <text x="160" y="92" font-family="Manrope" font-size="10" font-weight="600" fill="#1E4FC7" text-anchor="middle" opacity="0.85">Bestaande woning</text>
+            <!-- KERNVERSCHIL: oude achtergevel verwijderd — gestreept aangegeven -->
+            <line x1="60" y1="105" x2="260" y2="105" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7,4" opacity="0.55"/>
+            <!-- UITBOUW: 3 vaste wanden, geen scheiding aan de bovenkant -->
+            <rect x="60" y="105" width="200" height="75" fill="#4ECD6B" fill-opacity="0.18"/>
+            <line x1="60" y1="105" x2="60" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+            <line x1="260" y1="105" x2="260" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+            <!-- Glaspui aan de achterkant -->
+            <line x1="60" y1="180" x2="260" y2="180" stroke="#4ECD6B" stroke-width="3"/>
+            <line x1="120" y1="178" x2="200" y2="178" stroke="rgba(78,205,107,0.6)" stroke-width="1.5"/>
+            <!-- Keukeneiland -->
+            <rect x="100" y="118" width="120" height="22" fill="rgba(78,205,107,0.35)" stroke="#4ECD6B" stroke-width="0.5"/>
+            <text x="160" y="163" font-family="Manrope" font-size="11" font-weight="700" fill="#2E7D45" text-anchor="middle">NIEUW</text>
+            <!-- Badge: achtergevel verwijderd -->
+            <g transform="translate(160, 202)">
+              <rect x="-90" y="-9" width="180" height="18" rx="9" fill="#dc2626"/>
+              <text x="0" y="3.5" font-family="Manrope" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.4">ACHTERGEVEL WORDT VERWIJDERD</text>
+            </g>
+          </svg>
+        </div>
+        <div class="dienst-hero-body">
+          <h3>Uitbouw</h3>
+          <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, geheel geïntegreerd met de bestaande ruimte. De volledige achtergevel wordt verwijderd zodat woonkamer of keuken naadloos overgaat in de uitbouw.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="diensten-grid">
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        </div>
+        <h4>Ramen & Deuren</h4>
+        <p>Premium ramen en deuren in alle stijlen — voor energie-efficiëntie en uitstraling.</p>
+      </div>
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l1.5-7.5L13 5l5 5-8.5 8.5L3 21z"/><path d="M11 7l5 5"/></svg>
+        </div>
+        <h4>Stuc, tegel & schilderwerk</h4>
+        <p>Eersteklas afwerking voor binnen en buiten, door ervaren vakmensen.</p>
+      </div>
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h4>Elektrisch & dakwerk</h4>
+        <p>Veilige installaties en duurzaam dakwerk volgens de huidige normen.</p>
+      </div>
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <h4>Rolluiken & screens</h4>
+        <p>Verbeter comfort, privacy en veiligheid met ons assortiment zonwering.</p>
+      </div>
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/><rect x="9" y="13" width="6" height="7"/></svg>
+        </div>
+        <h4>Dakkapellen</h4>
+        <p>Meer ruimte en daglicht onder de kap, op maat voor uw bestaande dak.</p>
+      </div>
+      <div class="dienst-card">
+        <div class="dienst-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+        </div>
+        <h4>Dakramen & lichtkoepels</h4>
+        <p>Premium LUMIZEN® lichtkoepels brengen extra daglicht naar uw woning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PLANNEN
+     ═══════════════════════════════════════════════════ -->
+<section id="plannen" class="section section-light">
+  <div class="container">
+    <div class="section-eyebrow">Plannen en prijzen</div>
+    <h2 class="section-title">Kies uw plan</h2>
+    <p class="section-sub">Drie afwerkingsniveaus van casco tot volledig sleutelklaar. U bepaalt waar uw budget naartoe gaat.</p>
+
+    <div class="plannen-grid">
+      <div class="plan-card">
+        <div class="plan-name">Casco</div>
+        <div class="plan-price-from">vanaf</div>
+        <div class="plan-price">
+          <span class="plan-price-main" data-plan-rate="casco">€2.500</span>
+          <span class="plan-price-unit">/m²</span>
+        </div>
+        <ul class="plan-features">
+          <li>Betonnen fundering met bekisting</li>
+          <li>Schroefpalen tot 10 m diep (5 stuks inbegrepen)</li>
+          <li>Hoogwaardige draagconstructie</li>
+          <li>Ruwbouw oplevering</li>
+          <li>Standaard openslaande deuren wit</li>
+          <li class="extra">Elektra, lichtkoepel, vloerverwarming als meerprijs</li>
+        </ul>
+        <a href="#configurator" class="btn btn-secondary" data-plan="casco">Selecteer in configurator</a>
+      </div>
+
+      <div class="plan-card featured">
+        <span class="plan-badge">Meest gekozen</span>
+        <div class="plan-name">C+</div>
+        <div class="plan-price-from">vanaf</div>
+        <div class="plan-price">
+          <span class="plan-price-main" data-plan-rate="cplus">€3.000</span>
+          <span class="plan-price-unit">/m²</span>
+        </div>
+        <ul class="plan-features">
+          <li>Alles uit Casco</li>
+          <li>Schilderklare oplevering</li>
+          <li>2× contactpunt en 1× lichtpunt</li>
+          <li>1× buitenkraan (vorstvrij)</li>
+          <li>Standaard openslaande deuren wit</li>
+          <li class="extra">Lichtkoepel & vloerverwarming als meerprijs</li>
+        </ul>
+        <a href="#configurator" class="btn btn-primary" data-plan="cplus">Selecteer in configurator</a>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">C++</div>
+        <div class="plan-price-from">vanaf</div>
+        <div class="plan-price">
+          <span class="plan-price-main" data-plan-rate="cplus2">€3.500</span>
+          <span class="plan-price-unit">/m²</span>
+        </div>
+        <ul class="plan-features">
+          <li>Alles uit C+</li>
+          <li>Volledige binnenafwerking</li>
+          <li>Lichtkoepel inbegrepen (standaard maat)</li>
+          <li>Vloerverwarming inbegrepen</li>
+          <li>Volledige elektra en buitenkraan</li>
+          <li>Standaard openslaande deuren wit</li>
+        </ul>
+        <a href="#configurator" class="btn btn-secondary" data-plan="cplus2">Selecteer in configurator</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PROCES
+     ═══════════════════════════════════════════════════ -->
+<section id="proces" class="section section-paper">
+  <div class="container">
+    <div class="section-eyebrow">Investeringsfasen</div>
+    <h2 class="section-title">Het proces</h2>
+    <p class="section-sub">In drie heldere fasen van eerste idee tot oplevering en nazorg — u weet altijd wat u kunt verwachten.</p>
+
+    <div class="proces-grid">
+      <div class="proces-step">
+        <div class="proces-num">1</div>
+        <h3>Consultatie</h3>
+        <p>Een gedetailleerd intakegesprek bij u thuis. We luisteren naar uw visie en geven deskundig advies om de beste beslissingen te nemen.</p>
+      </div>
+      <div class="proces-step">
+        <div class="proces-num">2</div>
+        <h3>Constructie</h3>
+        <p>Ons team werkt zorgvuldig en houdt u bij elke stap op de hoogte. Het project blijft op schema en binnen het overeengekomen budget.</p>
+      </div>
+      <div class="proces-step">
+        <div class="proces-num">3</div>
+        <h3>Nazorg</h3>
+        <p>Ook na oplevering staan we voor u klaar. Vragen of zorgen? Wij bieden uitgebreide nazorg en onderhoudsadvies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CONFIGURATOR
+     ═══════════════════════════════════════════════════ -->
+<section id="configurator" class="section section-light configurator-section">
+  <div class="container">
+    <div class="section-eyebrow">Configurator</div>
+    <h2 class="section-title">Stel uw project samen</h2>
+    <p class="section-sub">In zes stappen — van afmetingen tot afwerking — stelt u uw eigen aan- of uitbouw samen. Direct prijsindicatie en waardestijging.</p>
+  </div>
+
+  <div class="app">
+    <div class="content-col">
+      <div class="stepper" id="stepper"></div>
+      <div class="main" id="stepContainer"></div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="summary">
+        <div class="summary-eyebrow">Uw configuratie</div>
+        <h2 class="summary-title"><span class="live-dot"></span>Live overzicht</h2>
+        <div class="preview-wrap">
+          <span class="preview-tag" id="previewTag">Vooraanzicht</span>
+          <div class="preview-controls">
+            <button class="preview-view-btn" data-view="voor" title="Vooraanzicht">VOOR</button>
+            <button class="preview-view-btn active" data-view="3d" title="3D-overzicht">3D</button>
+            <button class="preview-view-btn" data-view="zij" title="Zijaanzicht">ZIJ</button>
+          </div>
+          <svg class="preview-svg" id="previewSvg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <ul class="summary-list" id="summaryList"></ul>
+        <div class="total-row">
+          <div><div class="total-label">Totaal</div></div>
+          <div style="text-align:right">
+            <div class="total-value" id="totalValue">€0</div>
+            <div class="total-suffix">indicatief, incl. btw</div>
+          </div>
+        </div>
+        <p class="summary-disclaimer">Prijzen zijn indicatief en worden definitief vastgesteld na bezoek ter plaatse en constructieberekening.</p>
+      </div>
+
+      <div class="value-gain">
+        <div class="value-gain-eyebrow">Waardestijging</div>
+        <h3 class="value-gain-title">Wat levert het u op?</h3>
+        <p class="value-gain-sub">Elke m² extra woonoppervlak verhoogt direct de marktwaarde van uw woning, los van het extra wooncomfort.</p>
+
+        <div class="value-slider-block">
+          <div class="value-slider-row">
+            <span class="value-slider-label">m²-prijs in uw regio</span>
+            <span class="value-slider-value" id="m2PrijsValue">€4.500/m²</span>
+          </div>
+          <input type="range" class="value-slider" id="m2PrijsSlider" min="2500" max="8500" step="100" value="4500">
+          <div class="value-slider-tickmarks">
+            <span>€2.500</span>
+            <span>€8.500</span>
+          </div>
+        </div>
+
+        <div class="value-rows">
+          <div class="value-row">
+            <span class="label">Toegevoegde oppervlakte</span>
+            <span class="value" id="addedArea">18,0 m²</span>
+          </div>
+          <div class="value-row">
+            <span class="label">Waardestijging woning</span>
+            <span class="value plus" id="valueIncrease">+€81.000</span>
+          </div>
+          <div class="value-row">
+            <span class="label">Investering uitbouw</span>
+            <span class="value" id="investmentAmount">€58.500</span>
+          </div>
+        </div>
+
+        <div class="value-result" id="valueResult">
+          <div>
+            <div class="value-result-label" id="valueResultLabel">Netto resultaat</div>
+            <div class="value-result-value" id="netResult">+€22.500</div>
+          </div>
+          <div class="value-result-icon" id="valueResultIcon">↑</div>
+        </div>
+
+        <p class="value-explanation" id="valueExplanation"></p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     OVER ONS
+     ═══════════════════════════════════════════════════ -->
+<section id="over-ons" class="section section-paper">
+  <div class="container">
+    <div class="section-eyebrow">Wie we zijn</div>
+    <h2 class="section-title">Over ons</h2>
+    <p class="section-sub">Investeren in woningverbetering is een belangrijke beslissing. Daarom werken wij met meer dan 20 jaar ervaring aan uw volledige tevredenheid.</p>
+
+    <div class="over-grid">
+      <div class="over-block">
+        <h3>Bedrijfsoverzicht</h3>
+        <p>Bij AanEnUitbouw.nl begrijpen we dat investeren in uw woning een belangrijke stap is. We zijn er trots op resultaten te leveren die niet alleen aan uw verwachtingen voldoen, maar deze ook overtreffen.</p>
+      </div>
+      <div class="over-block">
+        <h3>Missie en waarden</h3>
+        <p>Onze missie: uitzonderlijke service en superieur vakmanschap bij elk project. We zijn toegewijd aan uw tevredenheid en gaan tot het uiterste om dat te bereiken — vakkundig en zorgvuldig.</p>
+      </div>
+      <div class="over-block">
+        <h3>Ons team</h3>
+        <p>Onder leiding van Daniël de Graaf bestaat ons team uit ervaren professionals die zich inzetten voor excellentie. Of het nu gaat om aanbouw, uitbouw of afwerking — wij brengen expertise en toewijding in elke klus.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     RECENT WERK — projecten galerij
+     ───────────────────────────────────────────────────
+     ⚠️  DEZE SECTIE IS NU VERBORGEN (style="display:none")
+
+     ZO ZET JE 'M AAN zodra je projectfoto's hebt:
+       1. Zet je foto's in een map "projecten/" naast configurator.html
+          (bijv. projecten/uitbouw-amsterdam.jpg)
+       2. Vul hieronder per kaart de juiste bestandsnaam, titel en tekst in.
+          Voeg kaarten toe of verwijder ze naar wens (kopieer een heel
+          <article class="werk-card">...</article> blok).
+       3. Verwijder in deze <section> het stukje: style="display:none"
+       4. Verwijder in de navigatie (bovenaan) bij de "Werk"-link
+          eveneens het style="display:none"
+
+     Tip: foto's van ~1200×900px (4:3) werken het mooist. JPG of WebP.
+     ═══════════════════════════════════════════════════ -->
+<section id="werk" class="section section-light">
+  <div class="container">
+    <div class="section-eyebrow">Recent werk</div>
+    <h2 class="section-title">Projecten die voor zich spreken</h2>
+    <p class="section-sub">Een greep uit recent gerealiseerde aan- en uitbouwen. Vakwerk van begin tot eind.</p>
+
+    <div class="werk-grid">
+
+      <article class="werk-card">
+        <img class="werk-card-img" src="projecten/uitbouw-apeldoorn-43.jpg" alt="Uitbouw met schuifpui in Apeldoorn" loading="lazy">
+        <div class="werk-card-body">
+          <span class="werk-card-tag">Uitbouw</span>
+          <h3 class="werk-card-title">Uitbouw in Apeldoorn</h3>
+          <p class="werk-card-desc">Uitbouw met ruime schuifpui en bovenlicht, afgewerkt in passende rode baksteen met zinken daktrim en regenpijp.</p>
+        </div>
+      </article>
+
+      <article class="werk-card">
+        <img class="werk-card-img" src="projecten/uitbouw-almere-43.jpg" alt="Uitbouw met antraciet schuifpui in Almere" loading="lazy">
+        <div class="werk-card-body">
+          <span class="werk-card-tag">Uitbouw</span>
+          <h3 class="werk-card-title">Uitbouw in Almere</h3>
+          <p class="werk-card-desc">Strakke uitbouw met brede schuifpui en vaste glasdelen in antraciet kozijnen, afgewerkt met een donkere trespa-band.</p>
+        </div>
+      </article>
+
+      <article class="werk-card">
+        <img class="werk-card-img" src="projecten/uitbouw-amstelveen-43.jpg" alt="Uitbouw met stalen pui en openslaande deuren in Amstelveen" loading="lazy">
+        <div class="werk-card-body">
+          <span class="werk-card-tag">Uitbouw</span>
+          <h3 class="werk-card-title">Uitbouw in Amstelveen</h3>
+          <p class="werk-card-desc">Royale uitbouw met stalen-look pui, bovenlichten en openslaande deuren in zwarte kozijnen, ingepast in karakteristieke rode baksteen.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTACT
+     ═══════════════════════════════════════════════════ -->
+<section id="contact" class="section section-blue">
+  <div class="container">
+    <div class="section-eyebrow">Contact</div>
+    <h2 class="section-title">Klaar om te starten?</h2>
+    <p class="section-sub">Neem contact op of stel direct uw uitbouw samen — we reageren binnen 48 uur.</p>
+
+    <div class="contact-grid">
+      <div class="contact-info-list">
+        <a href="tel:+31646150160" class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="label">Telefoon</div>
+            <div class="value">+31 646 150 160</div>
+          </div>
+        </a>
+        <a href="mailto:info@aanenuitbouw.nl" class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+          </div>
+          <div>
+            <div class="label">E-mail</div>
+            <div class="value">info@aanenuitbouw.nl</div>
+          </div>
+        </a>
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div>
+            <div class="label">Bedrijfsgegevens</div>
+            <div class="value" style="font-size: 14px; line-height: 1.5;">Creditline BV<br>KvK 59683198 · BTW NL853603108B01</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-cta-block">
+        <h3>Direct een prijsindicatie?</h3>
+        <p>Stel uw project samen in onze configurator. In acht stappen krijgt u direct inzicht in de prijs én de waardestijging van uw woning.</p>
+        <a href="#configurator" class="btn btn-white">Naar de configurator →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#start" class="brand" aria-label="AanEnUitbouw.nl">
+          <svg class="brand-logo" viewBox="0 0 360 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AanEnUitbouw.nl">
+            <g transform="translate(2, 7)">
+              <path d="M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z" fill="#FFFFFF"/>
+              <rect x="36" y="32" width="24" height="18" fill="#4ECD6B"/>
+            </g>
+            <text x="76" y="44" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="800" fill="#FFFFFF" letter-spacing="-0.8">AanEnUitbouw<tspan fill="#4ECD6B">.nl</tspan></text>
+          </svg>
+        </a>
+        <p>Vakkundige aan- en uitbouwen op maat. Met meer dan 20 jaar ervaring transformeren we uw woning naar uw wensen.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigatie</h5>
+        <a href="#start">Start</a>
+        <a href="#diensten">Diensten</a>
+        <a href="#plannen">Plannen</a>
+        <a href="#proces">Proces</a>
+        <a href="#configurator">Configurator</a>
+      </div>
+      <div class="footer-col">
+        <h5>Bedrijf</h5>
+        <a href="#over-ons">Over ons</a>
+        <a href="#werk" data-nav="werk">Recent werk</a>
+        <a href="#contact">Contact</a>
+        <a href="#">Privacybeleid</a>
+        <a href="#">Algemene voorwaarden</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="tel:+31646150160">+31 646 150 160</a>
+        <a href="mailto:info@aanenuitbouw.nl">info@aanenuitbouw.nl</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Creditline BV. Alle rechten voorbehouden.</div>
+      <div>KvK 59683198 · BTW NL853603108B01</div>
+      <a href="#" class="beheer-link" onclick="event.preventDefault(); openAdminLogin();" title="Beheerder-toegang">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.36.16.66.43.86.78.2.35.32.74.34 1.13H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        Beheer
+      </a>
+    </div>
+  </div>
+</footer>
+
+<div class="admin-overlay" id="adminLoginOverlay" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+  <div class="admin-modal small">
+    <div class="admin-header">
+      <div>
+        <h2 id="adminLoginTitle">Beheerder login</h2>
+        <div class="admin-subtitle">Toegang tot het prijsbeheer</div>
+      </div>
+      <button class="admin-close" onclick="closeAdminLogin()" aria-label="Sluiten">×</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-row" style="grid-template-columns:1fr;">
+        <label for="adminPwInput" style="margin-bottom:6px;">Wachtwoord</label>
+        <div class="price-input-wrap">
+          <input type="password" id="adminPwInput" autocomplete="current-password" placeholder="Voer wachtwoord in" style="text-align:left;font-weight:500;" onkeydown="if(event.key==='Enter') submitAdminLogin();">
+        </div>
+      </div>
+      <div class="admin-error" id="adminLoginError">Onjuist wachtwoord — probeer opnieuw</div>
+      <div style="font-size:12px; color: var(--color-mute); margin-top:14px; line-height:1.5;">
+        Wachtwoord wordt server-side gevalideerd via <code style="background:#F2F4F6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;">ADMIN_PASSWORD</code> environment variable in Railway.
+      </div>
+    </div>
+    <div class="admin-footer">
+      <button class="btn-admin btn-admin-ghost" onclick="closeAdminLogin()">Annuleer</button>
+      <button class="btn-admin btn-admin-primary" onclick="submitAdminLogin()">Inloggen</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-overlay" id="adminPanelOverlay" role="dialog" aria-modal="true" aria-labelledby="adminPanelTitle">
+  <div class="admin-modal">
+    <div class="admin-header">
+      <div>
+        <h2 id="adminPanelTitle">Prijsbeheer</h2>
+        <div class="admin-subtitle">Wijzigingen worden direct toegepast op de configurator</div>
+      </div>
+      <button class="admin-close" onclick="closeAdminPanel()" aria-label="Sluiten">×</button>
+    </div>
+    <div class="admin-body" id="adminPanelBody"></div>
+    <div class="admin-footer">
+      <div class="group">
+        <button class="btn-admin btn-admin-danger" onclick="resetAdminPrices()">Reset standaard</button>
+        <button class="btn-admin btn-admin-ghost" onclick="exportAdminPrices()">Export</button>
+        <button class="btn-admin btn-admin-ghost" onclick="document.getElementById('adminImportFile').click()">Import</button>
+        <input type="file" id="adminImportFile" accept="application/json,.json" style="display:none" onchange="importAdminPrices(event)">
+      </div>
+      <div class="group">
+        <button class="btn-admin btn-admin-ghost" onclick="logoutAdmin()">Uitloggen</button>
+        <button class="btn-admin btn-admin-primary" onclick="saveAdminPrices()">Opslaan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// RECENT WERK — AAN/UIT SCHAKELAAR
+// ───────────────────────────────────────────────────
+// Staat nu AAN. Wil je de sectie tijdelijk verbergen
+// (bijv. als je foto's gaat vervangen), zet op false.
+// Voeg nieuwe projecten toe door een <article class="werk-card">
+// blok te kopiëren in de sectie met id="werk".
+// ═══════════════════════════════════════════════════
+const SHOW_WERK = true;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const sec = document.getElementById('werk');
+  if (!SHOW_WERK) {
+    if (sec) sec.style.display = 'none';
+    document.querySelectorAll('[data-nav="werk"]').forEach(el => { el.style.display = 'none'; });
+    return;
+  }
+  // Bij minder dan 3 projecten: gecentreerde weergave i.p.v. links uitgelijnd
+  const grid = sec ? sec.querySelector('.werk-grid') : null;
+  if (grid && grid.querySelectorAll('.werk-card').length < 3) grid.classList.add('few');
+});
+
+// Mobiel hamburgermenu
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('mainNav');
+  if (!toggle || !nav) return;
+  function setOpen(open) {
+    nav.classList.toggle('open', open);
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Menu sluiten' : 'Menu openen');
+  }
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+  // Sluit het menu zodra er op een link wordt getikt
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+  // Sluit bij verandering naar desktop-formaat
+  window.addEventListener('resize', () => { if (window.innerWidth > 880) setOpen(false); });
+});
+
+// ═══════════════════════════════════════════════════
+// CONFIGURATOR — STATE
+// ═══════════════════════════════════════════════════
+const state = {
+  step: 0,
+  type: 'uitbouw',
+  width: 6,
+  depth: 3,
+  roof: 'plat',
+  plan: 'cplus',
+  doors: 'openslaand',
+  doorColor: 'wit',
+  bovenkozijn: 'metselwerk',
+  dakrand: 'metselwerk_zink',
+  dakrandKleur: 'antraciet',
+  gevel: { type: 'baksteen', style: 'rood' },
+  regenpijp: { links: false, rechts: false, materiaal: 'pvc', pvcKleur: 'grijs' },
+  extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
+  electra: 0,
+  light: 0,
+  electraBuiten: 0,
+  lightBuiten: 0,
+  m2Prijs: 4500,
+  contact: { name: '', email: '', phone: '', message: '', consent: false },
+  submitted: false,
+};
+
+// Camera/preview rotatie offset (handmatig in te stellen)
+let _viewPreset = '3d';
+const STEP_DEFAULT_VIEW = {
+  type: '3d',
+  afmetingen: '3d',
+  dak: 'zij',
+  plan: '3d',
+  gevel: 'voor',
+  kozijn: 'voor',
+  extras: '3d',
+  contact: '3d',
+};
+
+// ═══════════════════════════════════════════════════
+// PRICING & DATA
+// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// PRICES - centrale bron van waarheid voor alle bedragen
+// Default-waardes worden gemerged met overrides uit localStorage
+// (beheerder kan deze aanpassen via het beheer-paneel)
+// ═══════════════════════════════════════════════════
+const DEFAULT_PRICES = {
+  plan_casco_rate:           2500,
+  plan_cplus_rate:           3000,
+  plan_cplus2_rate:          3500,
+  roof_plat_mult:            1.00,
+  roof_lessenaar_mult:       1.06,
+  roof_zadel_mult:           1.12,
+  roof_schild_mult:          1.18,
+  uitbouw_wand_per_meter:    450,
+  doors_schuifpui:           3500,
+  doors_harmonica:           5500,
+  color_extra:               850,
+  bovenkozijn_metselwerk:    1250,
+  bovenkozijn_trespa:        450,
+  dakrand_metselwerk_zink:   1100,
+  dakrand_overstek_daktrim:  650,
+  gevel_kunststof_rabat:     350,
+  gevel_hout:                1800,
+  regenpijp_pvc:             125,
+  regenpijp_zink:            245,
+  extra_lichtkoepel:         1500,
+  extra_vloerverwarming_m2:  85,
+  extra_buitenkraan:         450,
+  electra_contact:           95,
+  electra_licht:             125,
+  electra_contact_buiten:    175,
+  electra_licht_buiten:      185,
+};
+let PRICES = { ...DEFAULT_PRICES };
+// Server-prijzen worden async geladen via loadPricesFromServer() onderaan dit script
+
+const PLANS = {
+  casco:  { name: 'Casco',  desc: 'Ruwbouw oplevering — voor de doe-het-zelver of eigen aannemer.', get rate() { return PRICES.plan_casco_rate; } },
+  cplus:  { name: 'C+',     desc: 'Schilderklaar opgeleverd, met basis elektra en buitenkraan.',     get rate() { return PRICES.plan_cplus_rate; } },
+  cplus2: { name: 'C++',    desc: 'Volledig sleutelklaar, inclusief lichtkoepel en vloerverwarming.', get rate() { return PRICES.plan_cplus2_rate; } },
+};
+const ROOF_TYPES = {
+  plat:      { label: 'Plat dak',      desc: 'Strakke, moderne lijn — optioneel met lichtkoepel voor extra daglicht.', get mult() { return PRICES.roof_plat_mult; } },
+  lessenaar: { label: 'Lessenaarsdak', desc: 'Eén schuin dakvlak; aan de gevel hoger dan aan de voorzijde — elegant minimaal.', get mult() { return PRICES.roof_lessenaar_mult; } },
+  zadel:     { label: 'Zadeldak',      desc: 'Twee schuine vlakken met nok in het midden — klassiek en herkenbaar.', get mult() { return PRICES.roof_zadel_mult; } },
+  schild:    { label: 'Schilddak',     desc: 'Vier hellende dakvlakken met korte nok — past mooi bij vrijstaande en klassieke woningen.', get mult() { return PRICES.roof_schild_mult; } },
+};
+const DOORS = {
+  openslaand: { label: 'Openslaande deuren', desc: '4-vlaks kozijn met vast glas links en rechts; in het midden gaan de deuren open.', extra: 0 },
+  schuifpui:  { label: 'Schuifpui',          desc: 'Brede glaspartij die zijdelings opent.',                     get extra() { return PRICES.doors_schuifpui; } },
+  harmonica:  { label: 'Harmonicadeur',      desc: 'Volledig vouwbare wand voor een maximale opening.',         get extra() { return PRICES.doors_harmonica; } },
+};
+const DAKRAND_TYPES = {
+  metselwerk_zink:  { label: 'Metselen tot boven met deklijst zink', desc: 'Het metselwerk loopt door tot aan de dakrand en wordt afgewerkt met een zinken deklijst — klassieke uitstraling.', get extra() { return PRICES.dakrand_metselwerk_zink; } },
+  overstek_daktrim: { label: 'Overstek met daktrim',                  desc: 'Het dak steekt iets uit de gevel met een aluminium daktrim als afwerking — moderne, strakke lijn.',           get extra() { return PRICES.dakrand_overstek_daktrim; } },
+};
+const GEVEL_TYPES = {
+  baksteen: {
+    label: 'Baksteen',
+    desc: 'Echte massieve bakstenen — geen steenstrips. Klassieke uitstraling, hoogwaardig en duurzaam.',
+    extra: 0,
+    styles: [
+      { id: 'rood',  hex: '#B5413C', label: 'Rood' },
+      { id: 'geel',  hex: '#C9B58E', label: 'Geel' },
+      { id: 'zwart', hex: '#2A2A2C', label: 'Zwart' },
+      { id: 'creme', hex: '#D8CDB8', label: 'Crème' },
+    ],
+  },
+  kunststof_rabat: {
+    label: 'Kunststof rabat (keralit)',
+    desc: 'Onderhoudsvrije kunststof rabatdelen — snel te plaatsen, lange levensduur, kleurvast.',
+    get extra() { return PRICES.gevel_kunststof_rabat; },
+    styles: [
+      { id: 'zwart',     hex: '#1A1A1C', label: 'Zwart' },
+      { id: 'antraciet', hex: '#3A3D42', label: 'Antraciet' },
+      { id: 'creme',     hex: '#DCD3BD', label: 'Crème' },
+      { id: 'groen',     hex: '#2D3A2C', label: 'Donkergroen' },
+    ],
+  },
+  hout: {
+    label: 'Hout',
+    desc: 'Houten gevelbekleding voor een natuurlijke, warme uitstraling — duurzame houtsoort.',
+    get extra() { return PRICES.gevel_hout; },
+    styles: [
+      { id: 'licht',     hex: '#C19E66', label: 'Licht' },
+      { id: 'middel',    hex: '#94704A', label: 'Middel' },
+      { id: 'donker',    hex: '#5C3D29', label: 'Donker' },
+      { id: 'verticaal', hex: '#B58850', label: 'Verticaal' },
+    ],
+  },
+};
+const COLORS = [
+  { id: 'wit',   hex: '#F5F2ED', label: 'Wit',       extra: 0 },
+  { id: 'creme', hex: '#E8DFC9', label: 'Crème',     get extra() { return PRICES.color_extra; } },
+  { id: 'antra', hex: '#3A3A3C', label: 'Antraciet', get extra() { return PRICES.color_extra; } },
+  { id: 'zwart', hex: '#0F0F0F', label: 'Zwart',     get extra() { return PRICES.color_extra; } },
+];
+const PVC_COLORS = [
+  { id: 'wit',       hex: '#FAFAF7', label: 'Wit' },
+  { id: 'grijs',     hex: '#9CA1A8', label: 'Grijs' },
+  { id: 'antraciet', hex: '#3A3A3C', label: 'Antraciet' },
+  { id: 'zwart',     hex: '#1A1A1A', label: 'Zwart' },
+  { id: 'bruin',     hex: '#5D4530', label: 'Bruin' },
+];
+const STEPS = [
+  { id: 'type',       short: 'Type' },
+  { id: 'afmetingen', short: 'Afmetingen' },
+  { id: 'dak',        short: 'Daktype' },
+  { id: 'plan',       short: 'Plan' },
+  { id: 'gevel',      short: 'Gevel' },
+  { id: 'kozijn',     short: 'Kozijnen' },
+  { id: 'extras',     short: 'Extra\'s' },
+  { id: 'contact',    short: 'Offerte' },
+];
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+const area = () => state.width * state.depth;
+const fmt = n => '€' + Math.round(n).toLocaleString('nl-NL');
+
+function calculate() {
+  const a = area();
+  const plan = PLANS[state.plan];
+  const roof = ROOF_TYPES[state.roof];
+  let base = a * plan.rate * roof.mult;
+  let extras = 0;
+  extras += DOORS[state.doors].extra;
+  const c = COLORS.find(x => x.id === state.doorColor);
+  if (c) extras += c.extra;
+  if (state.bovenkozijn === 'trespa') extras += PRICES.bovenkozijn_trespa;
+  if (state.bovenkozijn === 'metselwerk') extras += PRICES.bovenkozijn_metselwerk;
+  if (DAKRAND_TYPES[state.dakrand]) extras += DAKRAND_TYPES[state.dakrand].extra;
+  if (GEVEL_TYPES[state.gevel.type]) extras += GEVEL_TYPES[state.gevel.type].extra;
+  // Uitbouw: achtergevel verwijderen + stalen draagbalk plaatsen
+  if (state.type === 'uitbouw') extras += Math.round(state.width * PRICES.uitbouw_wand_per_meter);
+  // Regenpijpen
+  const pipeBase = state.regenpijp.materiaal === 'zink' ? PRICES.regenpijp_zink : PRICES.regenpijp_pvc;
+  if (state.regenpijp.links)  extras += pipeBase;
+  if (state.regenpijp.rechts) extras += pipeBase;
+  if (state.extras.lichtkoepel    && state.plan !== 'cplus2') extras += PRICES.extra_lichtkoepel;
+  if (state.extras.vloerverwarming && state.plan !== 'cplus2') extras += a * PRICES.extra_vloerverwarming_m2;
+  if (state.extras.buitenkraan    && state.plan === 'casco')  extras += PRICES.extra_buitenkraan;
+  extras += state.electra * PRICES.electra_contact;
+  extras += state.light * PRICES.electra_licht;
+  extras += state.electraBuiten * PRICES.electra_contact_buiten;
+  extras += state.lightBuiten * PRICES.electra_licht_buiten;
+  return { base: Math.round(base), extras: Math.round(extras), total: Math.round(base + extras), area: a };
+}
+
+// ═══════════════════════════════════════════════════
+// VIEW CONFIG (3 presets: voor / 3d / zij)
+// ═══════════════════════════════════════════════════
+function getViewConfig() {
+  const presetCfg = {
+    voor: { angle: 8,  label: 'Vooraanzicht' },
+    '3d': { angle: 30, label: '3D-overzicht' },
+    zij:  { angle: 58, label: 'Zijaanzicht' },
+  };
+  return presetCfg[_viewPreset] || presetCfg['3d'];
+}
+
+// ═══════════════════════════════════════════════════
+// STEPPER
+// ═══════════════════════════════════════════════════
+function renderStepper() {
+  const el = document.getElementById('stepper');
+  let html = '';
+  STEPS.forEach((s, i) => {
+    const cls = i < state.step ? 'done' : i === state.step ? 'active' : '';
+    html += `<div class="step-node ${cls}" onclick="jumpToStep(${i})" style="cursor:${i <= state.step ? 'pointer' : 'default'}"><div class="step-circle">${i < state.step ? '✓' : (i + 1)}</div><div class="step-label-stepper">${s.short}</div></div>`;
+    if (i < STEPS.length - 1) html += `<div class="step-line ${i < state.step ? 'done' : ''}"></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function jumpToStep(i) {
+  // Alleen terug navigeren via stepper-cirkels (vooruit alleen via Volgende)
+  if (i <= state.step) {
+    state.step = i;
+    render();
+    document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// DAKTYPE THUMBNAIL SVG
+// ═══════════════════════════════════════════════════
+function dakThumbSvg(roofKey) {
+  const c = '#1E4FC7';
+  const ground = `<line x1="0" y1="48" x2="76" y2="48" stroke="${c}" stroke-width="0.6" opacity="0.4"/>`;
+  const window = `<rect x="22" y="34" width="32" height="13" fill="rgba(232,238,250,0.6)" stroke="${c}" stroke-width="1"/>`;
+  if (roofKey === 'plat') {
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      ${ground}
+      <rect x="14" y="22" width="48" height="26" fill="#fff" stroke="${c}" stroke-width="2"/>
+      <line x1="12" y1="22" x2="64" y2="22" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+      ${window}
+    </svg>`;
+  } else if (roofKey === 'lessenaar') {
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      ${ground}
+      <polygon points="14,30 62,16 62,48 14,48" fill="#fff" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="14" y1="30" x2="62" y2="16" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+      ${window}
+    </svg>`;
+  } else if (roofKey === 'zadel') {
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      ${ground}
+      <polygon points="14,28 38,14 62,28 62,48 14,48" fill="#fff" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="14" y1="28" x2="38" y2="14" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>
+      <line x1="38" y1="14" x2="62" y2="28" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>
+      ${window}
+    </svg>`;
+  } else {
+    // Schilddak: front-view met trapezium-dakvlak + zichtbare hip-randen + korte nok
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      ${ground}
+      <rect x="14" y="32" width="48" height="16" fill="#fff" stroke="${c}" stroke-width="2"/>
+      <polygon points="14,32 62,32 50,18 26,18" fill="rgba(232,238,250,0.4)" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="26" y1="18" x2="50" y2="18" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+      <rect x="22" y="36" width="32" height="9" fill="rgba(232,238,250,0.6)" stroke="${c}" stroke-width="1"/>
+    </svg>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// KLEUR MINI-PREVIEW SVG
+// ═══════════════════════════════════════════════════
+function kleurMiniSvg(colorHex, doorType) {
+  const isLight = colorHex === '#F5F2ED' || colorHex === '#E8DFC9';
+  const stroke = isLight ? '#B8B3A8' : colorHex;
+  const glass = isLight ? '#F5F8FA' : 'rgba(232,238,250,0.55)';
+  // Pui-detail per deur-type
+  let puiDetail = '';
+  if (doorType === 'schuifpui') {
+    // Schuifpui: één verticale split iets buiten het midden (de schuivende deur achter de vaste)
+    puiDetail = `
+      <line x1="53" y1="33" x2="53" y2="61" stroke="${stroke}" stroke-width="1.5"/>
+      <circle cx="49" cy="47" r="1.4" fill="${stroke}"/>`;
+  } else if (doorType === 'harmonica') {
+    // Harmonicadeur: meerdere smalle segmenten met afwisselende vouwhoeken
+    puiDetail = [32, 42, 52, 62, 72].map(x =>
+      `<line x1="${x}" y1="33" x2="${x}" y2="61" stroke="${stroke}" stroke-width="0.7"/>`
+    ).join('');
+    // Subtiele zigzag-lijn op de helft suggereert vouw-effect
+    puiDetail += `<polyline points="32,47 42,46 52,47 62,46 72,47" fill="none" stroke="${stroke}" stroke-width="0.4" opacity="0.5"/>`;
+  } else {
+    // Openslaande deuren: 4-vlaks (vast | deur | deur | vast)
+    puiDetail = `
+      <line x1="36" y1="33" x2="36" y2="61" stroke="${stroke}" stroke-width="0.9"/>
+      <line x1="50" y1="33" x2="50" y2="61" stroke="${stroke}" stroke-width="1.4"/>
+      <line x1="64" y1="33" x2="64" y2="61" stroke="${stroke}" stroke-width="0.9"/>
+      <circle cx="46" cy="47" r="1" fill="${stroke}"/>
+      <circle cx="54" cy="47" r="1" fill="${stroke}"/>`;
+  }
+  return `<svg viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+    <defs>
+      <linearGradient id="kmsky${colorHex.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#EEF3FB"/>
+        <stop offset="100%" stop-color="#FBFCFE"/>
+      </linearGradient>
+    </defs>
+    <rect width="100" height="75" fill="url(#kmsky${colorHex.replace('#','')})"/>
+    <line x1="0" y1="64" x2="100" y2="64" stroke="#1E4FC7" stroke-width="0.4" opacity="0.3"/>
+    <rect x="14" y="20" width="72" height="44" fill="#fff" stroke="#1E4FC7" stroke-width="1.2"/>
+    <line x1="11" y1="20" x2="89" y2="20" stroke="#1E4FC7" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="22" y="32" width="56" height="30" fill="${glass}" stroke="${stroke}" stroke-width="2"/>
+    ${puiDetail}
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// BOVENKOZIJN AFWERKING THUMBNAIL
+// ═══════════════════════════════════════════════════
+function bovenkozijnThumbSvg(type) {
+  if (type === 'metselwerk') {
+    let bricks = '';
+    // Twee rijen baksteen-textuur boven de latei
+    [16, 28].forEach(y => {
+      bricks += `<line x1="6" y1="${y}" x2="70" y2="${y}" stroke="#C8A87A" stroke-width="0.5"/>`;
+    });
+    // Verticale voegen, geschrankt
+    [20, 38, 56].forEach(x => bricks += `<line x1="${x}" y1="6" x2="${x}" y2="16" stroke="#C8A87A" stroke-width="0.4"/>`);
+    [14, 32, 50].forEach(x => bricks += `<line x1="${x}" y1="16" x2="${x}" y2="28" stroke="#C8A87A" stroke-width="0.4"/>`);
+    [20, 38, 56].forEach(x => bricks += `<line x1="${x}" y1="28" x2="${x}" y2="38" stroke="#C8A87A" stroke-width="0.4"/>`);
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="64" height="32" fill="#F5EFE6" stroke="#1E4FC7" stroke-width="1.2"/>
+      ${bricks}
+      <!-- Latei (stalen draagbalk) -->
+      <rect x="6" y="38" width="64" height="4" fill="#8E949D" stroke="#5C6373" stroke-width="0.5"/>
+      <!-- kozijn (indicatie) -->
+      <rect x="10" y="42" width="56" height="8" fill="rgba(232,238,250,0.6)" stroke="#1E4FC7" stroke-width="0.8"/>
+    </svg>`;
+  }
+  // Trespa
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="6" width="64" height="36" fill="#2D3035" stroke="#1E4FC7" stroke-width="1.2"/>
+    <rect x="8" y="8" width="60" height="32" fill="none" stroke="#1A1C1F" stroke-width="0.6"/>
+    <!-- subtiele schaduw aan onderkant -->
+    <line x1="6" y1="42" x2="70" y2="42" stroke="#1A1C1F" stroke-width="0.5"/>
+    <!-- kozijn (indicatie) -->
+    <rect x="10" y="42" width="56" height="8" fill="rgba(232,238,250,0.6)" stroke="#1E4FC7" stroke-width="0.8"/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// DAKRAND THUMBNAIL
+// ═══════════════════════════════════════════════════
+function dakrandThumbSvg(type) {
+  if (type === 'metselwerk_zink') {
+    let bricks = '';
+    [22, 32, 42].forEach(y => bricks += `<line x1="14" y1="${y}" x2="62" y2="${y}" stroke="#C8A87A" stroke-width="0.4"/>`);
+    [26, 44].forEach(x => bricks += `<line x1="${x}" y1="12" x2="${x}" y2="22" stroke="#C8A87A" stroke-width="0.4"/>`);
+    [22, 38, 54].forEach(x => bricks += `<line x1="${x}" y1="22" x2="${x}" y2="32" stroke="#C8A87A" stroke-width="0.4"/>`);
+    [26, 44].forEach(x => bricks += `<line x1="${x}" y1="32" x2="${x}" y2="42" stroke="#C8A87A" stroke-width="0.4"/>`);
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      <!-- gevelvlak doorgetrokken tot aan dakrand -->
+      <rect x="14" y="12" width="48" height="40" fill="#F5EFE6" stroke="#1E4FC7" stroke-width="1.2"/>
+      ${bricks}
+      <!-- zinken deklijst bovenop -->
+      <rect x="11" y="8" width="54" height="4" fill="#7B8590" stroke="#5A6470" stroke-width="0.6"/>
+      <!-- onderlijn deklijst (schaduw) -->
+      <line x1="11" y1="11.5" x2="65" y2="11.5" stroke="#3A4250" stroke-width="0.5"/>
+    </svg>`;
+  }
+  // overstek_daktrim — steekt alleen vooruit (in z), niet zijwaarts
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+    <!-- gevelvlak -->
+    <rect x="14" y="22" width="48" height="30" fill="#F5EFE6" stroke="#1E4FC7" stroke-width="1.2"/>
+    <line x1="14" y1="32" x2="62" y2="32" stroke="#C8A87A" stroke-width="0.4"/>
+    <line x1="14" y1="42" x2="62" y2="42" stroke="#C8A87A" stroke-width="0.4"/>
+    <!-- topvlak van overstek (donkerder, suggereert dat het naar voren steekt) -->
+    <polygon points="14,16 62,16 65,12 17,12" fill="#5C5F65" stroke="#1A1A1C" stroke-width="0.5"/>
+    <!-- daktrim band — zelfde breedte als de gevel -->
+    <rect x="14" y="14" width="48" height="8" fill="#3A3A3C" stroke="#1A1A1C" stroke-width="0.6"/>
+    <!-- duidelijke schaduw direct onder de daktrim op de gevel -->
+    <rect x="14" y="22" width="48" height="3" fill="#1A1A1C" opacity="0.28"/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// DAKRAND KLEUR MINI-PREVIEW
+// ═══════════════════════════════════════════════════
+function dakrandKleurSvg(hex) {
+  const isLight = hex === '#F5F2ED' || hex === '#E8DFC9';
+  const stroke = isLight ? '#A8A398' : '#1A1A1A';
+  const id = 'dkClr' + hex.replace('#', '');
+  return `<svg viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+    <defs>
+      <linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#EEF3FB"/>
+        <stop offset="100%" stop-color="#FBFCFE"/>
+      </linearGradient>
+    </defs>
+    <rect width="100" height="75" fill="url(#${id})"/>
+    <line x1="0" y1="64" x2="100" y2="64" stroke="#1E4FC7" stroke-width="0.4" opacity="0.3"/>
+    <!-- gevel -->
+    <rect x="14" y="22" width="72" height="42" fill="#fff" stroke="#1E4FC7" stroke-width="1"/>
+    <!-- baksteen-textuur subtiel -->
+    <line x1="14" y1="34" x2="86" y2="34" stroke="#C8A87A" stroke-width="0.3" opacity="0.6"/>
+    <line x1="14" y1="48" x2="86" y2="48" stroke="#C8A87A" stroke-width="0.3" opacity="0.6"/>
+    <!-- dakrand (gekleurde band bovenaan) -->
+    <rect x="11" y="16" width="78" height="6" fill="${hex}" stroke="${stroke}" stroke-width="1"/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// GEVELBEKLEDING — texturen voor thumbnails
+// ═══════════════════════════════════════════════════
+function brickPatternSvg(hex) {
+  const isDark = ['#2A2A2C', '#1A1A1A'].includes(hex);
+  const mortar = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.22)';
+  let lines = '';
+  // Horizontale voegen
+  [9, 18, 27, 36, 45].forEach(y => {
+    lines += `<line x1="0" y1="${y}" x2="76" y2="${y}" stroke="${mortar}" stroke-width="0.5"/>`;
+  });
+  // Verticale voegen, geschrankt
+  for (let row = 0; row < 7; row++) {
+    const y1 = row * 9, y2 = y1 + 9;
+    const off = row % 2 === 0 ? 0 : 9.5;
+    [9.5 + off, 28.5 + off, 47.5 + off, 66.5 + off].forEach(x => {
+      if (x > 0 && x < 76) lines += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${mortar}" stroke-width="0.5"/>`;
+    });
+  }
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="76" height="56" fill="${hex}"/>
+    ${lines}
+  </svg>`;
+}
+
+function rabatPatternSvg(hex) {
+  const isDark = ['#1A1A1C', '#3A3D42', '#2D3A2C'].includes(hex);
+  const shadow = isDark ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.30)';
+  const highlight = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.20)';
+  let lines = '';
+  // Horizontale rabatdelen met schaduw aan onderkant
+  for (let y = 9; y <= 56; y += 9) {
+    lines += `<line x1="0" y1="${y}" x2="76" y2="${y}" stroke="${shadow}" stroke-width="0.7"/>`;
+    lines += `<line x1="0" y1="${y - 1.4}" x2="76" y2="${y - 1.4}" stroke="${highlight}" stroke-width="0.5"/>`;
+  }
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="76" height="56" fill="${hex}"/>
+    ${lines}
+  </svg>`;
+}
+
+function woodPatternSvg(hex, styleId) {
+  const shadow = 'rgba(0,0,0,0.32)';
+  const grain = 'rgba(0,0,0,0.14)';
+  let lines = '';
+  if (styleId === 'verticaal') {
+    // Verticale planken
+    for (let x = 0; x <= 76; x += 12) {
+      lines += `<line x1="${x}" y1="0" x2="${x}" y2="56" stroke="${shadow}" stroke-width="0.6"/>`;
+      lines += `<line x1="${x + 1.2}" y1="0" x2="${x + 1.2}" y2="56" stroke="rgba(255,255,255,0.10)" stroke-width="0.4"/>`;
+    }
+    // Subtiele houtnerf
+    [{x:6,y1:8,y2:24},{x:18,y1:14,y2:38},{x:30,y1:6,y2:30},{x:42,y1:18,y2:46},{x:54,y1:10,y2:32},{x:66,y1:16,y2:42}].forEach(({x,y1,y2}) => {
+      lines += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${grain}" stroke-width="0.4"/>`;
+    });
+  } else {
+    // Horizontale planken
+    for (let y = 0; y <= 56; y += 11) {
+      lines += `<line x1="0" y1="${y}" x2="76" y2="${y}" stroke="${shadow}" stroke-width="0.6"/>`;
+      lines += `<line x1="0" y1="${y + 1.2}" x2="76" y2="${y + 1.2}" stroke="rgba(255,255,255,0.10)" stroke-width="0.4"/>`;
+    }
+    // Houtnerf
+    [{y:5,x1:8,x2:32},{y:16,x1:25,x2:55},{y:27,x1:5,x2:38},{y:38,x1:30,x2:62},{y:49,x1:12,x2:48}].forEach(({y,x1,x2}) => {
+      lines += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${grain}" stroke-width="0.4"/>`;
+    });
+  }
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="76" height="56" fill="${hex}"/>
+    ${lines}
+  </svg>`;
+}
+
+function gevelStyleSvg(type, hex, styleId) {
+  if (type === 'baksteen') return brickPatternSvg(hex);
+  if (type === 'kunststof_rabat') return rabatPatternSvg(hex);
+  if (type === 'hout') return woodPatternSvg(hex, styleId);
+  return '';
+}
+function gevelCategoryThumb(type) {
+  const first = GEVEL_TYPES[type].styles[0];
+  return gevelStyleSvg(type, first.hex, first.id);
+}
+
+// ═══════════════════════════════════════════════════
+// TYPE THUMBNAIL — aanbouw vs uitbouw plattegrond
+// ═══════════════════════════════════════════════════
+function typeThumbSvg(type) {
+  if (type === 'aanbouw') {
+    return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bestaande woning (boven) -->
+      <rect x="6" y="6" width="64" height="22" fill="#FFFFFF" stroke="#1E4FC7" stroke-width="1"/>
+      <!-- Aanbouw (onder, 3 nieuwe wanden) -->
+      <rect x="6" y="28" width="64" height="22" fill="#4ECD6B" fill-opacity="0.18"/>
+      <line x1="6" y1="28" x2="6" y2="50" stroke="#4ECD6B" stroke-width="1.2"/>
+      <line x1="70" y1="28" x2="70" y2="50" stroke="#4ECD6B" stroke-width="1.2"/>
+      <line x1="6" y1="50" x2="70" y2="50" stroke="#4ECD6B" stroke-width="1.2"/>
+      <!-- Bestaande achtergevel BLIJFT (dik blauw) -->
+      <line x1="6" y1="28" x2="70" y2="28" stroke="#1E4FC7" stroke-width="2.5"/>
+      <!-- Doorgang (deur) -->
+      <line x1="34" y1="28" x2="42" y2="28" stroke="#FFFFFF" stroke-width="2.5"/>
+    </svg>`;
+  }
+  // uitbouw
+  return `<svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bestaande woning (boven) -->
+    <rect x="6" y="6" width="64" height="22" fill="#FFFFFF" stroke="#1E4FC7" stroke-width="1"/>
+    <!-- Achtergevel VERWIJDERD (rood gestreept) -->
+    <line x1="6" y1="28" x2="70" y2="28" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>
+    <!-- Uitbouw (onder, 3 wanden, geen scheiding aan top) -->
+    <rect x="6" y="28" width="64" height="22" fill="#4ECD6B" fill-opacity="0.18"/>
+    <line x1="6" y1="28" x2="6" y2="50" stroke="#4ECD6B" stroke-width="1.2"/>
+    <line x1="70" y1="28" x2="70" y2="50" stroke="#4ECD6B" stroke-width="1.2"/>
+    <line x1="6" y1="50" x2="70" y2="50" stroke="#4ECD6B" stroke-width="1.5"/>
+  </svg>`;
+}
+
+
+function pvcKleurSvg(hex) {
+  const isLight = hex === '#FAFAF7';
+  const stroke = isLight ? '#A8A398' : '#1A1A1A';
+  return `<svg viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+    <rect width="100" height="75" fill="#FBFCFE"/>
+    <line x1="0" y1="64" x2="100" y2="64" stroke="#1E4FC7" stroke-width="0.4" opacity="0.3"/>
+    <!-- Klein stukje gevel achter de pijp -->
+    <rect x="12" y="14" width="76" height="50" fill="#fff" stroke="#1E4FC7" stroke-width="0.6" opacity="0.5"/>
+    <!-- Bovenste connector (uitloop dakgoot) -->
+    <rect x="40" y="10" width="20" height="6" fill="${hex}" stroke="${stroke}" stroke-width="0.6" rx="1"/>
+    <!-- Verticale regenpijp -->
+    <rect x="42" y="14" width="16" height="50" fill="${hex}" stroke="${stroke}" stroke-width="0.6"/>
+    <!-- Highlight (lichte glans rechts) -->
+    <line x1="55" y1="16" x2="55" y2="62" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+    <!-- Schaduw links -->
+    <line x1="44" y1="16" x2="44" y2="62" stroke="rgba(0,0,0,0.18)" stroke-width="1"/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+// STEP CONTENT
+// ═══════════════════════════════════════════════════
+function renderStep() {
+  const c = document.getElementById('stepContainer');
+  if (state.submitted) {
+    c.innerHTML = `<div class="step-content confirmation">
+      <div class="check-icon">✓</div>
+      <h2 class="step-title">Bedankt voor uw aanvraag</h2>
+      <p class="step-desc" style="margin: 0 auto 32px; max-width: 460px;">U ontvangt binnen 48 uur een persoonlijke offerte op het opgegeven e-mailadres. Heeft u haast? Bel ons direct op <strong style="color:var(--color-primary)">+31 646 150 160</strong>.</p>
+      <button class="btn btn-secondary" onclick="resetConfig()">Nieuwe configuratie starten</button>
+    </div>`;
+    return;
+  }
+
+  const step = STEPS[state.step];
+  const inCpp   = state.plan === 'cplus2';
+  const inCplus = state.plan === 'cplus' || inCpp;
+  const stepNum = `Stap ${state.step + 1} / ${STEPS.length}`;
+  let body = '';
+
+  if (step.id === 'type') {
+    const uitbouwExtraNow = Math.round(state.width * PRICES.uitbouw_wand_per_meter);
+    body = `<div class="step-label">${stepNum} — Type uitbreiding</div>
+      <h2 class="step-title">Aanbouw of uitbouw?</h2>
+      <p class="step-desc">Het verschil zit in wat er met de bestaande achtergevel gebeurt: bij een aanbouw blijft die staan, bij een uitbouw wordt die verwijderd. Dit bepaalt het werk én de prijs.</p>
+      <div class="option-grid">
+        <div class="option-card ${state.type === 'aanbouw' ? 'selected' : ''}" onclick="setField('type','aanbouw')">
+          <div class="option-radio"></div>
+          <div class="dak-thumb">${typeThumbSvg('aanbouw')}</div>
+          <div class="option-body">
+            <div class="option-title">Aanbouw<span class="option-price">standaard</span></div>
+            <div class="option-desc">De bestaande achtergevel blijft intact — wij maken alleen waar gewenst een doorgang. De aanbouw wordt een aparte ruimte: ideaal voor slaapkamer, kantoor, berging of speelkamer.</div>
+          </div>
+        </div>
+        <div class="option-card ${state.type === 'uitbouw' ? 'selected' : ''}" onclick="setField('type','uitbouw')">
+          <div class="option-radio"></div>
+          <div class="dak-thumb">${typeThumbSvg('uitbouw')}</div>
+          <div class="option-body">
+            <div class="option-title">Uitbouw<span class="option-price">+${fmt(PRICES.uitbouw_wand_per_meter)} per m¹ breedte</span></div>
+            <div class="option-desc">De volledige achtergevel wordt verwijderd voor een geïntegreerde leefruimte. Inclusief stalen draagbalk en al het aansluitwerk. <em>Bij ${state.width.toFixed(1).replace('.',',')} m breedte: +${fmt(uitbouwExtraNow)}.</em></div>
+          </div>
+        </div>
+      </div>`;
+  } else if (step.id === 'afmetingen') {
+    body = `<div class="step-label">${stepNum} — Afmetingen</div>
+      <h2 class="step-title">Wat zijn de afmetingen<br>van uw uitbouw?</h2>
+      <p class="step-desc">Geef de breedte (langs de bestaande gevel) en de diepte (uit de gevel) op. Sleep de regelaar of typ een waarde.</p>
+      <div class="dim-grid">
+        <div class="dim-field">
+          <div class="dim-label">Breedte</div>
+          <div class="dim-input-row"><input type="number" class="dim-input" id="inp-width" min="2" max="12" step="0.1" value="${state.width.toFixed(1)}"><span class="dim-unit">meter</span></div>
+          <input type="range" class="dim-slider" id="rng-width" min="2" max="12" step="0.1" value="${state.width}">
+        </div>
+        <div class="dim-field">
+          <div class="dim-label">Diepte</div>
+          <div class="dim-input-row"><input type="number" class="dim-input" id="inp-depth" min="1.5" max="6" step="0.1" value="${state.depth.toFixed(1)}"><span class="dim-unit">meter</span></div>
+          <input type="range" class="dim-slider" id="rng-depth" min="1.5" max="6" step="0.1" value="${state.depth}">
+        </div>
+      </div>
+      <div class="dim-summary">
+        <div><div class="dim-label">Vloeroppervlak</div><div class="dim-summary-num">${area().toFixed(1)} m²</div></div>
+        <div style="text-align:right"><div class="dim-label">Indicatie basisprijs</div><div class="dim-summary-num">${fmt(area() * PLANS[state.plan].rate * ROOF_TYPES[state.roof].mult)}</div></div>
+      </div>`;
+  } else if (step.id === 'dak') {
+    body = `<div class="step-label">${stepNum} — Dak & dakrand</div>
+      <h2 class="step-title">Het dak en<br>de dakafwerking</h2>
+      <p class="step-desc">Kies het daktype, hoe de dakrand wordt afgewerkt en in welke kleur.</p>
+      <div class="dim-label" style="margin-bottom: 14px">Daktype</div>
+      <div class="option-grid" style="margin-bottom: 28px">
+        ${Object.entries(ROOF_TYPES).map(([k, r]) => `
+          <div class="option-card ${state.roof === k ? 'selected' : ''}" onclick="setField('roof','${k}')">
+            <div class="option-radio"></div>
+            <div class="dak-thumb">${dakThumbSvg(k)}</div>
+            <div class="option-body">
+              <div class="option-title">${r.label}<span class="option-price">${r.mult > 1 ? '+' + Math.round((r.mult - 1) * 100) + '%' : 'standaard'}</span></div>
+              <div class="option-desc">${r.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="dim-label" style="margin-bottom: 14px">Afwerking dakrand</div>
+      <div class="option-grid" style="margin-bottom: 28px">
+        ${Object.entries(DAKRAND_TYPES).map(([k, dr]) => `
+          <div class="option-card ${state.dakrand === k ? 'selected' : ''}" onclick="setField('dakrand','${k}')">
+            <div class="option-radio"></div>
+            <div class="dak-thumb">${dakrandThumbSvg(k)}</div>
+            <div class="option-body">
+              <div class="option-title">${dr.label}<span class="option-price">+${fmt(dr.extra)}</span></div>
+              <div class="option-desc">${dr.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="dim-label" style="margin-bottom: 14px">Kleur dakrand</div>
+      <div class="kleur-grid">
+        ${COLORS.map(c => `
+          <div class="kleur-mini ${state.dakrandKleur === c.id ? 'selected' : ''}" onclick="setField('dakrandKleur','${c.id}')">
+            <div class="kleur-mini-svg">${dakrandKleurSvg(c.hex)}</div>
+            <div class="kleur-mini-name">${c.label}</div>
+          </div>`).join('')}
+      </div>`;
+  } else if (step.id === 'plan') {
+    const features = {
+      casco:  ['Ruwbouw', 'Schroefpalen', 'Standaard kozijnen'],
+      cplus:  ['Schilderklaar', '2× contactpunt', '1× lichtpunt', 'Buitenkraan'],
+      cplus2: ['Volledig afgewerkt', 'Lichtkoepel inbegrepen', 'Vloerverwarming', 'Elektra'],
+    };
+    body = `<div class="step-label">${stepNum} — Afwerking</div>
+      <h2 class="step-title">Kies uw afwerkingsniveau</h2>
+      <p class="step-desc">Drie niveaus, van casco tot volledig sleutelklaar. Wat niet inbegrepen is, kunt u in de volgende stap toevoegen.</p>
+      <div class="option-grid">
+        ${Object.entries(PLANS).map(([k, p]) => `
+          <div class="option-card ${state.plan === k ? 'selected' : ''}" onclick="setField('plan','${k}')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">${p.name}<span class="option-price">vanaf <strong>€${p.rate.toLocaleString('nl-NL')}/m²</strong></span></div>
+              <div class="option-desc">${p.desc}</div>
+              <div class="option-features">${features[k].map(f => `<span class="feature-tag">${f}</span>`).join('')}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } else if (step.id === 'gevel') {
+    const gt = GEVEL_TYPES[state.gevel.type];
+    body = `<div class="step-label">${stepNum} — Gevelbekleding</div>
+      <h2 class="step-title">Welke gevelbekleding<br>past bij uw woning?</h2>
+      <p class="step-desc">Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong style="color: var(--color-ink)">Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong></p>
+      <div class="dim-label" style="margin-bottom: 14px">Materiaal</div>
+      <div class="option-grid" style="margin-bottom: 28px">
+        ${Object.entries(GEVEL_TYPES).map(([k, t]) => {
+          const priceLabel = t.extra > 0 ? '+' + fmt(t.extra) : (t.extra < 0 ? '−' + fmt(-t.extra) : 'standaard');
+          return `<div class="option-card ${state.gevel.type === k ? 'selected' : ''}" onclick="selectGevelType('${k}')">
+            <div class="option-radio"></div>
+            <div class="dak-thumb">${gevelCategoryThumb(k)}</div>
+            <div class="option-body">
+              <div class="option-title">${t.label}<span class="option-price">${priceLabel}</span></div>
+              <div class="option-desc">${t.desc}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="dim-label" style="margin-bottom: 14px">Kleur / stijl ${gt.label.toLowerCase()}</div>
+      <div class="kleur-grid">
+        ${gt.styles.map(st => `
+          <div class="kleur-mini ${state.gevel.style === st.id ? 'selected' : ''}" onclick="setField('gevel.style','${st.id}')">
+            <div class="kleur-mini-svg">${gevelStyleSvg(state.gevel.type, st.hex, st.id)}</div>
+            <div class="kleur-mini-name">${st.label}</div>
+          </div>`).join('')}
+      </div>`;
+  } else if (step.id === 'kozijn') {
+    body = `<div class="step-label">${stepNum} — Kozijn & afwerking</div>
+      <h2 class="step-title">Pui, kleur en<br>afwerking boven kozijn</h2>
+      <p class="step-desc">Kies het type pui, de kozijnkleur en hoe de afwerking boven het kozijn eruit komt te zien.</p>
+      <div class="option-grid" style="margin-bottom: 28px">
+        ${Object.entries(DOORS).map(([k, d]) => `
+          <div class="option-card ${state.doors === k ? 'selected' : ''}" onclick="setField('doors','${k}')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">${d.label}<span class="option-price">${d.extra ? '+' + fmt(d.extra) : 'inbegrepen'}</span></div>
+              <div class="option-desc">${d.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="dim-label" style="margin-bottom: 14px">Kleur kozijn</div>
+      <div class="kleur-grid" style="margin-bottom: 28px">
+        ${COLORS.map(c => `
+          <div class="kleur-mini ${state.doorColor === c.id ? 'selected' : ''}" onclick="setField('doorColor','${c.id}')">
+            <div class="kleur-mini-svg">${kleurMiniSvg(c.hex, state.doors)}</div>
+            <div class="kleur-mini-name">${c.label}</div>
+            <span class="kleur-mini-price">${c.extra ? '+' + fmt(c.extra) : 'inbegrepen'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="dim-label" style="margin-bottom: 14px">Afwerking boven kozijn</div>
+      <div class="option-grid">
+        <div class="option-card ${state.bovenkozijn === 'metselwerk' ? 'selected' : ''}" onclick="setField('bovenkozijn','metselwerk')">
+          <div class="option-radio"></div>
+          <div class="dak-thumb">${bovenkozijnThumbSvg('metselwerk')}</div>
+          <div class="option-body">
+            <div class="option-title">Metselwerk met latei<span class="option-price">+${fmt(PRICES.bovenkozijn_metselwerk)}</span></div>
+            <div class="option-desc">Het bestaande metselwerk wordt boven het kozijn doorgetrokken, met stalen latei voor de draagkracht. Past naadloos bij uw bestaande gevel.</div>
+          </div>
+        </div>
+        <div class="option-card ${state.bovenkozijn === 'trespa' ? 'selected' : ''}" onclick="setField('bovenkozijn','trespa')">
+          <div class="option-radio"></div>
+          <div class="dak-thumb">${bovenkozijnThumbSvg('trespa')}</div>
+          <div class="option-body">
+            <div class="option-title">Trespa-plaat<span class="option-price">+${fmt(PRICES.bovenkozijn_trespa)}</span></div>
+            <div class="option-desc">Vlakke composietplaat in antraciet voor een strakke, moderne afwerking boven het kozijn — een eigentijds contrast met het metselwerk.</div>
+          </div>
+        </div>
+      </div>`;
+  } else if (step.id === 'extras') {
+    body = `<div class="step-label">${stepNum} — Extra's</div>
+      <h2 class="step-title">Voeg extra's toe</h2>
+      <p class="step-desc">Selecteer wat u wilt opnemen. Onderdelen die al in uw plan zitten, zijn al aangevinkt.</p>
+      <div class="option-grid">
+        <div class="option-card check-card ${(state.extras.lichtkoepel || inCpp) ? 'selected' : ''} ${inCpp ? 'locked' : ''}" ${inCpp ? '' : 'onclick="toggleExtra(\'lichtkoepel\')"'}>
+          <div class="option-radio"></div>
+          <div class="option-body">
+            <div class="option-title">Lichtkoepel<span class="option-price">${inCpp ? '<span class="badge-included">Inbegrepen</span>' : '+' + fmt(PRICES.extra_lichtkoepel)}</span></div>
+            <div class="option-desc">Premium platdakraam (LUMIZEN®, 100×100 cm) met driedubbel HR+++ glas voor extra daglicht.</div>
+          </div>
+        </div>
+        <div class="option-card check-card ${(state.extras.vloerverwarming || inCpp) ? 'selected' : ''} ${inCpp ? 'locked' : ''}" ${inCpp ? '' : 'onclick="toggleExtra(\'vloerverwarming\')"'}>
+          <div class="option-radio"></div>
+          <div class="option-body">
+            <div class="option-title">Vloerverwarming<span class="option-price">${inCpp ? '<span class="badge-included">Inbegrepen</span>' : '+€' + PRICES.extra_vloerverwarming_m2 + '/m²'}</span></div>
+            <div class="option-desc">Comfortabele warmte zonder radiatoren — ideaal in combinatie met een tegelvloer.</div>
+          </div>
+        </div>
+        <div class="option-card check-card ${(state.extras.buitenkraan || inCplus) ? 'selected' : ''} ${inCplus ? 'locked' : ''}" ${inCplus ? '' : 'onclick="toggleExtra(\'buitenkraan\')"'}>
+          <div class="option-radio"></div>
+          <div class="option-body">
+            <div class="option-title">Buitenkraan<span class="option-price">${inCplus ? '<span class="badge-included">Inbegrepen</span>' : '+' + fmt(PRICES.extra_buitenkraan)}</span></div>
+            <div class="option-desc">Vorstvrije buitenkraan voor tuin en terras.</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
+        <div class="dim-label" style="margin-bottom: 6px">Regenpijpen</div>
+        <p class="step-desc" style="font-size: 14px; margin-bottom: 16px;">Kies aan welke zijde(n) u een regenpijp wilt en in welk materiaal.</p>
+        <div class="option-grid" style="margin-bottom: 20px">
+          <div class="option-card check-card ${state.regenpijp.links ? 'selected' : ''}" onclick="toggleRegenpijpSide('links')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">Regenpijp links<span class="option-price">+${fmt(state.regenpijp.materiaal === 'zink' ? PRICES.regenpijp_zink : PRICES.regenpijp_pvc)}</span></div>
+              <div class="option-desc">Linker zijkant van de uitbouw (vooraanzicht).</div>
+            </div>
+          </div>
+          <div class="option-card check-card ${state.regenpijp.rechts ? 'selected' : ''}" onclick="toggleRegenpijpSide('rechts')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">Regenpijp rechts<span class="option-price">+${fmt(state.regenpijp.materiaal === 'zink' ? PRICES.regenpijp_zink : PRICES.regenpijp_pvc)}</span></div>
+              <div class="option-desc">Rechter zijkant van de uitbouw (vooraanzicht).</div>
+            </div>
+          </div>
+        </div>
+        <div class="dim-label" style="margin-bottom: 14px">Materiaal regenpijp</div>
+        <div class="option-grid" style="margin-bottom: 20px">
+          <div class="option-card ${state.regenpijp.materiaal === 'pvc' ? 'selected' : ''}" onclick="setField('regenpijp.materiaal','pvc')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">PVC<span class="option-price">€${PRICES.regenpijp_pvc} per pijp</span></div>
+              <div class="option-desc">Kunststof regenpijp, beschikbaar in vijf kleuren.</div>
+            </div>
+          </div>
+          <div class="option-card ${state.regenpijp.materiaal === 'zink' ? 'selected' : ''}" onclick="setField('regenpijp.materiaal','zink')">
+            <div class="option-radio"></div>
+            <div class="option-body">
+              <div class="option-title">Zink<span class="option-price">€${PRICES.regenpijp_zink} per pijp</span></div>
+              <div class="option-desc">Klassieke zinken regenpijp in naturel grijs, lange levensduur en strakke look.</div>
+            </div>
+          </div>
+        </div>
+        ${state.regenpijp.materiaal === 'pvc' ? `
+        <div class="dim-label" style="margin-bottom: 14px">Kleur PVC</div>
+        <div class="kleur-grid" style="grid-template-columns: repeat(5, 1fr)">
+          ${PVC_COLORS.map(c => `
+            <div class="kleur-mini ${state.regenpijp.pvcKleur === c.id ? 'selected' : ''}" onclick="setField('regenpijp.pvcKleur','${c.id}')">
+              <div class="kleur-mini-svg">${pvcKleurSvg(c.hex)}</div>
+              <div class="kleur-mini-name">${c.label}</div>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
+        <div class="dim-label" style="margin-bottom: 14px">Extra elektra binnen</div>
+        <div class="extra-row">
+          <div><div style="font-weight:700; font-family: var(--font-display);">Extra contactpunten</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_contact} per stuk (boven het inbegrepen aantal)</div></div>
+          <div class="counter"><button onclick="changeCount('electra',-1)" ${state.electra <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.electra}</span><button onclick="changeCount('electra',1)">+</button></div>
+        </div>
+        <div class="extra-row">
+          <div><div style="font-weight:700; font-family: var(--font-display);">Extra lichtpunten</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_licht} per stuk</div></div>
+          <div class="counter"><button onclick="changeCount('light',-1)" ${state.light <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.light}</span><button onclick="changeCount('light',1)">+</button></div>
+        </div>
+      </div>
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
+        <div class="dim-label" style="margin-bottom: 6px">Extra elektra buiten <span style="color: var(--color-mute); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 12px;">— optioneel</span></div>
+        <p class="step-desc" style="font-size: 13px; margin-bottom: 14px;">Waterdichte (IP44) installaties voor terras, tuin of carport.</p>
+        <div class="extra-row">
+          <div><div style="font-weight:700; font-family: var(--font-display);">Buitenstopcontact</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_contact_buiten} per stuk, waterdicht IP44</div></div>
+          <div class="counter"><button onclick="changeCount('electraBuiten',-1)" ${state.electraBuiten <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.electraBuiten}</span><button onclick="changeCount('electraBuiten',1)">+</button></div>
+        </div>
+        <div class="extra-row">
+          <div><div style="font-weight:700; font-family: var(--font-display);">Buitenlichtpunt</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_licht_buiten} per stuk, geschikt voor gevel of overstek</div></div>
+          <div class="counter"><button onclick="changeCount('lightBuiten',-1)" ${state.lightBuiten <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.lightBuiten}</span><button onclick="changeCount('lightBuiten',1)">+</button></div>
+        </div>
+      </div>`;
+  } else if (step.id === 'contact') {
+    body = `<div class="step-label">${stepNum} — Contact</div>
+      <h2 class="step-title">Ontvang uw<br>persoonlijke offerte</h2>
+      <p class="step-desc">Vul uw gegevens in en wij nemen binnen 48 uur contact met u op met een gedetailleerde offerte op basis van uw configuratie.</p>
+      <div class="contact-form">
+        <div class="form-field"><label>Voor- en achternaam</label><input type="text" id="cname" value="${state.contact.name}" placeholder="Jan Jansen"></div>
+        <div class="form-field"><label>Telefoon</label><input type="tel" id="cphone" value="${state.contact.phone}" placeholder="06-12345678"></div>
+        <div class="form-field full"><label>E-mailadres</label><input type="email" id="cemail" value="${state.contact.email}" placeholder="naam@voorbeeld.nl"></div>
+        <div class="form-field full"><label>Bericht (optioneel)</label><textarea id="cmsg" placeholder="Bijzonderheden over uw woning, gewenste planning, etc.">${state.contact.message}</textarea></div>
+      </div>
+      <label class="form-consent"><input type="checkbox" id="cconsent" ${state.contact.consent ? 'checked' : ''}><span>Ik ga akkoord met het privacybeleid en ontvang graag een offerte op basis van bovenstaande configuratie.</span></label>`;
+  }
+
+  const isFirst = state.step === 0, isLast = state.step === STEPS.length - 1;
+  const navHtml = `<div class="nav-row">
+    <button class="btn btn-secondary" ${isFirst ? 'disabled' : ''} onclick="prevStep()">← Vorige</button>
+    <button class="btn btn-primary" id="submitBtn" onclick="${isLast ? 'submitConfig()' : 'nextStep()'}">${isLast ? 'Verstuur aanvraag →' : 'Volgende stap →'}</button>
+  </div>`;
+
+  c.innerHTML = `<div class="step-content">${body}${navHtml}</div>`;
+
+  if (step.id === 'afmetingen') { bindDim('width'); bindDim('depth'); }
+  if (step.id === 'contact') {
+    document.getElementById('cname').addEventListener('input', e => state.contact.name = e.target.value);
+    document.getElementById('cphone').addEventListener('input', e => state.contact.phone = e.target.value);
+    document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
+    document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
+    document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
+  }
+}
+
+function bindDim(key) {
+  const inp = document.getElementById('inp-' + key);
+  const rng = document.getElementById('rng-' + key);
+  const update = (val) => {
+    let v = parseFloat(val);
+    if (isNaN(v)) return;
+    const min = key === 'width' ? 2 : 1.5, max = key === 'width' ? 12 : 6;
+    v = Math.max(min, Math.min(max, v));
+    state[key] = v;
+    inp.value = v.toFixed(1); rng.value = v;
+    const summary = document.querySelector('.dim-summary');
+    if (summary) {
+      summary.children[0].children[1].textContent = area().toFixed(1) + ' m²';
+      summary.children[1].children[1].textContent = fmt(area() * PLANS[state.plan].rate * ROOF_TYPES[state.roof].mult);
+    }
+    renderSummary(); renderPreview(); renderValueGain();
+  };
+  inp.addEventListener('input', e => update(e.target.value));
+  rng.addEventListener('input', e => update(e.target.value));
+}
+
+// ═══════════════════════════════════════════════════
+// SIDEBAR SUMMARY
+// ═══════════════════════════════════════════════════
+function buildSummaryRows() {
+  const c = calculate();
+  const rows = [
+    { label: 'Type',          value: state.type === 'aanbouw' ? 'Aanbouw' : 'Uitbouw' },
+    { label: 'Afmetingen',    value: `${state.width.toFixed(1)} × ${state.depth.toFixed(1)} m` },
+    { label: 'Oppervlak',     value: c.area.toFixed(1) + ' m²' },
+    { label: 'Daktype',       value: ROOF_TYPES[state.roof].label },
+    { label: 'Dakrand',       value: DAKRAND_TYPES[state.dakrand].label.replace('Metselen tot boven met ', '').replace('Overstek met ', 'Overstek + ') + ' (' + (COLORS.find(c => c.id === state.dakrandKleur) || {}).label + ')' },
+    { label: 'Plan',          value: PLANS[state.plan].name },
+    { label: 'Gevel',         value: GEVEL_TYPES[state.gevel.type].label + ' (' + (GEVEL_TYPES[state.gevel.type].styles.find(s => s.id === state.gevel.style) || {}).label + ')' },
+    { label: 'Pui',           value: DOORS[state.doors].label },
+  ];
+  const col = COLORS.find(x => x.id === state.doorColor);
+  if (col && col.id !== 'wit') rows.push({ label: 'Kleur kozijn', value: col.label });
+  rows.push({ label: 'Boven kozijn', value: state.bovenkozijn === 'trespa' ? 'Trespa-plaat' : 'Metselwerk + latei' });
+  const inCpp = state.plan === 'cplus2', inCplus = state.plan === 'cplus' || inCpp;
+  const ex = [];
+  if (state.extras.lichtkoepel    && !inCpp)   ex.push('Lichtkoepel');
+  if (state.extras.vloerverwarming && !inCpp)  ex.push('Vloerverwarming');
+  if (state.extras.buitenkraan    && !inCplus) ex.push('Buitenkraan');
+  if (state.electra) ex.push(`${state.electra}× contact`);
+  if (state.light)   ex.push(`${state.light}× lichtpunt`);
+  if (state.electraBuiten) ex.push(`${state.electraBuiten}× stopcontact buiten`);
+  if (state.lightBuiten)   ex.push(`${state.lightBuiten}× lichtpunt buiten`);
+  if (ex.length) rows.push({ label: 'Extra\'s', value: ex.join(', ') });
+  // Regenpijpen
+  const sides = [];
+  if (state.regenpijp.links)  sides.push('links');
+  if (state.regenpijp.rechts) sides.push('rechts');
+  if (sides.length) {
+    let pipeLabel;
+    if (state.regenpijp.materiaal === 'zink') {
+      pipeLabel = sides.join(' & ') + ' (zink)';
+    } else {
+      const pc = PVC_COLORS.find(c => c.id === state.regenpijp.pvcKleur);
+      pipeLabel = sides.join(' & ') + ` (PVC ${pc ? pc.label.toLowerCase() : ''})`;
+    }
+    rows.push({ label: 'Regenpijp', value: pipeLabel });
+  }
+  return rows;
+}
+
+function renderSummary() {
+  const c = calculate();
+  document.getElementById('totalValue').textContent = fmt(c.total);
+  const rows = buildSummaryRows();
+  document.getElementById('summaryList').innerHTML = rows.map(r => `<li class="summary-row"><span class="label">${r.label}</span><span class="value">${r.value}</span></li>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// 3D PREVIEW (Cabinet projection)
+// ═══════════════════════════════════════════════════
+function renderPreview() {
+  const svg = document.getElementById('previewSvg');
+  const w = state.width, d = state.depth;
+  const view = getViewConfig();
+  const tagEl = document.getElementById('previewTag');
+  if (tagEl) tagEl.textContent = view.label;
+
+  let hWall, hFront, hBack, hPeak;
+  if (state.roof === 'plat') { hWall = hFront = hBack = hPeak = 2.7; }
+  else if (state.roof === 'lessenaar') { hWall = 2.4; hFront = 2.4; hBack = 3.2; hPeak = 3.2; }
+  else { hWall = 2.4; hFront = hBack = 2.4; hPeak = 3.4; }
+
+  const angleRad = view.angle * Math.PI / 180;
+  const dxF = Math.cos(angleRad) * 0.5;
+  const dyF = Math.sin(angleRad) * 0.5;
+
+  const houseExtraW = 1.6, houseHeight = 4.2;
+  const horizExtent = w + 2 * houseExtraW + d * dxF + 2;
+  const vertExtent  = houseHeight + d * dyF + 1.2;
+  const scale = Math.min(330 / horizExtent, 220 / vertExtent);
+  const groundY = 268;
+  const startX  = (400 - (w + d * dxF) * scale) / 2;
+
+  const P = (rx, ry, rz) => [startX + (rx + rz * dxF) * scale, groundY - (ry + rz * dyF) * scale];
+  const pts = arr => arr.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+
+  const colObj = COLORS.find(c => c.id === state.doorColor) || COLORS[0];
+  const isLightColor = colObj.hex === '#F5F2ED' || colObj.hex === '#E8DFC9';
+  const doorCol  = colObj.hex === '#F5F2ED' ? '#B8B3A8' : colObj.hex;
+  const glassFill = isLightColor ? '#EFF4FA' : 'rgba(232,238,250,0.65)';
+
+  const PRIMARY = '#1E4FC7', PRIMARY_SOFT = '#E8EEFA', PRIMARY_LINE = '#C9D6F2';
+  const ROOF_DARK = '#A8BCE0', SIDE_FILL = '#F5F8FD', GREEN = '#4ECD6B';
+
+  let s = `<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EEF3FB"/><stop offset="100%" stop-color="#FBFCFE"/></linearGradient>
+    <pattern id="gridPat" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M 22 0 L 0 0 0 22" fill="none" stroke="rgba(30,79,199,0.05)" stroke-width="1"/></pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#sky)"/>
+  <rect width="400" height="100" y="200" fill="url(#gridPat)"/>`;
+
+  // Grondvlak
+  const gp = [P(-houseExtraW - 0.5, 0, -0.2), P(w + houseExtraW + 0.5, 0, -0.2), P(w + houseExtraW + 0.5, 0, d + 0.5), P(-houseExtraW - 0.5, 0, d + 0.5)];
+  s += `<polygon points="${pts(gp)}" fill="rgba(232,238,250,0.45)"/>`;
+  const sh = [P(-0.2, 0, -0.1), P(w + 0.2, 0, -0.1), P(w + 0.2, 0, d + 0.3), P(-0.2, 0, d + 0.3)];
+  s += `<polygon points="${pts(sh)}" fill="${PRIMARY}" fill-opacity="0.10"/>`;
+
+  // Bestaande woning
+  const hp = [P(-houseExtraW, 0, d), P(w + houseExtraW, 0, d), P(w + houseExtraW, houseHeight, d), P(-houseExtraW, houseHeight, d)];
+  s += `<polygon points="${pts(hp)}" fill="${PRIMARY_SOFT}" stroke="${PRIMARY}" stroke-width="1.2" stroke-opacity="0.85"/>`;
+  const eaveY = houseHeight - 0.05;
+  const e1 = P(-houseExtraW, eaveY, d), e2 = P(w + houseExtraW, eaveY, d);
+  s += `<line x1="${e1[0]}" y1="${e1[1]}" x2="${e2[0]}" y2="${e2[1]}" stroke="${PRIMARY}" stroke-width="0.8" stroke-opacity="0.5"/>`;
+
+  // Ramen
+  const winY = houseHeight - 1.7, winH = 1.2, winW = 0.9;
+  if (houseExtraW > 1.0 + winW) {
+    const wL = [P(-houseExtraW + 0.5, winY, d), P(-houseExtraW + 0.5 + winW, winY, d), P(-houseExtraW + 0.5 + winW, winY + winH, d), P(-houseExtraW + 0.5, winY + winH, d)];
+    s += `<polygon points="${pts(wL)}" fill="#FBFCFE" stroke="${PRIMARY}" stroke-width="0.7" stroke-opacity="0.7"/>`;
+    s += `<line x1="${wL[0][0] + (wL[1][0]-wL[0][0])/2}" y1="${wL[0][1]}" x2="${wL[3][0] + (wL[2][0]-wL[3][0])/2}" y2="${wL[3][1]}" stroke="${PRIMARY}" stroke-width="0.5" stroke-opacity="0.6"/>`;
+    const wR = [P(w + houseExtraW - 0.5 - winW, winY, d), P(w + houseExtraW - 0.5, winY, d), P(w + houseExtraW - 0.5, winY + winH, d), P(w + houseExtraW - 0.5 - winW, winY + winH, d)];
+    s += `<polygon points="${pts(wR)}" fill="#FBFCFE" stroke="${PRIMARY}" stroke-width="0.7" stroke-opacity="0.7"/>`;
+    s += `<line x1="${wR[0][0] + (wR[1][0]-wR[0][0])/2}" y1="${wR[0][1]}" x2="${wR[3][0] + (wR[2][0]-wR[3][0])/2}" y2="${wR[3][1]}" stroke="${PRIMARY}" stroke-width="0.5" stroke-opacity="0.6"/>`;
+  }
+
+  // Dak
+  if (state.roof === 'zadel') {
+    const peak1 = P(0, hPeak, d/2), peak2 = P(w, hPeak, d/2);
+    const fr1 = P(0, hWall, 0), fr2 = P(w, hWall, 0);
+    const bk1 = P(0, hWall, d), bk2 = P(w, hWall, d);
+    s += `<polygon points="${pts([bk1, bk2, peak2, peak1])}" fill="${ROOF_DARK}" stroke="${PRIMARY}" stroke-width="1.4"/>`;
+    s += `<polygon points="${pts([fr1, fr2, peak2, peak1])}" fill="${PRIMARY_LINE}" stroke="${PRIMARY}" stroke-width="1.4"/>`;
+  } else {
+    const r = [P(0, hFront, 0), P(w, hFront, 0), P(w, hBack, d), P(0, hBack, d)];
+    s += `<polygon points="${pts(r)}" fill="${PRIMARY_LINE}" stroke="${PRIMARY}" stroke-width="1.4"/>`;
+  }
+
+  // Gevelmateriaal kleur bepalen (voor zij- en voorgevel)
+  const gevelObj = GEVEL_TYPES[state.gevel.type];
+  const gevelStyleObj = gevelObj.styles.find(st => st.id === state.gevel.style) || gevelObj.styles[0];
+  const gevelColor = gevelStyleObj.hex;
+  // Helper: kleur donkerder/lichter maken
+  const shadeGevel = (factor) => {
+    const c = gevelColor.replace('#', '');
+    const r = Math.round(parseInt(c.substring(0,2), 16) * factor);
+    const g = Math.round(parseInt(c.substring(2,4), 16) * factor);
+    const b = Math.round(parseInt(c.substring(4,6), 16) * factor);
+    return '#' + [r,g,b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2,'0')).join('');
+  };
+  const gevelSideColor = shadeGevel(0.86); // 14% donkerder voor zijwand (schaduw)
+  const isDarkGevel = ['#2A2A2C', '#1A1A1C', '#3A3D42', '#2D3A2C', '#5C3D29'].includes(gevelColor);
+  const gevelTextureColor = isDarkGevel ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.18)';
+
+  // Zijwand
+  if (state.roof === 'zadel') {
+    const sf = [P(w, 0, 0), P(w, 0, d), P(w, hWall, d), P(w, hPeak, d/2), P(w, hWall, 0)];
+    s += `<polygon points="${pts(sf)}" fill="${gevelSideColor}" stroke="${PRIMARY}" stroke-width="1.5"/>`;
+  } else {
+    const sf = [P(w, 0, 0), P(w, 0, d), P(w, hBack, d), P(w, hFront, 0)];
+    s += `<polygon points="${pts(sf)}" fill="${gevelSideColor}" stroke="${PRIMARY}" stroke-width="1.5"/>`;
+  }
+
+  // Voorgevel
+  const ff = [P(0, 0, 0), P(w, 0, 0), P(w, hWall, 0), P(0, hWall, 0)];
+  s += `<polygon points="${pts(ff)}" fill="${gevelColor}" stroke="${PRIMARY}" stroke-width="1.8"/>`;
+
+  // Subtiele textuur-overlay op voorgevel — afhankelijk van gevelmateriaal
+  if (state.gevel.type === 'baksteen') {
+    // Horizontale voegen + geschrankte verticale voegen
+    const brickH = 0.20, brickW = 0.42;
+    let rowIdx = 0;
+    for (let y = brickH; y < hWall - 0.04; y += brickH) {
+      const a = P(0.04, y, 0), b = P(w - 0.04, y, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${gevelTextureColor}" stroke-width="0.4"/>`;
+      const offset = rowIdx % 2 === 0 ? 0 : brickW / 2;
+      for (let x = brickW + offset; x < w - 0.04; x += brickW) {
+        const a2 = P(x, y, 0), b2 = P(x, y - brickH, 0);
+        s += `<line x1="${a2[0]}" y1="${a2[1]}" x2="${b2[0]}" y2="${b2[1]}" stroke="${gevelTextureColor}" stroke-width="0.4"/>`;
+      }
+      rowIdx++;
+    }
+  } else if (state.gevel.type === 'kunststof_rabat') {
+    // Horizontale rabat-lijnen
+    const stripeH = 0.22;
+    for (let y = stripeH; y < hWall - 0.04; y += stripeH) {
+      const a = P(0.04, y, 0), b = P(w - 0.04, y, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${gevelTextureColor}" stroke-width="0.5"/>`;
+    }
+  } else if (state.gevel.type === 'hout') {
+    if (state.gevel.style === 'verticaal') {
+      // Verticale planken
+      const plankW = 0.30;
+      for (let x = plankW; x < w - 0.04; x += plankW) {
+        const a = P(x, 0.04, 0), b = P(x, hWall - 0.04, 0);
+        s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${gevelTextureColor}" stroke-width="0.5"/>`;
+      }
+    } else {
+      // Horizontale planken (rabat-style hout)
+      const plankH = 0.25;
+      for (let y = plankH; y < hWall - 0.04; y += plankH) {
+        const a = P(0.04, y, 0), b = P(w - 0.04, y, 0);
+        s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${gevelTextureColor}" stroke-width="0.5"/>`;
+      }
+    }
+  }
+
+  // Dakrand: afwerking op de gevelbovenrand
+  const dkColorObj = COLORS.find(c => c.id === state.dakrandKleur) || COLORS[0];
+  const dkColor = dkColorObj.hex;
+  const isLightDk = (dkColor === '#F5F2ED' || dkColor === '#E8DFC9');
+  const dkStrokeColor = isLightDk ? '#A8A398' : '#1A1A1A';
+  const frontEdgeY = state.roof === 'lessenaar' ? hFront : hWall;
+
+  if (state.dakrand === 'overstek_daktrim') {
+    // Overstek + daktrim: steekt alleen aan de VOORKANT uit (in z-richting), niet zijwaarts
+    const stripH = 0.20;
+    const overhangZ = 0.22;
+    // Helper voor donkerder tinten op top/zijvlak (perspectief-schaduw)
+    const shadeDk = (factor) => {
+      const c = dkColor.replace('#', '');
+      const r = Math.round(parseInt(c.substring(0,2), 16) * factor);
+      const g = Math.round(parseInt(c.substring(2,4), 16) * factor);
+      const b = Math.round(parseInt(c.substring(4,6), 16) * factor);
+      return '#' + [r,g,b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2,'0')).join('');
+    };
+    const dkTopColor  = shadeDk(0.74);
+    const dkSideColor = shadeDk(0.86);
+    // Top vlak van de overstek (zichtbaar van bovenaf door de cabinet-projectie)
+    const topFace = [
+      P(0, frontEdgeY + stripH, 0),
+      P(w, frontEdgeY + stripH, 0),
+      P(w, frontEdgeY + stripH, -overhangZ),
+      P(0, frontEdgeY + stripH, -overhangZ)
+    ];
+    s += `<polygon points="${pts(topFace)}" fill="${dkTopColor}" stroke="${dkStrokeColor}" stroke-width="0.6"/>`;
+    // Rechter zijvlak van de overstek (smalle, donkere strook)
+    const rightFace = [
+      P(w, frontEdgeY - 0.02, 0),
+      P(w, frontEdgeY - 0.02, -overhangZ),
+      P(w, frontEdgeY + stripH, -overhangZ),
+      P(w, frontEdgeY + stripH, 0)
+    ];
+    s += `<polygon points="${pts(rightFace)}" fill="${dkSideColor}" stroke="${dkStrokeColor}" stroke-width="0.6"/>`;
+    // Voorvlak — de daktrim zelf, in de gekozen kleur
+    const frontFace = [
+      P(0, frontEdgeY - 0.02, -overhangZ),
+      P(w, frontEdgeY - 0.02, -overhangZ),
+      P(w, frontEdgeY + stripH, -overhangZ),
+      P(0, frontEdgeY + stripH, -overhangZ)
+    ];
+    s += `<polygon points="${pts(frontFace)}" fill="${dkColor}" stroke="${dkStrokeColor}" stroke-width="0.6"/>`;
+  } else {
+    // Metselwerk tot boven met zinken deklijst: dunne strook met kleine cap-overhang, ook zijdelings
+    const stripH = 0.07;
+    const overhangX = 0.03;
+    // Voorgevel deklijst
+    const dkFront = [
+      P(-overhangX, frontEdgeY - 0.02, 0),
+      P(w + overhangX, frontEdgeY - 0.02, 0),
+      P(w + overhangX, frontEdgeY + stripH, 0),
+      P(-overhangX, frontEdgeY + stripH, 0)
+    ];
+    s += `<polygon points="${pts(dkFront)}" fill="${dkColor}" stroke="${dkStrokeColor}" stroke-width="0.6"/>`;
+    // Zijgevel deklijst (alleen platte daken — de zink-cap loopt door om de hoek)
+    if (state.roof === 'plat') {
+      const dkSide = [
+        P(w + overhangX, hWall - 0.02, 0),
+        P(w + overhangX, hWall - 0.02, d),
+        P(w + overhangX, hWall + stripH, d),
+        P(w + overhangX, hWall + stripH, 0)
+      ];
+      s += `<polygon points="${pts(dkSide)}" fill="${dkColor}" stroke="${dkStrokeColor}" stroke-width="0.6"/>`;
+    }
+  }
+
+  // Pui
+  const doorH = Math.min(2.1, hWall - 0.2);
+  const doorMargin = Math.max(0.25, w * 0.04);
+  const dp = [P(doorMargin, 0, 0), P(w - doorMargin, 0, 0), P(w - doorMargin, doorH, 0), P(doorMargin, doorH, 0)];
+  s += `<polygon points="${pts(dp)}" fill="${glassFill}" stroke="${doorCol}" stroke-width="2.5"/>`;
+
+  if (state.doors === 'schuifpui') {
+    const splitX = doorMargin + (w - 2*doorMargin) * 0.55;
+    const sp1 = P(splitX, 0.05, 0), sp2 = P(splitX, doorH - 0.05, 0);
+    s += `<line x1="${sp1[0]}" y1="${sp1[1]}" x2="${sp2[0]}" y2="${sp2[1]}" stroke="${doorCol}" stroke-width="1.6"/>`;
+    const grip = P(splitX - 0.1, doorH * 0.5, 0);
+    s += `<circle cx="${grip[0]}" cy="${grip[1]}" r="2.5" fill="${doorCol}"/>`;
+  } else if (state.doors === 'harmonica') {
+    const segs = Math.max(4, Math.round(w * 1.3));
+    for (let i = 1; i < segs; i++) {
+      const sx = doorMargin + (w - 2*doorMargin) * i / segs;
+      const a = P(sx, 0.05, 0), b = P(sx, doorH - 0.05, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${doorCol}" stroke-width="1"/>`;
+    }
+  } else {
+    // openslaande deuren: 4-vlaks kozijn (vast glas | deur | deur | vast glas)
+    const w0 = doorMargin;
+    const span = w - 2 * doorMargin;
+    const x25 = w0 + span * 0.25;
+    const x50 = w0 + span * 0.50;
+    const x75 = w0 + span * 0.75;
+    // Tussenstijlen: middenstijl iets dikker (daar ontmoeten de twee deuren elkaar)
+    [[x25, 1.4], [x50, 1.8], [x75, 1.4]].forEach(([xp, sw]) => {
+      const a = P(xp, 0.05, 0), b = P(xp, doorH - 0.05, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${doorCol}" stroke-width="${sw}"/>`;
+    });
+    // Grepen op de middenstijl
+    const g1 = P(x50 - 0.12, doorH * 0.5, 0), g2 = P(x50 + 0.12, doorH * 0.5, 0);
+    s += `<circle cx="${g1[0]}" cy="${g1[1]}" r="1.8" fill="${doorCol}"/><circle cx="${g2[0]}" cy="${g2[1]}" r="1.8" fill="${doorCol}"/>`;
+  }
+
+  if (hWall > doorH + 0.25) {
+    if (state.bovenkozijn === 'trespa') {
+      // Trespa-plaat: vlakke antraciete plaat boven het kozijn
+      const tp = [
+        P(doorMargin, doorH, 0),
+        P(w - doorMargin, doorH, 0),
+        P(w - doorMargin, hWall - 0.10, 0),
+        P(doorMargin, hWall - 0.10, 0)
+      ];
+      s += `<polygon points="${pts(tp)}" fill="#2D3035" stroke="#1A1C1F" stroke-width="0.8"/>`;
+      // hairline aan onderkant van trespa (montageschaduw)
+      const a = P(doorMargin, doorH + 0.02, 0), b = P(w - doorMargin, doorH + 0.02, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#1A1C1F" stroke-width="0.4" opacity="0.6"/>`;
+    } else {
+      // Metselwerk met latei: stalen draagbalk boven het kozijn (gevel blijft wit/metselwerk-kleur)
+      const lateiTop = doorH + 0.04;
+      const lateiBot = doorH + 0.22;
+      const lp = [
+        P(doorMargin - 0.05, lateiTop, 0),
+        P(w - doorMargin + 0.05, lateiTop, 0),
+        P(w - doorMargin + 0.05, lateiBot, 0),
+        P(doorMargin - 0.05, lateiBot, 0)
+      ];
+      s += `<polygon points="${pts(lp)}" fill="#A8AEB8" stroke="#5C6373" stroke-width="0.7"/>`;
+      // schaduwlijn onder de latei (3D-effect)
+      const sa = P(doorMargin - 0.05, lateiBot, 0), sb = P(w - doorMargin + 0.05, lateiBot, 0);
+      s += `<line x1="${sa[0]}" y1="${sa[1]}" x2="${sb[0]}" y2="${sb[1]}" stroke="#5C6373" stroke-width="0.6" opacity="0.5"/>`;
+    }
+  }
+
+  // Regenpijpen
+  if (state.regenpijp.links || state.regenpijp.rechts) {
+    let pipeColor;
+    if (state.regenpijp.materiaal === 'zink') {
+      pipeColor = '#8B96A3';
+    } else {
+      const pc = PVC_COLORS.find(c => c.id === state.regenpijp.pvcKleur);
+      pipeColor = pc ? pc.hex : '#9CA1A8';
+    }
+    const drawPipe = (side) => {
+      // De pijp staat net buiten de gevel, op de hoek
+      const pipeX = side === 'links' ? -0.06 : w + 0.06;
+      const wallEdgeX = side === 'links' ? 0 : w;
+      // Klein horizontaal stukje (uitloop dakgoot naar pijp)
+      const c1 = P(wallEdgeX, hWall, 0);
+      const c2 = P(pipeX, hWall, 0);
+      s += `<line x1="${c1[0]}" y1="${c1[1]}" x2="${c2[0]}" y2="${c2[1]}" stroke="${pipeColor}" stroke-width="2.6" stroke-linecap="round"/>`;
+      // Verticale regenpijp van dakgoot tot vlak boven de grond
+      const top = P(pipeX, hWall, 0);
+      const bot = P(pipeX, 0.05, 0);
+      s += `<line x1="${top[0]}" y1="${top[1]}" x2="${bot[0]}" y2="${bot[1]}" stroke="${pipeColor}" stroke-width="3.2" stroke-linecap="round"/>`;
+      // Subtiele highlight voor 3D-effect
+      s += `<line x1="${top[0] + 0.7}" y1="${top[1]}" x2="${bot[0] + 0.7}" y2="${bot[1]}" stroke="rgba(255,255,255,0.4)" stroke-width="0.7" stroke-linecap="round"/>`;
+    };
+    if (state.regenpijp.links)  drawPipe('links');
+    if (state.regenpijp.rechts) drawPipe('rechts');
+  }
+
+  // Lichtkoepel
+  if (state.extras.lichtkoepel || state.plan === 'cplus2') {
+    const lkW = Math.min(1.2, w * 0.28), lkD = Math.min(1.2, d * 0.32);
+    const lkX = w/2 - lkW/2, lkZ = d/2 - lkD/2;
+    const yAt = (z) => {
+      if (state.roof === 'plat') return hWall;
+      if (state.roof === 'lessenaar') return hFront + (hBack - hFront) * (z / d);
+      const slope = (hPeak - hWall) / (d/2);
+      return z <= d/2 ? hWall + slope * z : hPeak - slope * (z - d/2);
+    };
+    const lk = [P(lkX, yAt(lkZ), lkZ), P(lkX + lkW, yAt(lkZ), lkZ), P(lkX + lkW, yAt(lkZ + lkD), lkZ + lkD), P(lkX, yAt(lkZ + lkD), lkZ + lkD)];
+    s += `<polygon points="${pts(lk)}" fill="${GREEN}" fill-opacity="0.45" stroke="${GREEN}" stroke-width="1.5"/>`;
+    const cx = (lk[0][0] + lk[2][0]) / 2, cy = (lk[0][1] + lk[2][1]) / 2;
+    s += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="11" fill="${GREEN}" font-weight="700">☀</text>`;
+  }
+
+  // Maatvoering
+  s += `<g font-family="Manrope, sans-serif" font-size="10" font-weight="700" fill="${PRIMARY}">`;
+  const w0 = P(0, 0, 0), w1 = P(w, 0, 0);
+  s += `<line x1="${w0[0]}" y1="${groundY + 14}" x2="${w1[0]}" y2="${groundY + 14}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  s += `<line x1="${w0[0]}" y1="${groundY + 10}" x2="${w0[0]}" y2="${groundY + 18}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  s += `<line x1="${w1[0]}" y1="${groundY + 10}" x2="${w1[0]}" y2="${groundY + 18}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  s += `<text x="${(w0[0]+w1[0])/2}" y="${groundY + 28}" text-anchor="middle">${w.toFixed(1).replace('.', ',')} m</text>`;
+  const d0 = P(w + 0.4, 0, 0), d1 = P(w + 0.4, 0, d);
+  s += `<line x1="${d0[0]}" y1="${d0[1]}" x2="${d1[0]}" y2="${d1[1]}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  s += `<line x1="${d0[0] - 4}" y1="${d0[1]}" x2="${d0[0] + 4}" y2="${d0[1]}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  s += `<line x1="${d1[0] - 4}" y1="${d1[1]}" x2="${d1[0] + 4}" y2="${d1[1]}" stroke="${PRIMARY}" stroke-width="0.6"/>`;
+  const dMid = P(w + 0.6, 0, d/2);
+  s += `<text x="${dMid[0] + 6}" y="${dMid[1] + 4}" text-anchor="start">${d.toFixed(1).replace('.', ',')} m</text>`;
+  s += `</g>`;
+
+  svg.innerHTML = s;
+}
+
+// ═══════════════════════════════════════════════════
+// WAARDESTIJGING
+// ═══════════════════════════════════════════════════
+function renderValueGain() {
+  const c = calculate();
+  const investment = c.total;
+  const valueGain = c.area * state.m2Prijs;
+  const net = valueGain - investment;
+  const isPositive = net > 0;
+  const isBreakEven = Math.abs(net) < investment * 0.05;
+
+  document.getElementById('m2PrijsValue').textContent = fmt(state.m2Prijs) + '/m²';
+  document.getElementById('addedArea').textContent = c.area.toFixed(1).replace('.', ',') + ' m²';
+  document.getElementById('valueIncrease').textContent = '+' + fmt(valueGain);
+  document.getElementById('investmentAmount').textContent = fmt(investment);
+
+  const netEl = document.getElementById('netResult');
+  const labelEl = document.getElementById('valueResultLabel');
+  const resultEl = document.getElementById('valueResult');
+  const iconEl = document.getElementById('valueResultIcon');
+  netEl.textContent = (net >= 0 ? '+' : '−') + fmt(Math.abs(net));
+  resultEl.classList.toggle('positive', isPositive);
+
+  if (isPositive) { labelEl.textContent = 'Netto winst'; iconEl.textContent = '↑'; }
+  else if (isBreakEven) { labelEl.textContent = 'Netto resultaat'; iconEl.textContent = '='; }
+  else { labelEl.textContent = 'Netto investering'; iconEl.textContent = '€'; }
+
+  const expl = document.getElementById('valueExplanation');
+  if (isPositive) {
+    expl.innerHTML = `Uw uitbouw verdient zichzelf direct terug: voor <strong>${fmt(investment)}</strong> investering krijgt u een waardestijging van <strong>${fmt(valueGain)}</strong>. Dat is een directe winst van <strong>${fmt(net)}</strong> — én ${c.area.toFixed(1).replace('.', ',')} m² extra woongenot.`;
+  } else if (isBreakEven) {
+    expl.innerHTML = `Uw investering wordt vrijwel volledig terugverdiend door de waardestijging. Effectief krijgt u <strong>${c.area.toFixed(1).replace('.', ',')} m² extra woonruimte</strong> en alle comfortverbeteringen er gratis bij.`;
+  } else {
+    expl.innerHTML = `Van uw <strong>${fmt(investment)}</strong> investering wordt <strong>${fmt(valueGain)}</strong> direct terugverdiend door de waardestijging. Effectief betaalt u slechts <strong>${fmt(Math.abs(net))}</strong> voor ${c.area.toFixed(1).replace('.', ',')} m² extra woonruimte plus alle comfortverbeteringen.`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// MASTER RENDER + ANIMATIE
+// ═══════════════════════════════════════════════════
+let _prev = { step: -1, type: '', roof: '', plan: '', doors: '', doorColor: '', bovenkozijn: '', dakrand: '', dakrandKleur: '', regenpijp: '', gevel: '' };
+
+function triggerMorph() {
+  const wrap = document.querySelector('.preview-wrap');
+  if (wrap) {
+    wrap.classList.remove('morphing');
+    void wrap.offsetWidth;
+    wrap.classList.add('morphing');
+  }
+}
+
+function render() {
+  // Animatie bij stap-, dak-, plan-, deur-, kleur- of afwerkingswissel
+  const regenpijpKey = JSON.stringify(state.regenpijp);
+  const gevelKey = JSON.stringify(state.gevel);
+  if (_prev.step !== state.step ||
+      _prev.type !== state.type ||
+      _prev.roof !== state.roof ||
+      _prev.plan !== state.plan ||
+      _prev.doors !== state.doors ||
+      _prev.doorColor !== state.doorColor ||
+      _prev.bovenkozijn !== state.bovenkozijn ||
+      _prev.dakrand !== state.dakrand ||
+      _prev.dakrandKleur !== state.dakrandKleur ||
+      _prev.regenpijp !== regenpijpKey ||
+      _prev.gevel !== gevelKey) {
+    if (_prev.step !== state.step) {
+      const stepId = STEPS[state.step] ? STEPS[state.step].id : '3d';
+      _viewPreset = STEP_DEFAULT_VIEW[stepId] || '3d';
+      updateViewButtons();
+    }
+    triggerMorph();
+    _prev = { step: state.step, type: state.type, roof: state.roof, plan: state.plan, doors: state.doors, doorColor: state.doorColor, bovenkozijn: state.bovenkozijn, dakrand: state.dakrand, dakrandKleur: state.dakrandKleur, regenpijp: regenpijpKey, gevel: gevelKey };
+  }
+  renderStepper();
+  renderStep();
+  renderSummary();
+  renderPreview();
+  renderValueGain();
+}
+
+// ═══════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════
+function setField(key, value) {
+  if (key.includes('.')) {
+    const parts = key.split('.');
+    let obj = state;
+    for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+    obj[parts[parts.length - 1]] = value;
+  } else {
+    state[key] = value;
+  }
+  render();
+}
+function toggleRegenpijpSide(side) { state.regenpijp[side] = !state.regenpijp[side]; render(); }
+function selectGevelType(type) {
+  if (state.gevel.type === type) return;
+  state.gevel.type = type;
+  state.gevel.style = GEVEL_TYPES[type].styles[0].id; // reset stijl naar eerste in nieuwe categorie
+  render();
+}
+function toggleExtra(key) { state.extras[key] = !state.extras[key]; render(); }
+function changeCount(key, delta) { state[key] = Math.max(0, state[key] + delta); render(); }
+
+function nextStep() {
+  if (state.step < STEPS.length - 1) {
+    state.step++; render();
+    document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+function prevStep() {
+  if (state.step > 0) {
+    state.step--; render();
+    document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+async function submitConfig() {
+  const c = state.contact;
+  if (!c.name || !c.email) { alert('Vul a.u.b. uw naam en e-mailadres in.'); return; }
+  if (!c.consent) { alert('Geef a.u.b. akkoord op het privacybeleid.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Bezig met verzenden…'; }
+
+  const calc = calculate();
+  const payload = {
+    name: c.name,
+    email: c.email,
+    phone: c.phone,
+    message: c.message,
+    config: {
+      rows: buildSummaryRows(),
+      total: fmt(calc.total),
+    },
+  };
+
+  try {
+    const res = await fetch('/api/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      state.submitted = true;
+      render();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Verzenden mislukt. Probeer het later opnieuw of bel ons direct.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Verstuur aanvraag →'; }
+    }
+  } catch (e) {
+    alert('Verbindingsfout. Controleer uw internet en probeer opnieuw, of bel ons direct op +31 646 150 160.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verstuur aanvraag →'; }
+  }
+}
+function resetConfig() {
+  Object.assign(state, {
+    step: 0, type: 'uitbouw', width: 6, depth: 3, roof: 'plat', plan: 'cplus',
+    doors: 'openslaand', doorColor: 'wit',
+    bovenkozijn: 'metselwerk',
+    dakrand: 'metselwerk_zink', dakrandKleur: 'antraciet',
+    gevel: { type: 'baksteen', style: 'rood' },
+    regenpijp: { links: false, rechts: false, materiaal: 'pvc', pvcKleur: 'grijs' },
+    extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
+    electra: 0, light: 0,
+    electraBuiten: 0, lightBuiten: 0,
+    contact: { name: '', email: '', phone: '', message: '', consent: false },
+    submitted: false,
+  });
+  _viewPreset = '3d';
+  render();
+}
+
+// ═══════════════════════════════════════════════════
+// EVENT BINDINGS
+// ═══════════════════════════════════════════════════
+// m²-prijs slider
+document.getElementById('m2PrijsSlider').addEventListener('input', e => {
+  state.m2Prijs = parseInt(e.target.value);
+  renderValueGain();
+});
+
+// 3D viewpoint preset buttons
+function updateViewButtons() {
+  document.querySelectorAll('.preview-view-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === _viewPreset);
+  });
+}
+document.querySelectorAll('.preview-view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    _viewPreset = btn.dataset.view;
+    updateViewButtons();
+    renderPreview();
+    triggerMorph();
+  });
+});
+
+// Plan-knoppen op de plannen-cards koppelen aan configurator
+document.querySelectorAll('[data-plan]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const planKey = btn.getAttribute('data-plan');
+    if (PLANS[planKey]) {
+      state.plan = planKey;
+      // Spring naar de Plan-stap voor visuele bevestiging
+      const planIdx = STEPS.findIndex(s => s.id === 'plan');
+      if (planIdx >= 0) state.step = planIdx;
+      render();
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// ADMIN PANEEL — login, prijsbeheer, password change, export/import
+// ═══════════════════════════════════════════════════
+const ADMIN_PRICE_GROUPS = [
+  {
+    title: 'Plannen — basisprijs per m²',
+    items: [
+      { key: 'plan_casco_rate',  label: 'Casco',           hint: 'Ruwbouw oplevering',                 unit: '/m²' },
+      { key: 'plan_cplus_rate',  label: 'C+',              hint: 'Schilderklaar + basis elektra',       unit: '/m²' },
+      { key: 'plan_cplus2_rate', label: 'C++',             hint: 'Volledig sleutelklaar',               unit: '/m²' },
+    ],
+  },
+  {
+    title: 'Daktype — multiplier op basisprijs',
+    items: [
+      { key: 'roof_plat_mult',      label: 'Plat dak',         hint: 'standaard, geen toeslag',  unit: '×', step: 0.01, prefix: '' },
+      { key: 'roof_lessenaar_mult', label: 'Lessenaarsdak',    hint: '',                          unit: '×', step: 0.01, prefix: '' },
+      { key: 'roof_zadel_mult',     label: 'Zadeldak',         hint: '',                          unit: '×', step: 0.01, prefix: '' },
+      { key: 'roof_schild_mult',    label: 'Schilddak',        hint: '',                          unit: '×', step: 0.01, prefix: '' },
+    ],
+  },
+  {
+    title: 'Type uitbouw',
+    items: [
+      { key: 'uitbouw_wand_per_meter', label: 'Uitbouw wandverwijdering', hint: 'Achtergevel weg + stalen draagbalk', unit: '/m¹ breedte' },
+    ],
+  },
+  {
+    title: 'Pui — extra t.o.v. openslaande deuren',
+    items: [
+      { key: 'doors_schuifpui',  label: 'Schuifpui',        hint: '' },
+      { key: 'doors_harmonica',  label: 'Harmonicadeur',    hint: '' },
+    ],
+  },
+  {
+    title: 'Kozijn-kleur',
+    items: [
+      { key: 'color_extra', label: 'Niet-witte kleur', hint: 'Crème, antraciet, zwart' },
+    ],
+  },
+  {
+    title: 'Bovenkozijn afwerking',
+    items: [
+      { key: 'bovenkozijn_metselwerk', label: 'Metselwerk met latei',  hint: '' },
+      { key: 'bovenkozijn_trespa',     label: 'Trespa-plaat',           hint: '' },
+    ],
+  },
+  {
+    title: 'Dakrand',
+    items: [
+      { key: 'dakrand_metselwerk_zink',  label: 'Metselen + zinken deklijst', hint: '' },
+      { key: 'dakrand_overstek_daktrim', label: 'Overstek met daktrim',        hint: '' },
+    ],
+  },
+  {
+    title: 'Gevelbekleding — extra t.o.v. baksteen',
+    items: [
+      { key: 'gevel_kunststof_rabat', label: 'Kunststof rabat (keralit)', hint: '' },
+      { key: 'gevel_hout',            label: 'Hout',                       hint: '' },
+    ],
+  },
+  {
+    title: 'Regenpijp — per pijp',
+    items: [
+      { key: 'regenpijp_pvc',  label: 'PVC',  hint: '' },
+      { key: 'regenpijp_zink', label: 'Zink', hint: '' },
+    ],
+  },
+  {
+    title: 'Extra opties',
+    items: [
+      { key: 'extra_lichtkoepel',         label: 'Lichtkoepel',      hint: 'Inbegrepen bij C++' },
+      { key: 'extra_vloerverwarming_m2',  label: 'Vloerverwarming',  hint: 'Inbegrepen bij C++', unit: '/m²' },
+      { key: 'extra_buitenkraan',         label: 'Buitenkraan',       hint: 'Inbegrepen bij C+ en C++' },
+    ],
+  },
+  {
+    title: 'Elektra binnen — per stuk',
+    items: [
+      { key: 'electra_contact', label: 'Contactpunt', hint: '' },
+      { key: 'electra_licht',   label: 'Lichtpunt',    hint: '' },
+    ],
+  },
+  {
+    title: 'Elektra buiten — per stuk',
+    items: [
+      { key: 'electra_contact_buiten', label: 'Buitenstopcontact', hint: 'IP44 waterdicht' },
+      { key: 'electra_licht_buiten',   label: 'Buitenlichtpunt',    hint: '' },
+    ],
+  },
+];
+
+let _adminLoggedIn = false;
+
+function _showToast(msg, type) {
+  const el = document.getElementById('adminToast');
+  el.textContent = msg;
+  el.className = 'admin-toast show' + (type ? ' ' + type : '');
+  clearTimeout(_showToast._t);
+  _showToast._t = setTimeout(() => { el.classList.remove('show'); }, 2400);
+}
+
+function _getAdminPw() {
+  return sessionStorage.getItem('aeu_admin_pw') || '';
+}
+
+async function loadPricesFromServer() {
+  try {
+    const res = await fetch('/api/prices');
+    if (res.ok) {
+      const serverPrices = await res.json();
+      PRICES = { ...DEFAULT_PRICES, ...serverPrices };
+      applyPriceUpdates();
+    }
+    // 404 = nog geen prijzen op server, blijven op defaults
+  } catch (e) {
+    // Netwerk/parse error — defaults blijven actief
+    console.warn('Kan prijzen niet laden:', e.message);
+  }
+}
+
+function openAdminLogin() {
+  document.getElementById('adminLoginError').classList.remove('show');
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminLoginOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('adminPwInput').focus(), 50);
+}
+function closeAdminLogin() {
+  document.getElementById('adminLoginOverlay').classList.remove('open');
+}
+async function submitAdminLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  if (!pw) return;
+  const errEl = document.getElementById('adminLoginError');
+  errEl.classList.remove('show');
+  try {
+    const res = await fetch('/api/auth/check', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + pw },
+    });
+    if (res.ok) {
+      sessionStorage.setItem('aeu_admin_pw', pw);
+      _adminLoggedIn = true;
+      closeAdminLogin();
+      openAdminPanel();
+    } else {
+      errEl.textContent = 'Onjuist wachtwoord — probeer opnieuw';
+      errEl.classList.add('show');
+    }
+  } catch (e) {
+    errEl.textContent = 'Verbindingsfout — controleer je internet';
+    errEl.classList.add('show');
+  }
+}
+
+function openAdminPanel() {
+  if (!_adminLoggedIn) { openAdminLogin(); return; }
+  renderAdminPanel();
+  document.getElementById('adminPanelOverlay').classList.add('open');
+}
+function closeAdminPanel() {
+  document.getElementById('adminPanelOverlay').classList.remove('open');
+}
+function renderAdminPanel() {
+  const body = document.getElementById('adminPanelBody');
+  let html = '';
+  ADMIN_PRICE_GROUPS.forEach(group => {
+    html += `<div class="admin-section"><h3>${group.title}</h3>`;
+    group.items.forEach(item => {
+      const value = PRICES[item.key];
+      const prefix = item.prefix !== undefined ? item.prefix : '€';
+      const suffix = item.unit || '';
+      const step = item.step || 1;
+      html += `
+        <div class="admin-row">
+          <label>${item.label}${item.hint ? `<span class="hint">${item.hint}</span>` : ''}</label>
+          <div class="price-input-wrap">
+            ${prefix ? `<span class="prefix">${prefix}</span>` : ''}
+            <input type="number" data-price-key="${item.key}" value="${value}" step="${step}" min="0">
+            ${suffix ? `<span class="suffix">${suffix}</span>` : ''}
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+async function _postPricesToServer(pricesObj) {
+  const pw = _getAdminPw();
+  if (!pw) {
+    _showToast('Niet ingelogd', 'error');
+    return false;
+  }
+  try {
+    const res = await fetch('/api/prices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + pw,
+      },
+      body: JSON.stringify(pricesObj),
+    });
+    if (res.ok) return true;
+    if (res.status === 401) {
+      sessionStorage.removeItem('aeu_admin_pw');
+      _adminLoggedIn = false;
+      _showToast('Sessie verlopen — log opnieuw in', 'error');
+      closeAdminPanel();
+      setTimeout(openAdminLogin, 300);
+      return false;
+    }
+    const err = await res.json().catch(() => ({}));
+    _showToast(err.error || ('Opslaan mislukt (' + res.status + ')'), 'error');
+    return false;
+  } catch (e) {
+    _showToast('Verbindingsfout — probeer opnieuw', 'error');
+    return false;
+  }
+}
+
+async function saveAdminPrices() {
+  const inputs = document.querySelectorAll('[data-price-key]');
+  const next = { ...PRICES };
+  inputs.forEach(inp => {
+    const key = inp.dataset.priceKey;
+    const v = parseFloat(inp.value);
+    if (!isNaN(v) && v >= 0) next[key] = v;
+  });
+  const ok = await _postPricesToServer(next);
+  if (ok) {
+    PRICES = next;
+    applyPriceUpdates();
+    _showToast('Opgeslagen — zichtbaar voor alle bezoekers', 'success');
+  }
+}
+
+async function resetAdminPrices() {
+  if (!confirm('Alle prijzen terugzetten naar standaard? Dit overschrijft de server-waardes voor alle bezoekers.')) return;
+  const ok = await _postPricesToServer({ ...DEFAULT_PRICES });
+  if (ok) {
+    PRICES = { ...DEFAULT_PRICES };
+    renderAdminPanel();
+    applyPriceUpdates();
+    _showToast('Standaardwaardes hersteld', 'success');
+  }
+}
+
+function exportAdminPrices() {
+  const blob = new Blob([JSON.stringify(PRICES, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `aeu-prijzen-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  _showToast('Geëxporteerd', 'success');
+}
+
+async function importAdminPrices(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const merged = { ...DEFAULT_PRICES };
+      Object.keys(data).forEach(k => {
+        if (k in DEFAULT_PRICES && typeof data[k] === 'number') merged[k] = data[k];
+      });
+      const ok = await _postPricesToServer(merged);
+      if (ok) {
+        PRICES = merged;
+        renderAdminPanel();
+        applyPriceUpdates();
+        _showToast('Geïmporteerd en gepubliceerd', 'success');
+      }
+    } catch (err) {
+      _showToast('Ongeldig JSON-bestand', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem('aeu_admin_pw');
+  _adminLoggedIn = false;
+  closeAdminPanel();
+  _showToast('Uitgelogd');
+}
+
+function applyPriceUpdates() {
+  document.querySelectorAll('[data-plan-rate]').forEach(el => {
+    const key = el.dataset.planRate;
+    if (PLANS[key]) el.textContent = fmt(PLANS[key].rate);
+  });
+  render();
+}
+applyPriceUpdates();
+loadPricesFromServer();
+
+document.querySelectorAll('.admin-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.admin-overlay.open').forEach(o => o.classList.remove('open'));
+  }
+});
+
+// Init
+render();
+</script>
+
+</body>
+</html>
