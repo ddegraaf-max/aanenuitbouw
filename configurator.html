@@ -2960,7 +2960,7 @@ function renderStep() {
       </div>`;
   } else if (step.id === 'afmetingen') {
     body = `<div class="step-label">${stepNum} — Afmetingen</div>
-      <h2 class="step-title">Wat zijn de afmetingen<br>van uw uitbouw?</h2>
+      <h2 class="step-title">Wat zijn de afmetingen<br>van uw ${state.type}?</h2>
       <p class="step-desc">Geef de breedte (langs de bestaande gevel) en de diepte (uit de gevel) op. Sleep de regelaar of typ een waarde.</p>
       <div class="dim-grid">
         <div class="dim-field">
@@ -3138,14 +3138,14 @@ function renderStep() {
             <div class="option-radio"></div>
             <div class="option-body">
               <div class="option-title">Regenpijp links<span class="option-price">+${fmt(state.regenpijp.materiaal === 'zink' ? PRICES.regenpijp_zink : PRICES.regenpijp_pvc)}</span></div>
-              <div class="option-desc">Linker zijkant van de uitbouw (vooraanzicht).</div>
+              <div class="option-desc">Linker zijkant van de ${state.type} (vooraanzicht).</div>
             </div>
           </div>
           <div class="option-card check-card ${state.regenpijp.rechts ? 'selected' : ''}" onclick="toggleRegenpijpSide('rechts')">
             <div class="option-radio"></div>
             <div class="option-body">
               <div class="option-title">Regenpijp rechts<span class="option-price">+${fmt(state.regenpijp.materiaal === 'zink' ? PRICES.regenpijp_zink : PRICES.regenpijp_pvc)}</span></div>
-              <div class="option-desc">Rechter zijkant van de uitbouw (vooraanzicht).</div>
+              <div class="option-desc">Rechter zijkant van de ${state.type} (vooraanzicht).</div>
             </div>
           </div>
         </div>
@@ -3678,7 +3678,7 @@ function renderValueGain() {
 
   const expl = document.getElementById('valueExplanation');
   if (isPositive) {
-    expl.innerHTML = `Uw uitbouw verdient zichzelf direct terug: voor <strong>${fmt(investment)}</strong> investering krijgt u een waardestijging van <strong>${fmt(valueGain)}</strong>. Dat is een directe winst van <strong>${fmt(net)}</strong> — én ${c.area.toFixed(1).replace('.', ',')} m² extra woongenot.`;
+    expl.innerHTML = `Uw ${state.type} verdient zichzelf direct terug: voor <strong>${fmt(investment)}</strong> investering krijgt u een waardestijging van <strong>${fmt(valueGain)}</strong>. Dat is een directe winst van <strong>${fmt(net)}</strong> — én ${c.area.toFixed(1).replace('.', ',')} m² extra woongenot.`;
   } else if (isBreakEven) {
     expl.innerHTML = `Uw investering wordt vrijwel volledig terugverdiend door de waardestijging. Effectief krijgt u <strong>${c.area.toFixed(1).replace('.', ',')} m² extra woonruimte</strong> en alle comfortverbeteringen er gratis bij.`;
   } else {
@@ -4178,6 +4178,9 @@ document.addEventListener('keydown', (e) => {
 // Init
 render();
 </script>
+
+<!-- 100% privacy-first analytics (Simple Analytics, geen cookies) -->
+<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
 </body>
 </html>
