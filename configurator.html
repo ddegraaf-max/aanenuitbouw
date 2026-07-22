@@ -2677,8 +2677,8 @@ function kleurMiniSvg(colorHex, doorType) {
       <line x1="36" y1="33" x2="36" y2="61" stroke="${stroke}" stroke-width="1.2"/>
       <line x1="50" y1="33" x2="50" y2="61" stroke="${stroke}" stroke-width="1.2"/>
       <line x1="64" y1="33" x2="64" y2="61" stroke="${stroke}" stroke-width="1.2"/>
-      <circle cx="40" cy="47" r="1.2" fill="${stroke}"/>
-      <circle cx="60" cy="47" r="1.2" fill="${stroke}"/>`;
+      <circle cx="46" cy="47" r="1.2" fill="${stroke}"/>
+      <circle cx="54" cy="47" r="1.2" fill="${stroke}"/>`;
   } else if (doorType === 'harmonica') {
     // Harmonicadeur: meerdere smalle segmenten met afwisselende vouwhoeken
     puiDetail = [32, 42, 52, 62, 72].map(x =>
@@ -3572,7 +3572,7 @@ function renderPreview() {
       const a = P(xp, 0.05, 0), b = P(xp, doorH - 0.05, 0);
       s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${doorCol}" stroke-width="1.4"/>`;
     });
-    const g1 = P(x25 + 0.12, doorH * 0.5, 0), g2 = P(x75 - 0.12, doorH * 0.5, 0);
+    const g1 = P(x50 - 0.12, doorH * 0.5, 0), g2 = P(x50 + 0.12, doorH * 0.5, 0);
     s += `<circle cx="${g1[0]}" cy="${g1[1]}" r="2" fill="${doorCol}"/><circle cx="${g2[0]}" cy="${g2[1]}" r="2" fill="${doorCol}"/>`;
   } else if (state.doors === 'harmonica') {
     const segs = Math.max(4, Math.round(w * 1.3));
