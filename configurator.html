@@ -7,32 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 56'><path d='M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z' fill='%231E4FC7'/><rect x='36' y='32' width='24' height='18' fill='%234ECD6B'/></svg>">
 <meta name="description" content="Transformeer uw huis met deskundige aan- en uitbouwen. Stel direct online uw uitbouw samen en ontvang een prijsindicatie.">
 
-<link rel="canonical" href="https://aanenuitbouw.nl/">
-<meta property="og:url" content="https://aanenuitbouw.nl/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
-<meta property="og:description" content="Stel online uw aan- of uitbouw samen en ontvang binnen 48 uur een offerte op maat.">
-<meta property="og:image" content="https://aanenuitbouw.nl/img/og-image.png">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "name": "AanEnUitbouw.nl",
-  "legalName": "Creditline B.V.",
-  "url": "https://aanenuitbouw.nl",
-  "image": "https://aanenuitbouw.nl/img/og-image.png",
-  "telephone": "+31646150160",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Bussum",
-    "addressCountry": "NL"
-  },
-  "areaServed": "Nederland",
-  "priceRange": "€€€",
-  "knowsAbout": ["aanbouw", "uitbouw", "dakkapel", "vergunningsvrij bouwen"]
-}
-</script>
-
 <!-- SEO -->
 <link rel="canonical" href="https://aanenuitbouw.nl/">
 <meta name="robots" content="index, follow">
@@ -2334,7 +2308,7 @@ img, svg { display: block; max-width: 100%; }
       </div>
       <div class="admin-error" id="adminLoginError">Onjuist wachtwoord — probeer opnieuw</div>
       <div style="font-size:12px; color: var(--color-mute); margin-top:14px; line-height:1.5;">
-      <code style="background:#F2F4F6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;"
+        Wachtwoord wordt server-side gevalideerd via <code style="background:#F2F4F6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;">ADMIN_PASSWORD</code> environment variable in Railway.
       </div>
     </div>
     <div class="admin-footer">
@@ -2470,7 +2444,8 @@ const DEFAULT_PRICES = {
   roof_schild_mult:          1.18,
   uitbouw_wand_per_meter:    450,
   doors_schuifpui:           3500,
-  doors_harmonica:           5500,
+  doors_schuifpui4:          5500,
+  doors_harmonica:           7500,
   color_extra:               850,
   bovenkozijn_metselwerk:    1250,
   bovenkozijn_trespa:        450,
@@ -2505,6 +2480,7 @@ const ROOF_TYPES = {
 const DOORS = {
   openslaand: { label: 'Openslaande deuren', desc: '4-vlaks kozijn met vast glas links en rechts; in het midden gaan de deuren open.', extra: 0 },
   schuifpui:  { label: 'Schuifpui',          desc: 'Brede glaspartij die zijdelings opent.',                     get extra() { return PRICES.doors_schuifpui; } },
+  schuifpui4: { label: 'Schuifpui 4-delig',  desc: 'Vier panelen die over elkaar schuiven voor een extra brede opening — geen draaiende deuren die bij wind kunnen dichtklappen.', get extra() { return PRICES.doors_schuifpui4; } },
   harmonica:  { label: 'Harmonicadeur',      desc: 'Volledig vouwbare wand voor een maximale opening.',         get extra() { return PRICES.doors_harmonica; } },
 };
 const DAKRAND_TYPES = {
@@ -2695,6 +2671,14 @@ function kleurMiniSvg(colorHex, doorType) {
     puiDetail = `
       <line x1="53" y1="33" x2="53" y2="61" stroke="${stroke}" stroke-width="1.5"/>
       <circle cx="49" cy="47" r="1.4" fill="${stroke}"/>`;
+  } else if (doorType === 'schuifpui4') {
+    // 4-delige schuifpui: drie gelijke verticale splits, grepen op de twee middelste panelen
+    puiDetail = `
+      <line x1="36" y1="33" x2="36" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <line x1="50" y1="33" x2="50" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <line x1="64" y1="33" x2="64" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <circle cx="40" cy="47" r="1.2" fill="${stroke}"/>
+      <circle cx="60" cy="47" r="1.2" fill="${stroke}"/>`;
   } else if (doorType === 'harmonica') {
     // Harmonicadeur: meerdere smalle segmenten met afwisselende vouwhoeken
     puiDetail = [32, 42, 52, 62, 72].map(x =>
@@ -3577,6 +3561,19 @@ function renderPreview() {
     s += `<line x1="${sp1[0]}" y1="${sp1[1]}" x2="${sp2[0]}" y2="${sp2[1]}" stroke="${doorCol}" stroke-width="1.6"/>`;
     const grip = P(splitX - 0.1, doorH * 0.5, 0);
     s += `<circle cx="${grip[0]}" cy="${grip[1]}" r="2.5" fill="${doorCol}"/>`;
+  } else if (state.doors === 'schuifpui4') {
+    // 4-delige schuifpui: drie gelijke verticale stijlen, grepen op de twee middelste (schuivende) panelen
+    const w0 = doorMargin;
+    const span = w - 2 * doorMargin;
+    const x25 = w0 + span * 0.25;
+    const x50 = w0 + span * 0.50;
+    const x75 = w0 + span * 0.75;
+    [x25, x50, x75].forEach(xp => {
+      const a = P(xp, 0.05, 0), b = P(xp, doorH - 0.05, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${doorCol}" stroke-width="1.4"/>`;
+    });
+    const g1 = P(x25 + 0.12, doorH * 0.5, 0), g2 = P(x75 - 0.12, doorH * 0.5, 0);
+    s += `<circle cx="${g1[0]}" cy="${g1[1]}" r="2" fill="${doorCol}"/><circle cx="${g2[0]}" cy="${g2[1]}" r="2" fill="${doorCol}"/>`;
   } else if (state.doors === 'harmonica') {
     const segs = Math.max(4, Math.round(w * 1.3));
     for (let i = 1; i < segs; i++) {
@@ -3935,8 +3932,9 @@ const ADMIN_PRICE_GROUPS = [
   {
     title: 'Pui — extra t.o.v. openslaande deuren',
     items: [
-      { key: 'doors_schuifpui',  label: 'Schuifpui',        hint: '' },
-      { key: 'doors_harmonica',  label: 'Harmonicadeur',    hint: '' },
+      { key: 'doors_schuifpui',  label: 'Schuifpui',          hint: '' },
+      { key: 'doors_schuifpui4', label: 'Schuifpui 4-delig',  hint: '' },
+      { key: 'doors_harmonica',  label: 'Harmonicadeur',      hint: '' },
     ],
   },
   {
