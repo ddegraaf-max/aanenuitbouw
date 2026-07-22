@@ -1,0 +1,114 @@
+<!-- ============================================================
+     SNIPPETS — 4-delige schuifpui toevoegen + prijs harmonicadeur
+     aanenuitbouw.nl configurator, stap 6/8 (Kozijn & afwerking)
+
+     LET OP: class-namen, name-attributen en data-attributen
+     hieronder zijn gebaseerd op de screenshot en gangbare opbouw.
+     Vergelijk ze met de bestaande "Schuifpui"-kaart in jouw
+     configurator-bestand en neem exact dezelfde structuur over.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     1. OPTIEKAART (HTML) — plakken DIRECT ONDER de bestaande
+        Schuifpui-kaart en BOVEN de Harmonicadeur-kaart
+     ============================================================ -->
+
+<label class="optie-kaart">
+  <input type="radio" name="pui" value="schuifpui-4delig" data-prijs="5500">
+  <div class="optie-inhoud">
+    <div class="optie-kop">
+      <span class="optie-titel">Schuifpui 4-delig</span>
+      <span class="optie-prijs">+&euro;5.500</span>
+    </div>
+    <p class="optie-omschrijving">Vier panelen die zijdelings over elkaar schuiven voor een extra brede opening. Geen deuren die de tuin in draaien en niets dat bij wind kan dichtklappen of beschadigen.</p>
+  </div>
+</label>
+
+
+<!-- ============================================================
+     2. PRIJSWIJZIGING HARMONICADEUR
+     ============================================================ -->
+
+<!-- In de bestaande Harmonicadeur-kaart twee dingen aanpassen:
+
+     a) het data-attribuut / de value in de prijsberekening:
+        data-prijs="5500"   →   data-prijs="7500"
+
+     b) de zichtbare prijs op de kaart:
+        +€5.500             →   +€7.500
+-->
+
+
+<!-- ============================================================
+     3. PRIJSBEREKENING (JS)
+     ============================================================ -->
+
+<script>
+// Zoek in het configurator-bestand naar de plek waar de puiprijzen
+// staan. Meestal een object of switch zoals hieronder.
+// Nieuwe regel toevoegen en de harmonicaprijs aanpassen:
+
+const PUI_PRIJZEN = {
+  'openslaande-deuren': 0,
+  'schuifpui': 3500,
+  'schuifpui-4delig': 5500,   // NIEUW
+  'harmonicadeur': 7500        // was 5500
+};
+
+// Werkt de berekening met data-prijs op de radio-inputs, dan is
+// alleen het HTML-blok hierboven voldoende en hoef je hier niets
+// aan te passen (behalve de harmonicadeur, zie punt 2).
+</script>
+
+
+<!-- ============================================================
+     4. SVG-WEERGAVE — vier panelen
+     ============================================================ -->
+
+<script>
+// De bestaande schuifpui tekent 2 vakken. Voor de 4-delige:
+// zelfde totale breedte, maar 4 gelijke panelen met overlap-suggestie.
+// Voorbeeldfunctie — pas breedte/hoogte/kleurvariabelen aan op de
+// bestaande teken-functie in jouw bestand:
+
+function tekenSchuifpui4Delig(svg, x, y, breedte, hoogte, kaderKleur) {
+  const paneelBreedte = breedte / 4;
+  for (let i = 0; i < 4; i++) {
+    const px = x + i * paneelBreedte;
+    // Paneelkader
+    svg.innerHTML += `<rect x="${px}" y="${y}" width="${paneelBreedte}" height="${hoogte}"
+      fill="#eaf1fb" stroke="${kaderKleur}" stroke-width="3"/>`;
+    // Handgreepje op paneel 2 en 3 (middelste panelen schuiven)
+    if (i === 1 || i === 2) {
+      svg.innerHTML += `<circle cx="${px + paneelBreedte - 8}" cy="${y + hoogte / 2}" r="2.5"
+        fill="${kaderKleur}"/>`;
+    }
+  }
+}
+
+// Aanroepen op de plek waar nu op puitype wordt gekozen, bijv.:
+// if (pui === 'schuifpui-4delig') tekenSchuifpui4Delig(...);
+</script>
+
+
+<!-- ============================================================
+     5. OFFERTEMAIL
+     ============================================================ -->
+
+<!-- Zoek in de mail-template / mailfunctie (Resend) naar waar het
+     puitype wordt uitgeschreven en voeg de nieuwe optie toe:
+
+     'schuifpui-4delig': 'Schuifpui 4-delig (+ €5.500)'
+
+     En controleer dat de harmonicadeur daar ook € 7.500 toont. -->
+
+
+<!-- ============================================================
+     6. KLEURKAARTJES (KLEUR KOZIJN)
+     ============================================================ -->
+
+<!-- De vier kleurkaartjes (Wit/Crème/Antraciet/Zwart) tonen een
+     mini-preview van de pui. Als die preview meetekent op het
+     gekozen puitype, controleer dan dat 'schuifpui-4delig' daar
+     ook wordt afgehandeld (of val terug op de 2-delige preview). -->

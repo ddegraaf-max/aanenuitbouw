@@ -1,58 +1,33 @@
-# LEESMIJ — SEO-pakket aanenuitbouw.nl
+# LEESMIJ — Schuifpui 4-delig toevoegen (stap 6/8)
 
-Dit pakket bevat vier onderdelen. Hieronder staat per onderdeel waar het geplaatst of geplakt moet worden.
+## Wat er verandert
 
-## 1. robots.txt
+| Optie | Was | Wordt |
+|-------|-----|-------|
+| Openslaande deuren | inbegrepen | inbegrepen (ongewijzigd) |
+| Schuifpui (2-delig) | +€3.500 | +€3.500 (ongewijzigd) |
+| **Schuifpui 4-delig** | — | **+€5.500 (NIEUW, direct onder de 2-delige schuifpui)** |
+| Harmonicadeur | +€5.500 | **+€7.500** |
 
-Plaats `robots.txt` in de **public/static-map** van het Node/Express-project, zodat het bestand bereikbaar is op:
+## Stappenplan
 
-```
-https://aanenuitbouw.nl/robots.txt
-```
+Open `snippets-schuifpui-4delig.html` — daarin staan zes genummerde blokken:
 
-Wordt de map met `express.static()` geserveerd, dan is verder niets nodig. Anders kun je een route toevoegen:
+1. **Optiekaart (HTML):** plakken direct onder de bestaande Schuifpui-kaart, boven de Harmonicadeur. Neem de exacte class-namen en attribuutstructuur van de bestaande Schuifpui-kaart over; de snippet is een sjabloon.
+2. **Harmonicadeur:** prijs aanpassen op twee plekken — het data-attribuut/de berekeningswaarde én de zichtbare tekst op de kaart (+€7.500).
+3. **Prijsberekening (JS):** nieuwe regel `schuifpui-4delig: 5500` toevoegen en harmonicadeur op 7500 zetten. Werkt jouw berekening al met `data-prijs` op de inputs, dan is dit blok niet nodig.
+4. **SVG-weergave:** voorbeeldfunctie voor vier panelen met handgreepjes op de middelste twee. Pas aan op je bestaande tekenfunctie.
+5. **Offertemail:** nieuwe optie toevoegen aan de mail-template en de harmonicaprijs daar controleren.
+6. **Kleurkaartjes:** controleren of de mini-previews bij "Kleur kozijn" het nieuwe puitype aankunnen.
 
-```js
-app.get('/robots.txt', (req, res) => res.sendFile(path.join(__dirname, 'robots.txt')));
-```
+## Testen na aanpassing
 
-## 2. sitemap.xml
+1. Kaart verschijnt op de juiste plek en is selecteerbaar
+2. Totaalprijs stijgt met €5.500 bij selectie
+3. Harmonicadeur telt nu €7.500 mee (kaart én berekening)
+4. SVG toont vier panelen bij de nieuwe optie
+5. Testofferte aanvragen → mail toont "Schuifpui 4-delig (+ €5.500)"
 
-Plaats `sitemap.xml` op dezelfde manier in de public/static-map, bereikbaar op:
+## Kanttekening
 
-```
-https://aanenuitbouw.nl/sitemap.xml
-```
-
-Daarna aanmelden in Google Search Console (Sitemaps → sitemap.xml toevoegen).
-
-## 3. snippets.html — vier blokken, vier plekken
-
-Open `snippets.html`. Daarin staan vier duidelijk gemarkeerde blokken:
-
-| Blok | Wat | Waar plakken |
-|------|-----|--------------|
-| 1 | FAQ-sectie (HTML, `<details>`/`<summary>`) | In het bestand **configurator**, op de gewenste plek in de pagina (bijv. onder de configurator, boven de footer) |
-| 2 | FAQPage JSON-LD (`<script type="application/ld+json">`) | In de **`<head>`** van de pagina |
-| 3 | Accordeon-CSS | Bij de bestaande **styles** (in het stylesheet of het bestaande `<style>`-blok) — de omliggende `<style>`-tags weglaten als je in een .css-bestand plakt |
-| 4 | og:image-metatags | In de **`<head>`**, bij de andere og:-tags |
-
-## 4. og-image
-
-De og:image-tags verwijzen naar:
-
-```
-https://aanenuitbouw.nl/img/og-image.png
-```
-
-Zorg dat op die locatie een afbeelding van **1200 × 630 px** staat (PNG). De `og:image:width`- en `og:image:height`-tags zorgen ervoor dat WhatsApp de preview meteen goed toont, ook bij de eerste keer delen.
-
-Tip: na het deployen de preview verversen via de Facebook Sharing Debugger (developers.facebook.com/tools/debug) — die cache gebruikt WhatsApp ook.
-
-## Controle na deploy
-
-1. `https://aanenuitbouw.nl/robots.txt` openen → inhoud klopt
-2. `https://aanenuitbouw.nl/sitemap.xml` openen → geldige XML
-3. FAQ-accordeon testen (open/dicht klikken)
-4. JSON-LD valideren via search.google.com/test/rich-results
-5. Link delen via WhatsApp → afbeelding verschijnt
+Deze snippets zijn geschreven op basis van de screenshot, niet op basis van het echte configurator-bestand. Class-namen, name-attributen en de opbouw van de prijsberekening kunnen afwijken. Upload het bestand in de chat, dan lever ik een kant-en-klare aangepaste versie die je direct kunt deployen (ZIP → GitHub Desktop → Railway).
