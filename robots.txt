@@ -1,12 +1,4 @@
-# robots.txt voor aanenuitbouw.nl
-# Zoekmachines mogen de hele publieke site indexeren.
-
 User-agent: *
-Allow: /
+Disallow: /cdn-cgi/
 
-# Beheerpaneel en API-endpoints buiten de index houden
-Disallow: /api/
-Disallow: /admin
-
-# Verwijzing naar sitemap
 Sitemap: https://aanenuitbouw.nl/sitemap.xml

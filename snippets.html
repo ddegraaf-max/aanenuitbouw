@@ -1,0 +1,170 @@
+<!-- ============================================================
+     SNIPPETS voor aanenuitbouw.nl
+     Zie LEESMIJ.md voor waar elk blok geplakt moet worden.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     1. FAQ-SECTIE (HTML) — plakken in het bestand "configurator"
+     ============================================================ -->
+
+<section class="faq" id="veelgestelde-vragen">
+  <h2>Veelgestelde vragen</h2>
+
+  <details class="faq-item">
+    <summary>Is een constructieberekening inbegrepen?</summary>
+    <div class="faq-antwoord">
+      <p>De constructieberekening verzorgen wij via onze partner <strong>Het Constructiehuis</strong>. Deze staat als aparte post op de offerte, zodat u precies ziet wat de berekening kost. Zo weet u zeker dat uw aanbouw of uitbouw constructief veilig wordt uitgevoerd en voldoet aan het Bouwbesluit.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Heb ik een vergunning nodig voor mijn aanbouw of uitbouw?</summary>
+    <div class="faq-antwoord">
+      <p>In veel gevallen niet. Een aanbouw of uitbouw aan de achterzijde van uw woning is vaak <strong>vergunningsvrij tot 4 meter diep</strong>, mits deze aan de landelijke regels voldoet. Ligt uw plan buiten die grenzen, dan is een omgevingsvergunning nodig. Wij kijken graag met u mee wat er in uw situatie mogelijk is.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Hoe verloopt het traject van configurator tot oplevering?</summary>
+    <div class="faq-antwoord">
+      <p>U stelt uw aanbouw of uitbouw samen in onze online configurator en vraagt vrijblijvend een offerte aan. <strong>Binnen 48 uur</strong> ontvangt u een offerte op maat. Na akkoord plannen we de inmeting, verzorgen we (indien nodig) vergunning en constructieberekening, en voeren we de bouw uit tot en met sleutelklare oplevering.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>In welke regio's werken jullie?</summary>
+    <div class="faq-antwoord">
+      <p>Wij werken door <strong>heel Nederland</strong>, vanuit onze thuisbasis in Bussum. Of u nu in de Randstad woont of daarbuiten: wij komen graag bij u langs voor een inmeting en realiseren uw aanbouw of uitbouw op locatie.</p>
+    </div>
+  </details>
+</section>
+
+
+<!-- ============================================================
+     2. FAQPage JSON-LD — plakken in de <head>
+     ============================================================ -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is een constructieberekening inbegrepen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De constructieberekening verzorgen wij via onze partner Het Constructiehuis. Deze staat als aparte post op de offerte, zodat u precies ziet wat de berekening kost. Zo weet u zeker dat uw aanbouw of uitbouw constructief veilig wordt uitgevoerd en voldoet aan het Bouwbesluit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heb ik een vergunning nodig voor mijn aanbouw of uitbouw?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In veel gevallen niet. Een aanbouw of uitbouw aan de achterzijde van uw woning is vaak vergunningsvrij tot 4 meter diep, mits deze aan de landelijke regels voldoet. Ligt uw plan buiten die grenzen, dan is een omgevingsvergunning nodig. Wij kijken graag met u mee wat er in uw situatie mogelijk is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe verloopt het traject van configurator tot oplevering?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "U stelt uw aanbouw of uitbouw samen in onze online configurator en vraagt vrijblijvend een offerte aan. Binnen 48 uur ontvangt u een offerte op maat. Na akkoord plannen we de inmeting, verzorgen we indien nodig vergunning en constructieberekening, en voeren we de bouw uit tot en met sleutelklare oplevering."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "In welke regio's werken jullie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wij werken door heel Nederland, vanuit onze thuisbasis in Bussum. Of u nu in de Randstad woont of daarbuiten: wij komen graag bij u langs voor een inmeting en realiseren uw aanbouw of uitbouw op locatie."
+      }
+    }
+  ]
+}
+</script>
+
+
+<!-- ============================================================
+     3. ACCORDEON-CSS — plakken bij de bestaande styles
+     ============================================================ -->
+
+<style>
+/* FAQ-accordeon */
+.faq {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.faq h2 {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.faq-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.faq-item summary {
+  cursor: pointer;
+  padding: 18px 48px 18px 20px;
+  font-weight: 600;
+  list-style: none;
+  position: relative;
+  user-select: none;
+}
+
+/* Standaard driehoekje verbergen */
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Eigen plus/min-indicator */
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  font-weight: 400;
+  color: #888;
+  transition: transform 0.2s ease;
+}
+
+.faq-item[open] summary::after {
+  content: "\2212"; /* minteken */
+}
+
+.faq-item summary:hover {
+  background: #f7f7f7;
+}
+
+.faq-antwoord {
+  padding: 0 20px 18px 20px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.faq-antwoord p {
+  margin: 0;
+}
+</style>
+
+
+<!-- ============================================================
+     4. OG:IMAGE-TAGS — plakken in de <head>
+     (og:image:width/height zorgen dat WhatsApp de preview
+     direct correct toont)
+     ============================================================ -->
+
+<meta property="og:image" content="https://aanenuitbouw.nl/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
