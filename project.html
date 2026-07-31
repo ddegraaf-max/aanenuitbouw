@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volg uw project — AanEnUitbouw.nl</title>
+<meta name="description" content="Volg de voortgang van uw aanbouw of uitbouw met uw persoonlijke projectcode.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary:      #1E4FC7;
+  --color-primary-hover:#1740A8;
+  --color-primary-soft: #E8EEFA;
+  --color-primary-line: #C9D6F2;
+  --color-ink:          #1A2540;
+  --color-mute:         #6B7280;
+  --color-line:         #E1E5EA;
+  --color-bg:           #F2F4F6;
+  --color-paper:        #FFFFFF;
+  --color-green:        #4ECD6B;
+  --color-success:      #2E7D45;
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-sans:    "DM Sans", system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgba(26,37,64,0.04), 0 4px 14px rgba(26,37,64,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-sans); background: var(--color-bg); color: var(--color-ink); min-height: 100vh; }
+a { color: inherit; }
+
+.topbar { background: var(--color-paper); border-bottom: 1px solid var(--color-line); }
+.topbar-inner { max-width: 760px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; gap: 12px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--font-display); font-weight: 800; font-size: 18px; }
+.topbar-inner .back { margin-left: auto; font-size: 14px; color: var(--color-mute); text-decoration: none; }
+.topbar-inner .back:hover { color: var(--color-primary); }
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+h1 { font-family: var(--font-display); font-size: clamp(28px, 5vw, 38px); font-weight: 800; letter-spacing: -0.5px; }
+.sub { color: var(--color-mute); margin-top: 10px; font-size: 15px; line-height: 1.6; max-width: 520px; }
+
+.code-card { background: var(--color-paper); border: 1px solid var(--color-line); border-radius: 16px; box-shadow: var(--shadow-card); padding: 28px; margin-top: 32px; }
+.code-label { font-family: var(--font-display); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--color-mute); margin-bottom: 12px; }
+.code-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.code-row input { flex: 1; min-width: 220px; border: 1.5px solid var(--color-line); border-radius: 10px; padding: 14px 16px; font-size: 17px; font-family: var(--font-display); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--color-ink); outline: none; }
+.code-row input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
+.code-row button { border: 0; border-radius: 10px; background: var(--color-primary); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 15px; padding: 14px 28px; cursor: pointer; }
+.code-row button:hover { background: var(--color-primary-hover); }
+.code-row button:disabled { opacity: 0.6; cursor: default; }
+.code-hint { font-size: 13px; color: var(--color-mute); margin-top: 12px; }
+.code-error { display: none; margin-top: 14px; font-size: 14px; color: #B4232A; background: #FBEDEE; border: 1px solid #F2CCCE; border-radius: 8px; padding: 10px 14px; }
+.code-error.show { display: block; }
+
+.result { display: none; margin-top: 40px; }
+.result.show { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.project-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.project-label { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+.project-updated { font-size: 13px; color: var(--color-mute); }
+.progress-summary { font-size: 14px; color: var(--color-mute); margin-bottom: 24px; }
+.progress-summary strong { color: var(--color-success); }
+
+.timeline { background: var(--color-paper); border: 1px solid var(--color-line); border-radius: 16px; box-shadow: var(--shadow-card); padding: 8px 28px; }
+.phase { display: flex; gap: 18px; position: relative; padding: 20px 0; }
+.phase + .phase { border-top: 1px solid var(--color-line); }
+.phase-dot { flex: 0 0 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; border: 2px solid var(--color-line); color: var(--color-mute); background: var(--color-paper); }
+.phase.done .phase-dot { background: var(--color-green); border-color: var(--color-green); color: #fff; }
+.phase.active .phase-dot { background: var(--color-primary); border-color: var(--color-primary); color: #fff; box-shadow: 0 0 0 4px var(--color-primary-soft); }
+.phase-body { flex: 1; padding-top: 5px; }
+.phase-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.phase.active .phase-title { color: var(--color-primary); }
+.phase.pending .phase-title { color: var(--color-mute); font-weight: 600; }
+.phase-status { font-size: 12.5px; margin-top: 2px; color: var(--color-mute); }
+.phase.done .phase-status { color: var(--color-success); font-weight: 600; }
+.phase.active .phase-status { color: var(--color-primary); font-weight: 600; }
+.phase-note { margin-top: 10px; font-size: 13.5px; line-height: 1.6; color: var(--color-ink); background: var(--color-bg); border-radius: 8px; padding: 10px 14px; }
+
+.contact-note { margin-top: 28px; background: var(--color-paper); border: 1px solid var(--color-line); border-radius: 12px; padding: 18px 24px; font-size: 14px; color: var(--color-mute); line-height: 1.7; }
+.contact-note strong { color: var(--color-ink); }
+.contact-note a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
+
+footer { border-top: 1px solid var(--color-line); padding: 24px; text-align: center; font-size: 12.5px; color: var(--color-mute); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="/">
+      <svg width="30" height="27" viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="4,22 20,5 36,22 36,50 4,50" fill="#1E4FC7"/><rect x="36" y="32" width="24" height="18" fill="#4ECD6B"/></svg>
+      AanEnUitbouw.nl
+    </a>
+    <a class="back" href="/">&larr; Terug naar de website</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>Volg uw project</h1>
+  <p class="sub">Voer de projectcode in die u bij de opdrachtbevestiging heeft ontvangen en zie direct in welke fase uw aanbouw of uitbouw zich bevindt.</p>
+
+  <div class="code-card">
+    <div class="code-label">Uw projectcode</div>
+    <div class="code-row">
+      <input id="codeInput" placeholder="AEB-XXXXX" maxlength="9" autocomplete="off" spellcheck="false">
+      <button id="checkBtn" onclick="lookup()">Bekijk status</button>
+    </div>
+    <div class="code-hint">De code staat in uw opdrachtbevestiging en heeft de vorm AEB-XXXXX.</div>
+    <div class="code-error" id="codeError"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="project-head">
+      <div class="project-label" id="projectLabel"></div>
+      <div class="project-updated" id="projectUpdated"></div>
+    </div>
+    <div class="progress-summary" id="progressSummary"></div>
+    <div class="timeline" id="timeline"></div>
+    <div class="contact-note">
+      <strong>Vragen over uw project?</strong> Bel ons op <a href="tel:+31646150160">+31&nbsp;646&nbsp;150&nbsp;160</a> of mail naar <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a> en vermeld uw projectcode.
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2026 Creditline BV &middot; KvK 59683198 &middot; <a href="/">aanenuitbouw.nl</a></footer>
+
+<script>
+const PHASES = [
+  { title: 'Offerte akkoord',          desc: 'Uw opdracht is bevestigd en ingepland.' },
+  { title: 'Inmeting',                 desc: 'Wij meten alles exact in op locatie.' },
+  { title: 'Vergunning & constructie', desc: 'Constructieberekening en (indien nodig) vergunningstraject.' },
+  { title: 'Productie kozijnen',       desc: 'Uw kozijnen en pui worden op maat geproduceerd.' },
+  { title: 'Start bouw',               desc: 'Fundering en ruwbouw worden uitgevoerd.' },
+  { title: 'Wind- en waterdicht',      desc: 'Dak, gevel en kozijnen zitten erin — de schil is dicht.' },
+  { title: 'Afwerking',                desc: 'Binnenafwerking, installaties en detaillering.' },
+  { title: 'Oplevering',               desc: 'Eindcontrole en sleuteloverdracht.' },
+];
+
+const input = document.getElementById('codeInput');
+input.addEventListener('input', () => {
+  let v = input.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+  if (v.length >= 3 && !v.startsWith('AEB-') && 'AEB-'.startsWith(v) === false && !v.includes('-')) {
+    v = v.replace(/^AEB/, 'AEB-');
+  }
+  input.value = v;
+});
+input.addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+
+// Code uit de URL overnemen (?code=AEB-XXXXX) zodat je een directe link kunt sturen
+const urlCode = new URLSearchParams(location.search).get('code');
+if (urlCode) { input.value = urlCode.toUpperCase(); lookup(); }
+
+async function lookup() {
+  const code = input.value.trim().toUpperCase();
+  const errEl = document.getElementById('codeError');
+  const btn = document.getElementById('checkBtn');
+  errEl.classList.remove('show');
+  document.getElementById('result').classList.remove('show');
+  if (!/^AEB-[A-Z2-9]{5}$/.test(code)) {
+    errEl.textContent = 'Voer een geldige code in, in de vorm AEB-XXXXX.';
+    errEl.classList.add('show');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Zoeken\u2026';
+  try {
+    const res = await fetch('/api/project?code=' + encodeURIComponent(code));
+    if (res.status === 404) throw new Error('Deze projectcode is niet gevonden. Controleer de code in uw opdrachtbevestiging.');
+    if (res.status === 429) throw new Error('Te veel pogingen. Probeer het over 10 minuten opnieuw.');
+    if (!res.ok) throw new Error('Er ging iets mis. Probeer het later opnieuw.');
+    const p = await res.json();
+    renderProject(p);
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Bekijk status';
+  }
+}
+
+function renderProject(p) {
+  document.getElementById('projectLabel').textContent = p.label;
+  const upd = p.updated ? new Date(p.updated) : null;
+  document.getElementById('projectUpdated').textContent = upd
+    ? 'Laatst bijgewerkt: ' + upd.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '';
+  const done = Math.min(p.phase, PHASES.length - 1);
+  const isKlaar = p.phase >= PHASES.length - 1;
+  document.getElementById('progressSummary').innerHTML = isKlaar
+    ? '<strong>Uw project is opgeleverd.</strong> Bedankt voor het vertrouwen!'
+    : 'Fase <strong>' + (done + 1) + ' van ' + PHASES.length + '</strong> \u2014 ' + PHASES[done].title;
+
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = PHASES.map((ph, i) => {
+    const state = i < p.phase ? 'done' : (i === p.phase ? 'active' : 'pending');
+    const statusText = state === 'done' ? 'Afgerond' : (state === 'active' ? (isKlaar && i === PHASES.length - 1 ? 'Afgerond' : 'In uitvoering') : 'Nog te starten');
+    const note = p.notes && p.notes[i] ? '<div class="phase-note">' + escapeHtml(p.notes[i]) + '</div>' : '';
+    const dotContent = (state === 'done' || (isKlaar && i === PHASES.length - 1))
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : String(i + 1);
+    const cls = (isKlaar && i === PHASES.length - 1) ? 'done' : state;
+    return '<div class="phase ' + cls + '">' +
+      '<div class="phase-dot">' + dotContent + '</div>' +
+      '<div class="phase-body">' +
+        '<div class="phase-title">' + ph.title + '</div>' +
+        '<div class="phase-status">' + statusText + ' \u00b7 ' + ph.desc + '</div>' +
+        note +
+      '</div></div>';
+  }).join('');
+
+  document.getElementById('result').classList.add('show');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>

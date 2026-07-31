@@ -6,6 +6,8 @@ const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const DATA_DIR = process.env.DATA_DIR || '/data';
 const PRICES_FILE = path.join(DATA_DIR, 'prices.json');
+const PLANNING_FILE = path.join(DATA_DIR, 'planning.json');
+const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 // Resend e-mail configuratie
@@ -89,6 +91,60 @@ async function writePrices(prices) {
   await fs.promises.mkdir(DATA_DIR, { recursive: true });
   await fs.promises.writeFile(PRICES_FILE, JSON.stringify(prices, null, 2), 'utf8');
 }
+
+// ---- Generieke JSON-opslag (zelfde patroon als prices) ----
+async function readDataFile(file) {
+  try {
+    const data = await fs.promises.readFile(file, 'utf8');
+    return JSON.parse(data);
+  } catch (e) {
+    if (e.code === 'ENOENT') return null;
+    throw e;
+  }
+}
+
+async function writeDataFile(file, obj) {
+  await fs.promises.mkdir(DATA_DIR, { recursive: true });
+  await fs.promises.writeFile(file, JSON.stringify(obj, null, 2), 'utf8');
+}
+
+// ---- Projectcodes: AEB-XXXXX, zonder verwarrende tekens (0/O, 1/I/L) ----
+const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function generateProjectCode(existing) {
+  const crypto = require('crypto');
+  for (let attempt = 0; attempt < 50; attempt++) {
+    let code = 'AEB-';
+    const bytes = crypto.randomBytes(5);
+    for (let i = 0; i < 5; i++) code += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+    if (!existing || !existing[code]) return code;
+  }
+  throw new Error('Kon geen unieke projectcode genereren');
+}
+
+const PROJECT_PHASE_COUNT = 8; // 0 = Offerte akkoord ... 7 = Oplevering
+const PLANNING_STATUSES = ['green', 'orange', 'red'];
+
+// ---- Eenvoudige rate limiter voor de publieke projectcode-check ----
+const _projectLookups = new Map(); // ip -> { count, reset }
+function projectLookupAllowed(ip) {
+  const now = Date.now();
+  const WINDOW = 10 * 60 * 1000; // 10 minuten
+  const MAX = 30;
+  const entry = _projectLookups.get(ip);
+  if (!entry || now > entry.reset) {
+    _projectLookups.set(ip, { count: 1, reset: now + WINDOW });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= MAX;
+}
+// Opruimen zodat de map niet oneindig groeit
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of _projectLookups) {
+    if (now > entry.reset) _projectLookups.delete(ip);
+  }
+}, 10 * 60 * 1000).unref();
 
 // HTML-escape om injectie in de e-mail te voorkomen
 function esc(str) {
@@ -277,6 +333,7 @@ async function sendQuoteEmails(data) {
 
 function serveStatic(req, res, urlPath) {
   if (urlPath === '/' || urlPath === '') urlPath = '/configurator.html';
+  if (urlPath === '/project' || urlPath === '/project/') urlPath = '/project.html';
   const filePath = path.normalize(path.join(ROOT, urlPath));
   if (!filePath.startsWith(ROOT)) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
@@ -367,6 +424,144 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       console.error('Quote send error:', e.message);
       return jsonResponse(res, 502, { error: 'Verzenden mislukt — probeer het later opnieuw' });
+    }
+  }
+
+  // ---- Beschikbaarheid (planning) ----
+  if (pathname === '/api/planning' && req.method === 'GET') {
+    try {
+      const planning = await readDataFile(PLANNING_FILE);
+      if (!planning) return jsonResponse(res, 404, { message: 'Geen planning ingesteld' });
+      return jsonResponse(res, 200, planning);
+    } catch (e) {
+      console.error('Read planning error:', e.message);
+      return jsonResponse(res, 500, { error: 'Serverfout bij lezen' });
+    }
+  }
+
+  if (pathname === '/api/planning' && req.method === 'POST') {
+    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    try {
+      const body = await readJsonBody(req);
+      const months = (body && typeof body.months === 'object' && !Array.isArray(body.months)) ? body.months : null;
+      if (!months) return jsonResponse(res, 400, { error: 'months-object verplicht' });
+      const clean = {};
+      let count = 0;
+      for (const ym in months) {
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ym)) return jsonResponse(res, 400, { error: `Ongeldige maand: ${ym}` });
+        if (!PLANNING_STATUSES.includes(months[ym])) return jsonResponse(res, 400, { error: `Ongeldige status voor ${ym}` });
+        clean[ym] = months[ym];
+        if (++count > 24) return jsonResponse(res, 400, { error: 'Maximaal 24 maanden' });
+      }
+      await writeDataFile(PLANNING_FILE, { months: clean, updated: new Date().toISOString() });
+      return jsonResponse(res, 200, { success: true });
+    } catch (e) {
+      console.error('Write planning error:', e.message);
+      return jsonResponse(res, 400, { error: e.message || 'Opslaan mislukt' });
+    }
+  }
+
+  // ---- Projectmonitor: publieke code-check (rate limited) ----
+  if (pathname === '/api/project' && req.method === 'GET') {
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'onbekend';
+    if (!projectLookupAllowed(ip)) return jsonResponse(res, 429, { error: 'Te veel pogingen — probeer het over 10 minuten opnieuw' });
+    const code = String(url.searchParams.get('code') || '').toUpperCase().trim();
+    if (!/^AEB-[A-Z2-9]{5}$/.test(code)) {
+      return jsonResponse(res, 400, { error: 'Ongeldige projectcode' });
+    }
+    try {
+      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+      const p = projects[code];
+      // Kleine vertraging tegen brute force, ook bij treffers (timing-neutraal)
+      await _sleep(400);
+      if (!p) return jsonResponse(res, 404, { error: 'Projectcode niet gevonden' });
+      return jsonResponse(res, 200, {
+        label: p.label,
+        phase: p.phase,
+        notes: p.notes || {},
+        updated: p.updated,
+      });
+    } catch (e) {
+      console.error('Read project error:', e.message);
+      return jsonResponse(res, 500, { error: 'Serverfout bij lezen' });
+    }
+  }
+
+  // ---- Projectmonitor: beheer (admin) ----
+  if (pathname === '/api/projects' && req.method === 'GET') {
+    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    try {
+      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+      return jsonResponse(res, 200, projects);
+    } catch (e) {
+      console.error('List projects error:', e.message);
+      return jsonResponse(res, 500, { error: 'Serverfout bij lezen' });
+    }
+  }
+
+  if (pathname === '/api/projects' && req.method === 'POST') {
+    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    try {
+      const body = await readJsonBody(req);
+      const action = String(body.action || '');
+      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+
+      if (action === 'create') {
+        const label = oneLine(body.label).slice(0, 120);
+        if (!label) return jsonResponse(res, 400, { error: 'Label is verplicht (bijv. "Fam. Jansen — Almere")' });
+        if (Object.keys(projects).length >= 200) return jsonResponse(res, 400, { error: 'Maximaal 200 projecten' });
+        const code = generateProjectCode(projects);
+        const now = new Date().toISOString();
+        projects[code] = { label, phase: 0, notes: {}, created: now, updated: now };
+        await writeDataFile(PROJECTS_FILE, projects);
+        return jsonResponse(res, 200, { success: true, code });
+      }
+
+      const code = String(body.code || '').toUpperCase().trim();
+      if (!projects[code]) return jsonResponse(res, 404, { error: 'Project niet gevonden' });
+
+      if (action === 'update') {
+        const p = projects[code];
+        if (body.phase !== undefined) {
+          const phase = Number(body.phase);
+          if (!Number.isInteger(phase) || phase < 0 || phase >= PROJECT_PHASE_COUNT) {
+            return jsonResponse(res, 400, { error: 'Ongeldige fase' });
+          }
+          p.phase = phase;
+        }
+        if (body.label !== undefined) {
+          const label = oneLine(body.label).slice(0, 120);
+          if (!label) return jsonResponse(res, 400, { error: 'Label mag niet leeg zijn' });
+          p.label = label;
+        }
+        if (body.notes !== undefined) {
+          if (typeof body.notes !== 'object' || Array.isArray(body.notes)) {
+            return jsonResponse(res, 400, { error: 'notes moet een object zijn' });
+          }
+          const clean = {};
+          for (const k in body.notes) {
+            const idx = Number(k);
+            if (!Number.isInteger(idx) || idx < 0 || idx >= PROJECT_PHASE_COUNT) continue;
+            const note = String(body.notes[k] == null ? '' : body.notes[k]).slice(0, 500).trim();
+            if (note) clean[idx] = note;
+          }
+          p.notes = clean;
+        }
+        p.updated = new Date().toISOString();
+        await writeDataFile(PROJECTS_FILE, projects);
+        return jsonResponse(res, 200, { success: true });
+      }
+
+      if (action === 'delete') {
+        delete projects[code];
+        await writeDataFile(PROJECTS_FILE, projects);
+        return jsonResponse(res, 200, { success: true });
+      }
+
+      return jsonResponse(res, 400, { error: 'Onbekende actie' });
+    } catch (e) {
+      console.error('Projects admin error:', e.message);
+      return jsonResponse(res, 400, { error: e.message || 'Actie mislukt' });
     }
   }
 

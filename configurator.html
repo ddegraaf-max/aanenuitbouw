@@ -1558,6 +1558,57 @@ img, svg { display: block; max-width: 100%; }
   overflow-y: auto;
   flex: 1;
 }
+/* ─── Beschikbaarheid (publiek) ─── */
+.avail-card { background: var(--color-paper); border: 1px solid var(--color-line); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); padding: 28px 32px; }
+.avail-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.avail-title { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+.avail-next { font-size: 14px; color: var(--color-mute); margin-top: 4px; }
+.avail-next strong { color: var(--color-success); }
+.avail-cta { white-space: nowrap; }
+.avail-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.avail-month { border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 12px 14px; text-align: center; }
+.avail-month .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; }
+.avail-month .m-status { font-size: 12px; margin-top: 3px; font-weight: 600; }
+.avail-month.st-green  { background: #EDFAF1; border-color: #BFE9CC; } .avail-month.st-green .m-status  { color: var(--color-success); }
+.avail-month.st-orange { background: #FEF6EA; border-color: #F3DCB4; } .avail-month.st-orange .m-status { color: #A96A0F; }
+.avail-month.st-red    { background: #FBEDEE; border-color: #F2CCCE; } .avail-month.st-red .m-status    { color: #B4232A; }
+.avail-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 18px; font-size: 12.5px; color: var(--color-mute); }
+.avail-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.dot-green { background: var(--color-accent-green); } .dot-orange { background: #E8A33D; } .dot-red { background: #D64545; }
+
+/* ─── Admin: tabs ─── */
+.admin-tabs { display: flex; gap: 4px; padding: 0 28px; border-bottom: 1px solid var(--color-line); background: var(--color-bg-soft); }
+.admin-tab { border: 0; background: none; font-family: var(--font-display); font-weight: 700; font-size: 13.5px; color: var(--color-mute); padding: 14px 16px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.admin-tab:hover { color: var(--color-ink); }
+.admin-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+/* ─── Admin: planning ─── */
+.plan-months-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.plan-month-pill { border: 1.5px solid var(--color-line); border-radius: var(--radius-lg); padding: 12px 14px; cursor: pointer; text-align: center; user-select: none; transition: transform 0.1s ease; }
+.plan-month-pill:hover { transform: translateY(-1px); }
+.plan-month-pill .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; }
+.plan-month-pill .m-status { font-size: 11.5px; margin-top: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-mute); }
+.plan-month-pill.st-green  { background: #EDFAF1; border-color: var(--color-accent-green); } .plan-month-pill.st-green .m-status  { color: var(--color-success); }
+.plan-month-pill.st-orange { background: #FEF6EA; border-color: #E8A33D; } .plan-month-pill.st-orange .m-status { color: #A96A0F; }
+.plan-month-pill.st-red    { background: #FBEDEE; border-color: #D64545; } .plan-month-pill.st-red .m-status    { color: #B4232A; }
+.admin-hint-line { font-size: 12.5px; color: var(--color-mute); margin: 0 0 14px; line-height: 1.6; }
+
+/* ─── Admin: projecten ─── */
+.proj-add-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.proj-add-row input { flex: 1; min-width: 220px; border: 1.5px solid var(--color-line); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: var(--font-sans); }
+.proj-add-row input:focus { outline: none; border-color: var(--color-primary); }
+.proj-card { border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px; background: var(--color-paper); }
+.proj-card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.proj-card-label { font-family: var(--font-display); font-weight: 700; font-size: 15px; flex: 1; min-width: 160px; }
+.proj-code { font-family: monospace; font-size: 13px; background: var(--color-primary-soft); color: var(--color-primary); border-radius: 6px; padding: 4px 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; border: 0; }
+.proj-code:hover { background: var(--color-primary-line); }
+.proj-card select { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); background: var(--color-paper); }
+.proj-note-row { display: flex; gap: 10px; margin-top: 12px; }
+.proj-note-row textarea { flex: 1; border: 1.5px solid var(--color-line); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: var(--font-sans); resize: vertical; min-height: 40px; }
+.proj-note-row textarea:focus { outline: none; border-color: var(--color-primary); }
+.proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
+.proj-del:hover { text-decoration: underline; }
+.proj-meta { font-size: 12px; color: var(--color-mute); margin-top: 8px; }
 .admin-section {
   margin-bottom: 28px;
 }
@@ -2023,6 +2074,30 @@ img, svg { display: block; max-width: 100%; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     BESCHIKBAARHEID (gevuld vanaf /api/planning; blijft
+     verborgen zolang er geen planning is ingesteld)
+     ═══════════════════════════════════════════════════ -->
+<section id="beschikbaarheid" class="section section-paper" style="display:none; padding-top: 0;">
+  <div class="container">
+    <div class="avail-card">
+      <div class="avail-head">
+        <div>
+          <div class="avail-title">Actuele beschikbaarheid</div>
+          <div class="avail-next" id="availNext"></div>
+        </div>
+        <a href="#configurator" class="btn btn-primary avail-cta">Reserveer uw plek</a>
+      </div>
+      <div class="avail-months" id="availMonths"></div>
+      <div class="avail-legend">
+        <span><i class="dot dot-green"></i>Ruimte beschikbaar</span>
+        <span><i class="dot dot-orange"></i>Beperkte ruimte</span>
+        <span><i class="dot dot-red"></i>Volgeboekt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      PROCES
      ═══════════════════════════════════════════════════ -->
 <section id="proces" class="section section-paper">
@@ -2356,9 +2431,14 @@ img, svg { display: block; max-width: 100%; }
       </div>
       <button class="admin-close" onclick="closeAdminPanel()" aria-label="Sluiten">×</button>
     </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="adminTabPrijzen" onclick="setAdminTab('prijzen')">Prijzen</button>
+      <button class="admin-tab" id="adminTabPlanning" onclick="setAdminTab('planning')">Beschikbaarheid</button>
+      <button class="admin-tab" id="adminTabProjecten" onclick="setAdminTab('projecten')">Projecten</button>
+    </div>
     <div class="admin-body" id="adminPanelBody"></div>
     <div class="admin-footer">
-      <div class="group">
+      <div class="group" id="adminFooterLeft">
         <button class="btn-admin btn-admin-danger" onclick="resetAdminPrices()">Reset standaard</button>
         <button class="btn-admin btn-admin-ghost" onclick="exportAdminPrices()">Export</button>
         <button class="btn-admin btn-admin-ghost" onclick="document.getElementById('adminImportFile').click()">Import</button>
@@ -2366,7 +2446,7 @@ img, svg { display: block; max-width: 100%; }
       </div>
       <div class="group">
         <button class="btn-admin btn-admin-ghost" onclick="logoutAdmin()">Uitloggen</button>
-        <button class="btn-admin btn-admin-primary" onclick="saveAdminPrices()">Opslaan</button>
+        <button class="btn-admin btn-admin-primary" id="adminSaveBtn" onclick="adminSave()">Opslaan</button>
       </div>
     </div>
   </div>
@@ -4109,8 +4189,26 @@ function openAdminPanel() {
 function closeAdminPanel() {
   document.getElementById('adminPanelOverlay').classList.remove('open');
 }
+let _adminTab = 'prijzen';
+function setAdminTab(tab) { _adminTab = tab; renderAdminPanel(); }
+
 function renderAdminPanel() {
   const body = document.getElementById('adminPanelBody');
+  ['Prijzen', 'Planning', 'Projecten'].forEach(t => {
+    const el = document.getElementById('adminTab' + t);
+    if (el) el.classList.toggle('active', _adminTab === t.toLowerCase());
+  });
+  const isPrices = _adminTab === 'prijzen';
+  document.getElementById('adminFooterLeft').style.display = isPrices ? '' : 'none';
+  const saveBtn = document.getElementById('adminSaveBtn');
+  saveBtn.style.display = _adminTab === 'projecten' ? 'none' : '';
+  saveBtn.textContent = isPrices ? 'Opslaan' : 'Beschikbaarheid opslaan';
+  document.getElementById('adminPanelTitle').textContent =
+    isPrices ? 'Prijsbeheer' : (_adminTab === 'planning' ? 'Beschikbaarheid' : 'Projectmonitor');
+
+  if (_adminTab === 'planning') { renderPlanningTab(body); return; }
+  if (_adminTab === 'projecten') { renderProjectsTab(body); return; }
+
   let html = '';
   ADMIN_PRICE_GROUPS.forEach(group => {
     html += `<div class="admin-section"><h3>${group.title}</h3>`;
@@ -4134,6 +4232,235 @@ function renderAdminPanel() {
   });
   body.innerHTML = html;
 }
+
+function adminSave() {
+  if (_adminTab === 'planning') { savePlanningAdmin(); return; }
+  saveAdminPrices();
+}
+
+// ─── Admin: beschikbaarheid ───
+let _planningDraft = null; // { '2026-08': 'green', ... }
+const MONTH_STATUS_LABEL = { green: 'Beschikbaar', orange: 'Beperkt', red: 'Vol' };
+
+function upcomingMonths(n) {
+  const out = [];
+  const d = new Date();
+  d.setDate(1);
+  for (let i = 0; i < n; i++) {
+    out.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+    d.setMonth(d.getMonth() + 1);
+  }
+  return out;
+}
+function monthName(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+}
+
+async function renderPlanningTab(body) {
+  if (_planningDraft === null) {
+    body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+    try {
+      const res = await fetch('/api/planning');
+      _planningDraft = res.ok ? ((await res.json()).months || {}) : {};
+    } catch (e) { _planningDraft = {}; }
+    if (_adminTab !== 'planning') return;
+  }
+  const months = upcomingMonths(12);
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Komende 12 maanden</h3>
+      <p class="admin-hint-line">Klik op een maand om de status te wisselen (beschikbaar → beperkt → vol). Sla daarna op met de knop rechtsonder. De eerste zes maanden worden op de website getoond; de eerstvolgende groene of oranje maand wordt uitgelicht als startdatum.</p>
+      <div class="plan-months-grid">
+        ${months.map(ym => {
+          const st = _planningDraft[ym] || 'green';
+          return `<div class="plan-month-pill st-${st}" onclick="cyclePlanningMonth('${ym}')">
+            <div class="m-name">${monthName(ym)}</div>
+            <div class="m-status">${MONTH_STATUS_LABEL[st]}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function cyclePlanningMonth(ym) {
+  const order = ['green', 'orange', 'red'];
+  const cur = _planningDraft[ym] || 'green';
+  _planningDraft[ym] = order[(order.indexOf(cur) + 1) % order.length];
+  renderPlanningTab(document.getElementById('adminPanelBody'));
+}
+
+async function savePlanningAdmin() {
+  const pw = _getAdminPw();
+  if (!pw) { _showToast('Niet ingelogd', 'error'); return; }
+  const months = {};
+  upcomingMonths(12).forEach(ym => { months[ym] = _planningDraft[ym] || 'green'; });
+  try {
+    const res = await fetch('/api/planning', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+      body: JSON.stringify({ months }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      _showToast(err.error || 'Opslaan mislukt', 'error');
+      return;
+    }
+    _showToast('Beschikbaarheid opgeslagen — direct zichtbaar op de site', 'success');
+    renderPublicAvailability({ months });
+  } catch (e) {
+    _showToast('Verbindingsfout — probeer opnieuw', 'error');
+  }
+}
+
+// ─── Admin: projectmonitor ───
+const PROJECT_PHASES = ['Offerte akkoord', 'Inmeting', 'Vergunning & constructie', 'Productie kozijnen', 'Start bouw', 'Wind- en waterdicht', 'Afwerking', 'Oplevering'];
+let _projectsCache = null;
+
+async function renderProjectsTab(body) {
+  body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+  const pw = _getAdminPw();
+  try {
+    const res = await fetch('/api/projects', { headers: { 'Authorization': 'Bearer ' + pw } });
+    if (!res.ok) throw new Error('Kon projecten niet laden (' + res.status + ')');
+    _projectsCache = await res.json();
+  } catch (e) {
+    body.innerHTML = '<p class="admin-hint-line">' + e.message + '</p>';
+    return;
+  }
+  if (_adminTab !== 'projecten') return;
+
+  const codes = Object.keys(_projectsCache).sort((a, b) =>
+    (_projectsCache[b].updated || '').localeCompare(_projectsCache[a].updated || ''));
+
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Nieuw project</h3>
+      <div class="proj-add-row">
+        <input id="projNewLabel" placeholder='Bijv. "Fam. Jansen — Almere, uitbouw 6×3"' maxlength="120" onkeydown="if(event.key==='Enter') createProjectAdmin()">
+        <button class="btn-admin btn-admin-primary" onclick="createProjectAdmin()">Aanmaken</button>
+      </div>
+      <p class="admin-hint-line">Na aanmaken krijgt het project een unieke code (AEB-XXXXX). Geef die aan de klant mee in de opdrachtbevestiging; hij volgt de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren.</p>
+    </div>
+    <div class="admin-section">
+      <h3>Lopende projecten (${codes.length})</h3>
+      ${codes.length === 0 ? '<p class="admin-hint-line">Nog geen projecten aangemaakt.</p>' : codes.map(code => {
+        const p = _projectsCache[code];
+        const note = (p.notes && p.notes[p.phase]) || '';
+        return `<div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-card-label">${_escAdmin(p.label)}</div>
+            <button class="proj-code" onclick="copyProjectLink('${code}')" title="Kopieer klantlink">${code}</button>
+            <select onchange="updateProjectPhase('${code}', this.value)">
+              ${PROJECT_PHASES.map((ph, i) => `<option value="${i}" ${i === p.phase ? 'selected' : ''}>${i + 1}. ${ph}</option>`).join('')}
+            </select>
+            <button class="proj-del" onclick="deleteProjectAdmin('${code}')">Verwijderen</button>
+          </div>
+          <div class="proj-note-row">
+            <textarea id="projNote-${code}" maxlength="500" placeholder="Notitie bij de huidige fase (zichtbaar voor de klant), bijv. 'Kozijnen besteld — levering week 41'">${_escAdmin(note)}</textarea>
+            <button class="btn-admin btn-admin-ghost" onclick="saveProjectNote('${code}')">Bewaar</button>
+          </div>
+          <div class="proj-meta">Fase ${p.phase + 1} van ${PROJECT_PHASES.length} · laatst bijgewerkt ${p.updated ? new Date(p.updated).toLocaleDateString('nl-NL') : '—'} · <a href="/project?code=${code}" target="_blank" rel="noopener">bekijk als klant ↗</a></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function _escAdmin(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function _projectsAction(payload, okMsg) {
+  const pw = _getAdminPw();
+  if (!pw) { _showToast('Niet ingelogd', 'error'); return null; }
+  try {
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { _showToast(data.error || 'Actie mislukt', 'error'); return null; }
+    if (okMsg) _showToast(okMsg, 'success');
+    return data;
+  } catch (e) {
+    _showToast('Verbindingsfout — probeer opnieuw', 'error');
+    return null;
+  }
+}
+
+async function createProjectAdmin() {
+  const label = document.getElementById('projNewLabel').value.trim();
+  if (!label) { _showToast('Vul eerst een omschrijving in', 'error'); return; }
+  const data = await _projectsAction({ action: 'create', label }, null);
+  if (data && data.code) {
+    _showToast('Project aangemaakt: ' + data.code, 'success');
+    renderProjectsTab(document.getElementById('adminPanelBody'));
+  }
+}
+
+async function updateProjectPhase(code, phase) {
+  const ok = await _projectsAction({ action: 'update', code, phase: Number(phase) }, 'Fase bijgewerkt');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+async function saveProjectNote(code) {
+  const p = _projectsCache[code];
+  if (!p) return;
+  const val = document.getElementById('projNote-' + code).value;
+  const notes = { ...(p.notes || {}) };
+  notes[p.phase] = val;
+  await _projectsAction({ action: 'update', code, notes }, 'Notitie opgeslagen');
+}
+
+async function deleteProjectAdmin(code) {
+  const p = _projectsCache[code];
+  if (!confirm('Project "' + (p ? p.label : code) + '" definitief verwijderen? De klantcode werkt daarna niet meer.')) return;
+  const ok = await _projectsAction({ action: 'delete', code }, 'Project verwijderd');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+function copyProjectLink(code) {
+  const link = location.origin + '/project?code=' + code;
+  navigator.clipboard.writeText(link).then(
+    () => _showToast('Klantlink gekopieerd: ' + link, 'success'),
+    () => _showToast(link, 'success')
+  );
+}
+
+// ─── Publieke beschikbaarheid op de homepage ───
+function renderPublicAvailability(planning) {
+  const section = document.getElementById('beschikbaarheid');
+  if (!section || !planning || !planning.months) return;
+  const months = upcomingMonths(6).filter(ym => planning.months[ym]);
+  if (months.length === 0) { section.style.display = 'none'; return; }
+
+  document.getElementById('availMonths').innerHTML = months.map(ym => {
+    const st = planning.months[ym];
+    return `<div class="avail-month st-${st}">
+      <div class="m-name">${monthName(ym)}</div>
+      <div class="m-status">${MONTH_STATUS_LABEL[st]}</div>
+    </div>`;
+  }).join('');
+
+  const firstOpen = upcomingMonths(12).find(ym => {
+    const st = planning.months[ym];
+    return st === 'green' || st === 'orange';
+  });
+  document.getElementById('availNext').innerHTML = firstOpen
+    ? 'Eerstvolgende beschikbare startdatum: <strong>' + monthName(firstOpen) + '</strong>'
+    : 'Momenteel volgeboekt — neem contact op voor de wachtlijst.';
+  section.style.display = '';
+}
+
+async function loadPublicAvailability() {
+  try {
+    const res = await fetch('/api/planning');
+    if (!res.ok) return; // geen planning ingesteld → blok blijft verborgen
+    renderPublicAvailability(await res.json());
+  } catch (e) { /* stil falen — puur cosmetisch blok */ }
+}
+loadPublicAvailability();
 
 async function _postPricesToServer(pricesObj) {
   const pw = _getAdminPw();
