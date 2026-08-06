@@ -72,7 +72,7 @@ const ASSET_VERSIE = (() => {
   }
 })();
 const PAGINA_BESTAND = path.join(__dirname, 'pagina.html');
-const MAX_DETAILS = Number(process.env.SONDEER_MAX_DETAILS || 3);
+const MAX_DETAILS = Number(process.env.SONDEER_MAX_DETAILS || 2);
 
 // Zoekstralen in km. Begint op 1 km in plaats van 0,5: in bebouwd gebied levert
 // dat vrijwel altijd al treffers, en elke extra ronde is een extra wachttijd
@@ -83,7 +83,7 @@ const STRALEN_KM = [1, 3, 5];
 // ongeveer 100 seconden af; dan krijgt de bezoeker niets en blijft de spinner
 // draaien. Liever binnen deze tijd een gedeeltelijk antwoord dan een
 // afgebroken verbinding.
-const BUDGET_MS = Number(process.env.SONDEER_BUDGET_MS || 24000);
+const BUDGET_MS = Number(process.env.SONDEER_BUDGET_MS || 18000);
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -385,12 +385,23 @@ async function doeAnalyse(req, res, params) {
       return stuurJson(res, 400, { fout: 'Geef een adres (q) of coordinaten (lat/lon) mee.' });
     }
 
+    const geocodeMs = Date.now() - start;
+
     // Vanaf hier lopen we tegen een klok. `resterend()` vertelt hoeveel tijd er
     // nog is; elke stap krijgt daar een deel van en niets mag het budget
     // overschrijden.
     const deadline = start + BUDGET_MS;
     const resterend = () => deadline - Date.now();
     const waarschuwingen = [];
+
+    // Tijd per fase, zodat elk antwoord zelf vertelt waar de seconden blijven.
+    const tijden = {};
+    let fasePunt = Date.now();
+    const klok = (naam) => {
+      tijden[naam] = Date.now() - fasePunt;
+      fasePunt = Date.now();
+    };
+    tijden.adresOpzoeken = geocodeMs;
 
     // Zoekstraal oprekken tot er genoeg materiaal is, maar stoppen zodra er te
     // weinig tijd over is om de sonderingen daarna nog op te halen.
@@ -410,6 +421,7 @@ async function doeAnalyse(req, res, params) {
       kengegevens = await bro.zoekSonderingen(locatie.lat, locatie.lon, straal, Math.min(9000, Math.max(2500, ruimte)));
       if (kengegevens.length >= 3) break;
     }
+    klok('zoekenBijBro');
 
     // Voorkeur voor sonderingen die diep genoeg gaan om iets over de vaste laag
     // te kunnen zeggen; daarna op afstand.
@@ -427,6 +439,7 @@ async function doeAnalyse(req, res, params) {
     const opgehaald = await Promise.allSettled(
       kandidaten.map((k) => bro.haalSondering(k.broId, detailTijd)),
     );
+    klok('meetgegevensOphalen');
 
     const sonderingen = [];
     const mislukt = [];
@@ -454,6 +467,7 @@ async function doeAnalyse(req, res, params) {
       }
     });
 
+    klok('grondlagenBepalen');
     sonderingen.sort((a, b) => a.afstandM - b.afstandM);
 
     if (sonderingen.length === 0 && kengegevens.length > 0) {
@@ -500,6 +514,9 @@ async function doeAnalyse(req, res, params) {
         mockdata: bro.MOCK,
       },
       duurMs: Date.now() - start,
+      tijden,
+      detailsAangevraagd: kandidaten.map((k) => k.broId),
+      puntenPerSondering: sonderingen.map((x) => x.aantalPuntenRuw || null),
     };
 
     await logOpvraging(req, antwoord).catch(() => {});

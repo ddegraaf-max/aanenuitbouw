@@ -233,6 +233,7 @@ function interpreteerSondering(sondering, opties = {}) {
     maaiveldNap: sondering.maaiveldNap,
     einddiepte: sondering.einddiepte,
     kwaliteitsregime: sondering.kwaliteitsregime,
+    aantalPuntenRuw: sondering.aantalPunten,
     lagen: lagenUit,
     slappeToplaagDikte: afronden(slappeToplaag),
     slapVanafMaaiveld: afronden(slapVanafMaaiveld),

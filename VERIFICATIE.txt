@@ -1,100 +1,76 @@
-VERIFICATIERAPPORT — ronde 5
+VERIFICATIERAPPORT — ronde 6
 ============================
 
-VERSIEMELDING OP DE SITE
+WAT DIT OPLOST
+==============
+Niets, nog niet. Dit maakt meetbaar waar de tijd blijft, want daarover heb ik nu
+twee keer verkeerd gegokt en dat kost jou rondjes.
+
+Wat we weten:
+  - de diagnose doet de hele keten in 3,5 s (PDOK 0,5 + zoeken 1,65 + XML 1,4)
+  - de nieuwe client-JS is geladen (je zag "de BRO is traag", stap 5)
+  - die stap verschijnt na 14 s, dus de analyse duurt langer dan de diagnose
+
+Het verschil tussen die twee: de analyse haalt MEERDERE sondeer-XML's op, en
+doet er de laagbepaling over.
+
+WAT ER IS TOEGEVOEGD
+====================
+1. Faseklok in elk analyse-antwoord
+
+   "tijden": {
+     "adresOpzoeken": 480,
+     "zoekenBijBro": 1629,
+     "meetgegevensOphalen": 3052,
+     "grondlagenBepalen": 118
+   },
+   "detailsAangevraagd": ["CPT000000018289", "CPT000000018290"],
+   "puntenPerSondering": [1000, 1000]
+
+   Daarmee is in één blik te zien welke fase de seconden opeet.
+
+2. Twee sonderingen in plaats van drie (SONDEER_MAX_DETAILS)
+   Drie XML's van 300+ KB tegelijk bij de BRO opvragen kan door hun kant worden
+   afgeknepen; parallelle verzoeken naar een overheidsdienst worden vaak in een
+   wachtrij gezet. Twee is genoeg om spreiding tussen metingen te kunnen melden.
+
+3. Budget van 24 naar 18 seconden
+   Het antwoord komt daarmee altijd binnen 18 s, desnoods gedeeltelijk.
+
+GETEST
+======
+Tegen een nagemaakte BRO die 1,5 s over het zoeken en 3 s over elke XML doet:
+  HTTP 200 in 4,9 s
+  adresOpzoeken 0, zoekenBijBro 1629, meetgegevensOphalen 3052,
+  grondlagenBepalen 118 ms
+  gevonden 3, geanalyseerd 2, 1000 meetpunten per sondering
+19 tests, alle geslaagd.
+
+WAT IK VAN JOU NODIG HEB
 ========================
+Open na de deploy DIT in je browser:
 
-Waarvoor
---------
-Na een upload binnen twee seconden zien of de nieuwe versie er echt op staat.
-Een deploy kan slagen terwijl een bestand niet is meegekomen, of terwijl
-Cloudflare of je browser nog een oude versie uitlevert. Dat is precies wat je
-een avond heeft gekost.
+  https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205
 
-Hoe het werkt
--------------
-Bij het opstarten wordt een sha1 berekend over de inhoud van server.js,
-configurator.html, project.html, package.json en alle 21 bestanden van de
-module. Elke wijziging in welk bestand dan ook geeft een andere stempel.
+Dat gaat om de server heen zonder de pagina. Drie mogelijke uitkomsten:
 
-Op drie plekken te zien:
+  a) JSON binnen een paar seconden
+     -> server is snel; het probleem zit dan in de pagina, en het "tijden"-blok
+        vertelt me alsnog wat de server deed
+  b) JSON na 15-18 seconden
+     -> stuur me het "tijden"-blok; daar staat precies welke fase het is
+  c) blijft hangen of geeft een foutpagina
+     -> dan is het de verbinding tussen Railway en de BRO, en zie ik dat aan de
+        foutmelding
 
-  1. Footer van de hoofdsite, naast het KvK-nummer:  "versie dcc247fbdb"
-     Klik erop en je krijgt de details per bestand.
+Kopieer in alle gevallen het "tijden"-blok en de regels "duurMs",
+"aantalGevonden" en "aantalGeanalyseerd".
 
-  2. Onderaan de bodemcheck-pagina:
-     "versie dcc247fbdb - 2026-08-06 22:41 UTC"
-     Deze staat SERVER-SIDE in de pagina, dus zonder extra verzoek.
-
-  3. Als JSON op /bodemcheck/api/versie:
-
-     {
-       "versie": "dcc247fbdb",
-       "gestart": "2026-08-06T22:41:22.080Z",
-       "node": "v22.22.2",
-       "assetVersie": "83a94f3ba4",
-       "bestanden": {
-         "server.js": "33e5a885d8",
-         "configurator.html": "d31ed1c08d",
-         "project.html": "b8c1c1edc3",
-         "src/sondeertool": "93c3fb14f1 (21 bestanden)"
-       }
-     }
-
-     Ook opgenomen in /bodemcheck/api/diagnose.
-
-Hoe je het gebruikt
--------------------
-  Stempel veranderd na de deploy      -> de upload is aangekomen
-  Stempel ongewijzigd                 -> de deploy is niet aangekomen, of
-                                         Railway draait nog de oude container
-  Footer toont een andere stempel dan
-  /api/versie                         -> je kijkt naar een gecachte pagina
-  Eén bestandshash ongewijzigd terwijl
-  je dat bestand wel hebt aangepast   -> dat bestand is niet meegekomen in de
-                                         push (het probleem dat je eerder met de
-                                         projecten-map had)
-
-Het versie-element in de footer bestaat alleen in de nieuwe configurator.html.
-Zie je het staan, dan weet je dus ook dat DIE HTML nieuw is -- los van wat de
-server rapporteert.
-
-Bewijs
-------
-  versie nu                      3e2b5f87a4
-  na 1 regel in configurator.html 6b16986299   veranderd
-  na terugdraaien                3e2b5f87a4   weer gelijk, dus reproduceerbaar
-
-Het endpoint /api/versie staat bewust BUITEN de rate limiter: de hoofdsite
-vraagt het bij elk paginabezoek op, en het antwoord is een vaste waarde die bij
-het opstarten al is berekend.
-
-CONTROLES NA DE WIJZIGING
-=========================
-  19 tests, alle geslaagd
-  /                       200    /project     200    /api/health   200
-  /server.js              404 (broncode nog steeds geblokkeerd)
-  /bodemcheck             200    analyse      200
-  adminlogin 11 pogingen  401 x10, dan 429
-  configurator.html: 4 scriptblokken, 0 fouten; JSON-LD geldig; div-balans
-    371 open / 371 dicht
-  pagina.html: div 33/33, section 7/7, p 38/38
-
-Onderweg gevonden en opgelost: mijn eerste invoeging in pagina.html sloot één
-div te veel, en /api/versie had dubbele velden. Beide gecorrigeerd voor deze
-ZIP.
+En op de pagina zelf: wacht na "de BRO is traag" nog even door tot 35 seconden.
+Dan breekt de client af met een melding, en ook die melding is informatie.
 
 BESTANDEN
 =========
-  server.js          sha256 5b7f88d933e2b4eb0210c9e066cda7cab7bb96a009f6aa6c38fd19c009611d8b
-                     ONGEWIJZIGD sinds de eerste ZIP
-  configurator.html  sha256 59932a6b6af5ae0765293570975b6535a30540e7c602116374a845fab3e41e70
-                     versie-element + script + stijl toegevoegd
-  src/sondeertool/   nieuw bestand versie.js, plus index.js, pagina.html en
-                     sondeertool.css aangepast
-
-VERGEET NIET
-============
-Jouw browser heeft nog de oude client-JS van vóór de vorige ZIP. Eenmalig
-Ctrl+Shift+R op /bodemcheck. Daarna houdt het versiestempel in de asset-URL dit
-structureel tegen.
+  server.js          ONGEWIJZIGD sinds de eerste ZIP
+  configurator.html  ONGEWIJZIGD sinds v5 (versie-element in de footer)
+  src/sondeertool/   index.js en services/interpret.js aangepast
