@@ -1,0 +1,169 @@
+--- configurator.html.origineel	2026-08-06 22:07:52.179232683 +0000
++++ configurator.html	2026-08-06 22:10:56.081420114 +0000
+@@ -1771,6 +1771,111 @@
+   /* Bel-knop in hero stat-rij voorkomt overlopen */
+   .hero-stat-num { font-size: 23px; }
+ }
++
++/* ---------- Bodemcheck ---------- */
++.bodemcheck-wrap {
++  display: grid;
++  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
++  gap: 40px;
++  align-items: start;
++  margin-top: 36px;
++}
++.bodemcheck-intro p {
++  color: var(--color-ink-light);
++  line-height: 1.7;
++  margin: 0 0 18px;
++}
++.bodemcheck-punten {
++  list-style: none;
++  padding: 0;
++  margin: 0 0 18px;
++}
++.bodemcheck-punten li {
++  position: relative;
++  padding-left: 28px;
++  margin-bottom: 10px;
++  color: var(--color-ink);
++}
++.bodemcheck-punten li::before {
++  content: '';
++  position: absolute;
++  left: 0;
++  top: 0.45em;
++  width: 14px;
++  height: 8px;
++  border-left: 2px solid var(--color-primary);
++  border-bottom: 2px solid var(--color-primary);
++  transform: rotate(-45deg);
++}
++.bodemcheck-klein {
++  font-size: 13px;
++  color: var(--color-mute);
++  line-height: 1.6;
++  margin: 0;
++}
++.bodemcheck-kaart {
++  background: var(--color-paper);
++  border: 1px solid var(--color-line);
++  border-radius: 14px;
++  padding: 26px 24px;
++  box-shadow: 0 18px 40px -28px rgba(26, 37, 64, 0.4);
++}
++.bodemcheck-kaart label {
++  display: block;
++  font-size: 13px;
++  font-weight: 700;
++  letter-spacing: 0.02em;
++  color: var(--color-ink);
++  margin-bottom: 10px;
++}
++.bodemcheck-veld {
++  display: flex;
++  flex-direction: column;
++  gap: 10px;
++}
++.bodemcheck-veld input {
++  width: 100%;
++  font: inherit;
++  font-size: 16px;
++  padding: 13px 14px;
++  border: 1px solid var(--color-line);
++  border-radius: 10px;
++  background: var(--color-bg-soft);
++  color: var(--color-ink);
++}
++.bodemcheck-veld input:focus-visible {
++  outline: 2px solid var(--color-primary);
++  outline-offset: 1px;
++}
++.bodemcheck-veld button {
++  font: inherit;
++  font-size: 15px;
++  font-weight: 700;
++  padding: 13px 18px;
++  border: 0;
++  border-radius: 10px;
++  background: var(--color-primary);
++  color: #fff;
++  cursor: pointer;
++  transition: background-color 0.15s ease;
++}
++.bodemcheck-veld button:hover {
++  background: var(--color-primary-hover);
++}
++.bodemcheck-hint {
++  font-size: 13px;
++  color: var(--color-mute);
++  margin: 14px 0 0;
++}
++.bodemcheck-hint a {
++  color: var(--color-primary);
++}
++@media (max-width: 860px) {
++  .bodemcheck-wrap {
++    grid-template-columns: 1fr;
++    gap: 28px;
++  }
++}
+ </style>
+ </head>
+ <body>
+@@ -1795,6 +1900,7 @@
+       <a href="#diensten">Diensten</a>
+       <a href="#plannen">Plannen</a>
+       <a href="#proces">Proces</a>
++      <a href="#bodemcheck">Bodemcheck</a>
+       <a href="#configurator">Configurator</a>
+       <a href="#over-ons">Over ons</a>
+       <a href="#werk" data-nav="werk">Werk</a>
+@@ -2127,6 +2233,38 @@
+ </section>
+ 
+ <!-- ═══════════════════════════════════════════════════
++     BODEMCHECK
++     ═══════════════════════════════════════════════════ -->
++<section id="bodemcheck" class="section section-light">
++  <div class="container">
++    <div class="section-eyebrow">Gratis bodemcheck</div>
++    <h2 class="section-title">Hoe diep zit de draagkrachtige laag onder uw tuin?</h2>
++    <p class="section-sub">Elke sondering die in Nederland is uitgevoerd en aan de overheid is aangeleverd, is openbaar. Wij zoeken de metingen rond uw adres op en laten zien op welke diepte het zand begint waarop gefundeerd kan worden.</p>
++
++    <div class="bodemcheck-wrap">
++      <div class="bodemcheck-intro">
++        <p>Dat bepaalt hoe uw aanbouw gefundeerd moet worden. Zit er vast zand op een meter diepte, dan volstaat een strokenfundering. Zit er eerst tien meter klei en veen, dan wordt het een paalfundering — en dat is een wezenlijk verschil in de begroting.</p>
++        <ul class="bodemcheck-punten">
++          <li>Grondlagen en conusweerstand tot soms dertig meter diep</li>
++          <li>Indicatie van het funderingstype voor uw situatie</li>
++          <li>Gratis, direct, zonder registratie</li>
++        </ul>
++        <p class="bodemcheck-klein">Bron: Basisregistratie Ondergrond (BRO). Een indicatie, geen geotechnisch advies — voor de vergunning blijft een sondering op uw eigen perceel nodig.</p>
++      </div>
++
++      <form class="bodemcheck-kaart" id="bodemcheckForm" action="/bodemcheck" method="get">
++        <label for="bodemcheckPostcode">Uw postcode en huisnummer</label>
++        <div class="bodemcheck-veld">
++          <input type="text" id="bodemcheckPostcode" name="q" placeholder="1401 EX 5" autocomplete="postal-code" spellcheck="false">
++          <button type="submit">Bodem bekijken</button>
++        </div>
++        <p class="bodemcheck-hint">Of open de <a href="/bodemcheck">bodemcheck</a> zonder adres.</p>
++      </form>
++    </div>
++  </div>
++</section>
++
++<!-- ═══════════════════════════════════════════════════
+      CONFIGURATOR
+      ═══════════════════════════════════════════════════ -->
+ <section id="configurator" class="section section-light configurator-section">
+@@ -2367,6 +2505,7 @@
+         <a href="#diensten">Diensten</a>
+         <a href="#plannen">Plannen</a>
+         <a href="#proces">Proces</a>
++        <a href="#bodemcheck">Bodemcheck</a>
+         <a href="#configurator">Configurator</a>
+       </div>
+       <div class="footer-col">

@@ -50,10 +50,34 @@
     melding.hidden = false;
   }
 
+  let voortgangTimer = null;
+
   function bezig(aan) {
     zoekknop.disabled = aan;
     zoekknop.querySelector('.sd-knop__spinner').hidden = !aan;
-    zoekknop.querySelector('.sd-knop__tekst').textContent = aan ? 'Bezig met opzoeken' : 'Bodem opzoeken';
+    const label = zoekknop.querySelector('.sd-knop__tekst');
+
+    clearInterval(voortgangTimer);
+    if (!aan) {
+      label.textContent = 'Bodem opzoeken';
+      return;
+    }
+
+    // De BRO is een overheidsdienst die soms traag is. Zonder terugkoppeling
+    // lijkt een wachttijd van tien seconden op een vastgelopen pagina.
+    const stappen = [
+      'Adres opzoeken',
+      'Sonderingen zoeken bij de BRO',
+      'Meetgegevens ophalen',
+      'Grondlagen bepalen',
+      'Nog even, de BRO is traag',
+    ];
+    let i = 0;
+    label.textContent = stappen[0];
+    voortgangTimer = setInterval(() => {
+      i = Math.min(i + 1, stappen.length - 1);
+      label.textContent = stappen[i];
+    }, 3500);
   }
 
   function vertraag(fn, ms) {
@@ -139,8 +163,29 @@
         ? `lat=${gekozenLocatie.lat}&lon=${gekozenLocatie.lon}&label=${encodeURIComponent(gekozenLocatie.omschrijving)}`
         : `q=${encodeURIComponent(vraag)}`;
 
-      const res = await fetch(`${BASIS}/api/analyse?${params}`);
-      const data = await res.json();
+      // Harde limiet aan onze kant. Zonder dit blijft de spinner draaien als de
+      // verbinding onderweg wordt afgekapt en er nooit een antwoord komt.
+      const afbreker = new AbortController();
+      const tijdslimiet = setTimeout(() => afbreker.abort(), 35000);
+
+      let res;
+      let data;
+      try {
+        res = await fetch(`${BASIS}/api/analyse?${params}`, { signal: afbreker.signal });
+      } finally {
+        clearTimeout(tijdslimiet);
+      }
+
+      try {
+        data = await res.json();
+      } catch {
+        zetMelding(
+          res.status >= 500
+            ? 'De Basisregistratie Ondergrond antwoordde niet op tijd. Probeer het over een paar minuten opnieuw.'
+            : 'Onverwacht antwoord van de server. Probeer het opnieuw.',
+        );
+        return;
+      }
 
       if (!res.ok) {
         zetMelding(data.fout || 'Er ging iets mis bij het opzoeken.');
@@ -157,11 +202,19 @@
 
       if (data.sonderingen.length === 0) {
         zetMelding(
-          `In een straal van ${data.zoekstraalKm} km zijn geen bruikbare sonderingen gevonden. Vraag een sondering op uw eigen perceel aan.`,
+          data.waarschuwingen && data.waarschuwingen.length
+            ? data.waarschuwingen.join(' ')
+            : `In een straal van ${data.zoekstraalKm} km zijn geen bruikbare sonderingen gevonden. Vraag een sondering op uw eigen perceel aan.`,
         );
+      } else if (data.waarschuwingen && data.waarschuwingen.length) {
+        zetMelding(data.waarschuwingen.join(' '), 'ok');
       }
     } catch (fout) {
-      zetMelding('De verbinding is mislukt. Probeer het opnieuw.');
+      zetMelding(
+        fout && fout.name === 'AbortError'
+          ? 'Het opzoeken duurde te lang en is afgebroken. De Basisregistratie Ondergrond is soms traag; probeer het over een paar minuten opnieuw.'
+          : 'De verbinding is mislukt. Probeer het opnieuw.',
+      );
     } finally {
       bezig(false);
     }

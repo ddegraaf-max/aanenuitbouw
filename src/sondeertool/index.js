@@ -46,7 +46,17 @@ const { interpreteerSondering, bouwSamenvatting, GRONDSOORTEN } = require('./ser
 const ASSETS_DIR = path.join(__dirname, 'assets');
 const PAGINA_BESTAND = path.join(__dirname, 'pagina.html');
 const MAX_DETAILS = Number(process.env.SONDEER_MAX_DETAILS || 3);
-const STRALEN_KM = [0.5, 1, 2, 5];
+
+// Zoekstralen in km. Begint op 1 km in plaats van 0,5: in bebouwd gebied levert
+// dat vrijwel altijd al treffers, en elke extra ronde is een extra wachttijd
+// voor de bezoeker.
+const STRALEN_KM = [1, 3, 5];
+
+// Harde bovengrens voor één opvraging. Cloudflare kapt een verbinding na
+// ongeveer 100 seconden af; dan krijgt de bezoeker niets en blijft de spinner
+// draaien. Liever binnen deze tijd een gedeeltelijk antwoord dan een
+// afgebroken verbinding.
+const BUDGET_MS = Number(process.env.SONDEER_BUDGET_MS || 24000);
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -334,15 +344,29 @@ async function doeAnalyse(req, res, params) {
       return stuurJson(res, 400, { fout: 'Geef een adres (q) of coordinaten (lat/lon) mee.' });
     }
 
-    // Zoekstraal oprekken tot er genoeg materiaal is.
+    // Vanaf hier lopen we tegen een klok. `resterend()` vertelt hoeveel tijd er
+    // nog is; elke stap krijgt daar een deel van en niets mag het budget
+    // overschrijden.
+    const deadline = start + BUDGET_MS;
+    const resterend = () => deadline - Date.now();
+    const waarschuwingen = [];
+
+    // Zoekstraal oprekken tot er genoeg materiaal is, maar stoppen zodra er te
+    // weinig tijd over is om de sonderingen daarna nog op te halen.
     const vast = schoonRadius(params.get('radius'));
     const stralen = vast ? [vast] : STRALEN_KM;
     let kengegevens = [];
     let gebruikteStraal = stralen[0];
 
     for (const straal of stralen) {
+      // Minimaal 9 s reserveren voor het ophalen van de sondeer-XML's.
+      const ruimte = resterend() - 9000;
+      if (ruimte < 2500 && kengegevens.length > 0) {
+        waarschuwingen.push(`Zoekgebied niet verder opgerekt dan ${gebruikteStraal} km wegens tijd.`);
+        break;
+      }
       gebruikteStraal = straal;
-      kengegevens = await bro.zoekSonderingen(locatie.lat, locatie.lon, straal);
+      kengegevens = await bro.zoekSonderingen(locatie.lat, locatie.lon, straal, Math.min(9000, Math.max(2500, ruimte)));
       if (kengegevens.length >= 3) break;
     }
 
@@ -356,7 +380,12 @@ async function doeAnalyse(req, res, params) {
       })
       .slice(0, MAX_DETAILS);
 
-    const opgehaald = await Promise.allSettled(kandidaten.map((k) => bro.haalSondering(k.broId)));
+    // Parallel ophalen, met wat er nog aan tijd over is. Een sondeer-XML is
+    // 0,5 tot 3 MB, dus dit is het zwaarste deel.
+    const detailTijd = Math.max(3500, resterend() - 1500);
+    const opgehaald = await Promise.allSettled(
+      kandidaten.map((k) => bro.haalSondering(k.broId, detailTijd)),
+    );
 
     const sonderingen = [];
     const mislukt = [];
@@ -382,6 +411,14 @@ async function doeAnalyse(req, res, params) {
     });
 
     sonderingen.sort((a, b) => a.afstandM - b.afstandM);
+
+    if (sonderingen.length === 0 && kengegevens.length > 0) {
+      waarschuwingen.push(
+        'De sonderingen zijn wel gevonden, maar de meetgegevens konden niet worden opgehaald bij de BRO. Probeer het over een paar minuten opnieuw.',
+      );
+    } else if (sonderingen.length < kandidaten.length) {
+      waarschuwingen.push(`${kandidaten.length - sonderingen.length} van de ${kandidaten.length} sonderingen kon niet worden uitgelezen.`);
+    }
 
     const antwoord = {
       locatie: {
@@ -410,6 +447,7 @@ async function doeAnalyse(req, res, params) {
         zoekstraalKm: gebruikteStraal,
       }),
       mislukt,
+      waarschuwingen,
       bron: {
         naam: 'Basisregistratie Ondergrond (BRO)',
         houder: 'Ministerie van Binnenlandse Zaken en Koninkrijksrelaties / TNO Geologische Dienst Nederland',
@@ -524,6 +562,109 @@ async function logOpvraging(req, antwoord) {
 }
 
 // ---------------------------------------------------------------------------
+// Diagnose
+// ---------------------------------------------------------------------------
+// Loopt de hele keten stap voor stap na en rapporteert per stap de tijd en de
+// eerste tekens van het ruwe antwoord. Bedoeld om te kunnen zien WAAR het
+// strandt in plaats van te moeten gokken. Raakt niets aan en slaat niets op.
+
+async function doeDiagnose(req, res, params) {
+  const lat = Number.parseFloat(params.get('lat')) || 52.28782;
+  const lon = Number.parseFloat(params.get('lon')) || 5.09041;
+  const stappen = [];
+
+  async function stap(naam, fn) {
+    const t0 = Date.now();
+    try {
+      const uitkomst = await fn();
+      stappen.push({ stap: naam, ok: true, ms: Date.now() - t0, ...uitkomst });
+      return uitkomst;
+    } catch (fout) {
+      stappen.push({
+        stap: naam,
+        ok: false,
+        ms: Date.now() - t0,
+        fout: fout.name === 'AbortError' ? 'timeout (afgebroken)' : fout.message,
+      });
+      return null;
+    }
+  }
+
+  const ac = () => {
+    const c = new AbortController();
+    setTimeout(() => c.abort(), 9000);
+    return c.signal;
+  };
+
+  await stap('1. PDOK adres opzoeken', async () => {
+    const url = `${process.env.PDOK_LOCATIESERVER || 'https://api.pdok.nl/bzk/locatieserver/search/v3_1'}/free?q=1401EX%205&rows=1`;
+    const r = await fetch(url, { headers: { Accept: 'application/json' }, signal: ac() });
+    const tekst = await r.text();
+    return { ok: r.ok, status: r.status, bytes: tekst.length, begin: tekst.slice(0, 200) };
+  });
+
+  await stap('2. BRO zoekopdracht (enclosingCircle)', async () => {
+    const body = {
+      registrationPeriod: { beginDate: process.env.BRO_REGISTRATIE_VANAF || '2017-01-01', endDate: new Date().toISOString().slice(0, 10) },
+      area: { enclosingCircle: { center: { lat, lon }, radius: 1 } },
+    };
+    const r = await fetch(`${bro.BASIS}/characteristics/searches?requestReference=diagnose`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(body),
+      signal: ac(),
+    });
+    const tekst = await r.text();
+    let aantalCpt = null;
+    try { aantalCpt = (tekst.match(/CPT\d{9,}/g) || []).length; } catch { /* niets */ }
+    return {
+      ok: r.ok,
+      status: r.status,
+      contentType: r.headers.get('content-type'),
+      bytes: tekst.length,
+      cptIdsGevonden: aantalCpt,
+      begin: tekst.slice(0, 600),
+    };
+  });
+
+  const eersteId = (() => {
+    const zoek = stappen.find((x) => x.stap.startsWith('2.'));
+    const m = zoek && zoek.begin && zoek.begin.match(/CPT\d{9,}/);
+    return m ? m[0] : null;
+  })();
+
+  if (eersteId) {
+    await stap(`3. BRO sondering ophalen (${eersteId})`, async () => {
+      const r = await fetch(`${bro.BASIS}/objects/${eersteId}?requestReference=diagnose`, {
+        headers: { Accept: 'application/xml' },
+        signal: ac(),
+      });
+      const tekst = await r.text();
+      return {
+        ok: r.ok,
+        status: r.status,
+        bytes: tekst.length,
+        heeftWaarden: /<(?:[\w.-]+:)?values[^>]*>/.test(tekst),
+        begin: tekst.slice(0, 300),
+      };
+    });
+  } else {
+    stappen.push({ stap: '3. BRO sondering ophalen', ok: false, fout: 'geen CPT-id uit stap 2 om te proberen' });
+  }
+
+  stuurJson(res, 200, {
+    tijdstip: new Date().toISOString(),
+    node: process.version,
+    mockdata: bro.MOCK,
+    broBasis: bro.BASIS,
+    registratieVanaf: process.env.BRO_REGISTRATIE_VANAF || '2017-01-01',
+    budgetMs: BUDGET_MS,
+    testpunt: { lat, lon },
+    stappen,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // De enige functie die je server.js aanroept
 // ---------------------------------------------------------------------------
 
@@ -590,6 +731,10 @@ async function handle(req, res, url) {
       }
       if (rest === '/api/aanvraag' && methode === 'POST') {
         await doeAanvraag(req, res);
+        return true;
+      }
+      if (rest === '/api/diagnose' && methode === 'GET') {
+        await doeDiagnose(req, res, u.searchParams);
         return true;
       }
 

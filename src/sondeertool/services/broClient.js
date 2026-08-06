@@ -26,16 +26,21 @@ const mock = require('./mockBro');
  */
 
 const BASIS = (process.env.BRO_CPT_BASE || 'https://publiek.broservices.nl/sr/cpt/v1').replace(/\/$/, '');
-const TIMEOUT_MS = Number(process.env.BRO_TIMEOUT_MS || 20000);
+// Per losse call. Bewust laag: de zoekopdracht wordt tot drie keer met een
+// grotere straal herhaald, en daarna volgen nog de XML-downloads. Met 20 s per
+// call kan één opvraging bij elkaar honderd seconden duren, en dan kapt
+// Cloudflare de verbinding af terwijl de bezoeker naar een spinner kijkt.
+const TIMEOUT_MS = Number(process.env.BRO_TIMEOUT_MS || 9000);
 const REG_BEGIN = process.env.BRO_REGISTRATIE_VANAF || '2017-01-01';
 const MOCK = process.env.BRO_MOCK === '1';
 
 const cacheZoek = new Cache({ ttlMs: 1000 * 60 * 60 * 12, max: 500 });
 const cacheObject = new Cache({ ttlMs: 1000 * 60 * 60 * 24 * 30, max: 200 });
 
-async function fetchMetTimeout(url, opties = {}) {
+async function fetchMetTimeout(url, opties = {}, timeoutMs) {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), TIMEOUT_MS);
+  const limiet = Math.max(1500, Number(timeoutMs) || TIMEOUT_MS);
+  const t = setTimeout(() => ac.abort(), limiet);
   try {
     return await fetch(url, { ...opties, signal: ac.signal });
   } finally {
@@ -158,7 +163,7 @@ function normaliseerKengegeven(node, broId) {
  * @param {number} lon
  * @param {number} radiusKm  straal in kilometers (BRO verwacht km)
  */
-async function zoekSonderingen(lat, lon, radiusKm = 1) {
+async function zoekSonderingen(lat, lon, radiusKm = 1, timeoutMs) {
   if (MOCK) return mock.zoekSonderingen(lat, lon, radiusKm);
 
   const sleutel = `${lat.toFixed(5)}|${lon.toFixed(5)}|${radiusKm}`;
@@ -173,11 +178,15 @@ async function zoekSonderingen(lat, lon, radiusKm = 1) {
       },
     };
 
-    const res = await fetchMetTimeout(`${BASIS}/characteristics/searches?requestReference=aanenuitbouw-sondeertool`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body),
-    });
+    const res = await fetchMetTimeout(
+      `${BASIS}/characteristics/searches?requestReference=aanenuitbouw-sondeertool`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body),
+      },
+      timeoutMs,
+    );
 
     const tekst = await res.text();
     if (!res.ok) {
@@ -210,7 +219,7 @@ async function zoekSonderingen(lat, lon, radiusKm = 1) {
 }
 
 /** Haalt een volledige sondering op en parseert die. */
-async function haalSondering(broId) {
+async function haalSondering(broId, timeoutMs) {
   if (!/^CPT[0-9A-Z_]{4,}$/i.test(broId)) {
     throw new Error(`Ongeldig BRO-ID: ${broId}`);
   }
@@ -220,6 +229,7 @@ async function haalSondering(broId) {
     const res = await fetchMetTimeout(
       `${BASIS}/objects/${encodeURIComponent(broId)}?requestReference=aanenuitbouw-sondeertool`,
       { headers: { Accept: 'application/xml' } },
+      timeoutMs,
     );
     const xml = await res.text();
     if (!res.ok) {

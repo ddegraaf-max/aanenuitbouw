@@ -1,109 +1,120 @@
-VERIFICATIERAPPORT — server.js
-==============================
+VERIFICATIERAPPORT — ronde 2
+============================
 
-Bron van het bestand
---------------------
-Opgehaald van github.com/ddegraaf-max/aanenuitbouw (raw), niet overgetypt.
-Origineel: 26537 tekens, 588 regels
-sha256 origineel: 037bbc4166de54674ea999d2de9105abbe0654b509f4a579121457af747cff46
+Wat er in deze ronde is opgelost
+--------------------------------
+  1. het zoeken dat bleef draaien zonder resultaat
+  2. de bodemcheck op de hoofdsite (menu, footer, eigen sectie)
 
-Alle wijzigingen zijn met exacte string-vervanging op unieke ankers gedaan. Geen
-enkele bestaande regel is opnieuw getypt.
 
-Integriteit van het base64-logo in de klantbevestiging
------------------------------------------------------
-                     base64        bytes    PNG-CRC-fouten
-  voor de wijziging  1460 tekens   1095       0
-  na de wijziging    1460 tekens   1095       0
-  sha256 voor: fbe119720a3afed96fe24be67d60c3b9345fdbe4d6b13d91a071197555b7c1fd
-  sha256 na:   fbe119720a3afed96fe24be67d60c3b9345fdbe4d6b13d91a071197555b7c1fd
-  identiek: JA
+1. HET VASTLOPEN
+================
 
-Omvang van de wijziging
------------------------
-  toegevoegde regels: 88
-  vervangen regels:   6
+Oorzaak
+-------
+Mijn zoekstrategie kon in het slechtste geval honderd seconden duren:
 
-De 6 vervangen regels zijn precies deze, en niets anders:
-    -// Opruimen zodat de map niet oneindig groeit
-    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
-    -    return jsonResponse(res, checkAuth(req) ? 200 : 401, { ok: checkAuth(req) });
-    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
-    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
-    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+  zoekstralen 0,5 / 1 / 2 / 5 km, achter elkaar, elk met 20 s timeout  = 80 s
+  daarna 3 sondeer-XML's van 0,5-3 MB, elk met 20 s timeout            = 20 s
 
-Wijziging 1 — broncode niet meer uitleveren
--------------------------------------------
-serveStatic serveerde alles onder ROOT. Daardoor was /server.js publiek
-leesbaar, en straks ook /src/sondeertool/. Nu geblokkeerd:
+Cloudflare kapt een verbinding na ongeveer 100 seconden af. Dan komt er nooit
+een antwoord bij de browser, en de client had zelf geen tijdslimiet -- dus bleef
+de spinner eeuwig draaien.
 
-  /server.js                                    -> 404
-  /package.json                                 -> 404
-  /src/sondeertool/index.js                     -> 404
-  /.env                                         -> 404
-  /bodemcheck/assets/../../../server.js         -> 404
+Wat er is veranderd
+-------------------
+  timeout per BRO-call        20 s  ->  9 s
+  zoekstralen                 0,5/1/2/5 km  ->  1/3/5 km (start ruimer, minder rondes)
+  hard tijdsbudget            geen  ->  24 s voor de hele opvraging
+  bij tijdnood                niets  ->  gedeeltelijk antwoord met uitleg
+  tijdslimiet in de browser   geen  ->  35 s, met nette foutmelding
+  voortgang in de knop        "Bezig met opzoeken"  ->  vijf stappen die meelopen
 
-Geen sleutels gelekt (die staan in Railway-variabelen), maar het gaf een
-aanvaller wel het bouwplan van je adminlogin.
+Bewijs: drie storingsscenario's tegen een nagemaakte, opzettelijk trage BRO
+---------------------------------------------------------------------------
+A. de BRO-zoekopdracht hangt 30 s
+     HTTP 502 na 9,0 s
+     "De Basisregistratie Ondergrond is momenteel niet bereikbaar."
+     -> afgebroken op tijd, duidelijke melding, geen hangende verbinding
 
-Wijziging 2 — rate limiting op adminpogingen
---------------------------------------------
-/api/auth/check had geen limiet en geen vertraging: een schone 200 bij goed,
-401 bij fout. Daarmee was ADMIN_PASSWORD ongelimiteerd te raden. Nu:
+B. zoeken lukt, maar de XML-download hangt 30 s
+     HTTP 200 na 22,5 s
+     gevonden 2, geanalyseerd 0
+     waarschuwing: "De sonderingen zijn wel gevonden, maar de meetgegevens
+     konden niet worden opgehaald bij de BRO."
+     -> gedeeltelijk antwoord binnen het budget in plaats van niets
 
-  10 mislukte pogingen per IP per 15 minuten, daarna 429
-  300 ms vertraging bij elke mislukte poging
-  ALLEEN mislukte pogingen tellen mee -- een geslaagde login wist de teller
+C. alles normaal traag (0,8 s)
+     HTTP 200 na 1,6 s
+     gevonden 2, geanalyseerd 2, 7 grondlagen, paalpunt op 11,52 m
+     -> volledig resultaat
 
-Gemeten:
-  poging  1-10  -> 401 {"ok":false}
-  poging 11-13  -> 429 Te veel mislukte inlogpogingen
-  juist wachtwoord terwijl IP geblokkeerd -> 429 (dus geen ontsnapping)
-  POST /api/prices, /api/planning, /api/projects met fout wachtwoord -> 429
+Nieuw: diagnose-endpoint
+------------------------
+Ik kan de echte BRO vanaf hier niet bereiken (mijn container mag alleen naar npm
+en GitHub). Werkt het bij jou nog niet, open dan:
 
-Tegenproef, want een limiet die jou buitensluit is nutteloos:
-  inloggen                          -> 200 {"ok":true}
-  20x achter elkaar prijzen opslaan -> 20x 200, geen enkele 429
-  9 fouten, dan juist wachtwoord    -> 200, teller gereset
-  daarna weer 9 fouten + juist      -> 200, dus de reset werkt echt
-  planning opslaan                  -> 200
-  project aanmaken                  -> 200, code AEB-XXXXX
-  publieke code-check               -> 200 met het juiste label
+  https://aanenuitbouw.nl/bodemcheck/api/diagnose
 
-Ook opgelost: /api/auth/check riep checkAuth twee keer aan.
+Die loopt de keten stap voor stap na en geeft per stap de tijd, de HTTP-status
+en de eerste tekens van het ruwe antwoord. Zo is te zien WAAR het strandt in
+plaats van te moeten gokken. Voorbeelduitvoer hier, tegen de nagemaakte BRO:
 
-Wijziging 3 — sondeertool-hook
-------------------------------
-Eén regel vóór serveStatic, onderaan de request-handler:
+  1. PDOK adres opzoeken                     ok=False 225ms status=403
+  2. BRO zoekopdracht (enclosingCircle)      ok=True  305ms status=200 cpt=2
+  3. BRO sondering ophalen (CPT000000099999) ok=True  503ms status=200 waarden=True
 
-  if (await require('./src/sondeertool').handle(req, res, url)) return;
+De 403 bij stap 1 is de firewall van mijn container, niet iets in de code.
+Stuur die uitvoer als het bij jou misgaat.
 
-handle() geeft false terug voor elk verzoek buiten /bodemcheck, dus serveStatic
-loopt dan gewoon door. Gemeten na de wijziging:
 
-  /                    -> 200 configurator
-  /project             -> 200 project
-  /configurator.html   -> 200
-  /api/health          -> 200
-  /api/prices          -> 404 (No prices set yet, zoals verwacht)
-  /nietbestaand        -> 404 Niet gevonden (jouw eigen tekst)
-  /bodemcheck                            -> 200 de bodemcheck-pagina
-  /bodemcheck/assets/sondeertool.css     -> 200
-  /bodemcheck/api/analyse?lat=..&lon=..  -> 200
+2. DE BODEMCHECK OP DE HOOFDSITE
+================================
 
-Geen nieuwe dependencies. package.json is niet aangeraakt.
+configurator.html: 135 regels toegevoegd, 0 verwijderd, 0 gewijzigd.
 
-Wat NIET is getest
-------------------
-De live BRO-service. Mijn container mag alleen naar npm en GitHub, dus
-publiek.broservices.nl en api.pdok.nl waren onbereikbaar. Alle bovenstaande
-BRO-tests draaiden met BRO_MOCK=1 tegen een gegenereerde IMBRO-fixture.
-Controleer na deploy:
+  - menu-item "Bodemcheck" tussen Proces en Configurator
+  - link in de footerkolom "Navigatie"
+  - een sectie #bodemcheck tussen Proces en Configurator, met uitleg en een
+    postcodeveld dat doorstuurt naar /bodemcheck?q=...
+  - stijl uitsluitend met je bestaande CSS-variabelen (--color-primary,
+    --color-ink, --color-line), dus het beweegt mee met je huisstijl
 
-  curl -s "https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205" | head -c 400
+Gemeten na de wijziging:
+  /                                  200, sectie id="bodemcheck" aanwezig
+  menu bevat #bodemcheck             ja (2x: hoofdmenu en footer)
+  /bodemcheck?q=1401EX+5             200, veld vooringevuld met "1401EX 5"
+  JSON-LD nog geldig                 ja
+  scriptblokken nog geldig           ja
+  <div>-balans                       370 open / 370 dicht
+  <section>-balans                   +1 open / +1 dicht (de scheve 10/9 in je
+                                     origineel is niet door mij veroorzaakt en
+                                     niet aangeraakt)
 
-Staat er "aantalGevonden": 0 bij een adres in bebouwd gebied, lees dan
-src/sondeertool/README.md onder "De enige onzekerheid".
+Er staat GEEN base64 in configurator.html, dus het risico dat bij server.js
+speelde bestond hier niet. Beide bestanden zijn opgehaald van GitHub, niet
+overgetypt.
 
-Ook niet getest: de echte Resend-verzending vanuit de bodemcheck, om dezelfde
-reden. De code gebruikt dezelfde variabelen als je bestaande /api/quote.
+
+BESTANDEN IN DEZE ZIP
+=====================
+  server.js            sha256 5b7f88d933e2b4eb0210c9e066cda7cab7bb96a009f6aa6c38fd19c009611d8b
+                       ONGEWIJZIGD ten opzichte van de vorige ZIP
+  configurator.html    sha256 729bea43194cd0760543a9dfec0679dd6197d501aa2780a478d4cb27d56d8bca
+                       origineel was ecb27ccd38bffb9a4c13b17dab48d7d53a364d6b191074c3d7611bc6bcf0c187
+  src/sondeertool/     de module, met de tijdsbudgetten en het diagnose-endpoint
+
+wijzigingen-server.diff       en   wijzigingen-configurator.diff
+staan erbij zodat je precies ziet wat er verandert. GitHub Desktop laat
+hetzelfde zien voor je commit.
+
+
+WAT NOG NIET IS GETEST
+======================
+De echte BRO. Alle bovenstaande tests liepen tegen een nagemaakte BRO of tegen
+BRO_MOCK=1. Eerste check na deploy:
+
+  https://aanenuitbouw.nl/bodemcheck/api/diagnose
+
+Alle drie de stappen ok=True met status 200 betekent dat de keten werkt. Anders
+zie je meteen welke stap faalt en met welke status.

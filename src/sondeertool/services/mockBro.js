@@ -86,7 +86,7 @@ function bouwPunten(lat, lon, seed, einddiepte) {
 
 const registerCache = new Map();
 
-function zoekSonderingen(lat, lon, radiusKm = 1) {
+function zoekSonderingen(lat, lon, radiusKm = 1, _timeoutMs) {
   const rnd = pseudoRandom(Math.round(lat * 1e4) ^ Math.round(lon * 1e4));
   const aantal = 3 + Math.floor(rnd() * 4);
   const lijst = [];
@@ -122,7 +122,7 @@ function zoekSonderingen(lat, lon, radiusKm = 1) {
   return lijst.sort((a, b) => a.afstandM - b.afstandM);
 }
 
-function haalSondering(broId) {
+function haalSondering(broId, _timeoutMs) {
   const bekend = registerCache.get(broId);
   const lat = bekend ? bekend.lat : 52.28;
   const lon = bekend ? bekend.lon : 5.16;
