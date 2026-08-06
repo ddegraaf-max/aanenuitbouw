@@ -335,3 +335,58 @@ test('echt formaat: interpretatie geeft een plausibel Bussums profiel', () => {
   assert.ok(i.lagen.some((l) => l.soort === 'veen'), 'veenlaag moet herkend worden');
   assert.ok(i.reeks.punten.length <= 900, 'reeks verdund voor de browser');
 });
+
+// ---------------------------------------------------------------------------
+// De client-JS tegen het paginatemplate.
+//
+// Aanleiding: in de ronde waarin alle klassen een sd-prefix kregen, verving een
+// zoek-en-vervang de string 'melding' ook binnen el('melding'). Daardoor zocht
+// de code naar id "sd-sd-melding", kreeg null terug, en viel de hele zoekactie
+// stil met een eeuwig doorlopende voortgangstimer. Onzichtbaar in elke test,
+// want die raakten de browserkant niet. Deze test dekt dat af.
+// ---------------------------------------------------------------------------
+
+const clientJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'sondeertool.js'), 'utf8');
+const paginaHtml = fs.readFileSync(path.join(__dirname, '..', 'pagina.html'), 'utf8');
+
+test('client: elk el(...) verwijst naar een id dat in pagina.html bestaat', () => {
+  const ids = [...new Set([...clientJs.matchAll(/\bel\('([^']+)'\)/g)].map((m) => m[1]))];
+  assert.ok(ids.length > 15, `verwacht ruim 15 id-verwijzingen, vond ${ids.length}`);
+  const ontbrekend = ids.filter((naam) => !paginaHtml.includes(`id="sd-${naam}"`));
+  assert.deepEqual(ontbrekend, [], `deze id's ontbreken in pagina.html: ${ontbrekend.join(', ')}`);
+});
+
+test('client: geen dubbel geprefixte namen', () => {
+  // el() zet zelf 'sd-' ervoor, dus el('sd-x') zoekt naar 'sd-sd-x'.
+  const dubbel = [...clientJs.matchAll(/\bel\('(sd-[^']*)'\)/g)].map((m) => m[1]);
+  assert.deepEqual(dubbel, [], `el() mag geen sd-prefix meekrijgen: ${dubbel.join(', ')}`);
+});
+
+test('client: elk veld(...) verwijst naar een bestaand data-sd-veld', () => {
+  const velden = [...new Set([...clientJs.matchAll(/\bveld\('([^']+)'\)/g)].map((m) => m[1]))];
+  assert.ok(velden.length >= 8);
+  const ontbrekend = velden.filter((naam) => !paginaHtml.includes(`data-sd-veld="${naam}"`));
+  assert.deepEqual(ontbrekend, []);
+});
+
+test('client: elke klasse in een querySelector bestaat in pagina.html', () => {
+  const klassen = [...new Set([...clientJs.matchAll(/querySelector\('\.([\w-]+)'\)/g)].map((m) => m[1]))];
+  const ontbrekend = klassen.filter((k) => !paginaHtml.includes(k));
+  assert.deepEqual(ontbrekend, [], `deze klassen ontbreken: ${ontbrekend.join(', ')}`);
+});
+
+test('client: alle klassen in de markup zijn geprefixt, zodat de site-CSS niet kan botsen', () => {
+  const namen = new Set();
+  for (const m of paginaHtml.matchAll(/class="([^"]*)"/g)) {
+    for (const t of m[1].split(/[\s{}$?:'`]+/)) {
+      if (t && t !== 'sondeertool-app' && !t.startsWith('sd-') && !t.startsWith('{{')) namen.add(t);
+    }
+  }
+  assert.deepEqual([...namen], []);
+});
+
+test('client: de voortgangstimer wordt in een finally gestopt', () => {
+  // Zonder dit blijft de knop bij een fout eeuwig door de stappen lopen.
+  assert.match(clientJs, /finally\s*\{[^}]*bezig\(false\)/s);
+  assert.match(clientJs, /clearInterval\(voortgangTimer\)/);
+});

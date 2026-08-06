@@ -1,79 +1,85 @@
-VERIFICATIERAPPORT — ronde 10
+VERIFICATIERAPPORT — ronde 11
 =============================
 
-WAAROM DEZE RONDE
-=================
-Vaststaand:
-  server  geeft "aantalGeanalyseerd": 2 in ongeveer 3 seconden
-  assets  jouw assetVersie is byte-identiek aan mijn build
-  client  draait mijn nieuwe JS (de tekst "nog even geduld" komt daaruit)
+DE OORZAAK, GEVONDEN
+====================
+Uit jouw klantlog:
 
-Het loopt dus vast tussen de fetch en het scherm, en die informatie zit alleen in
-de browser. Ik heb twee keer om de ontwikkelaarsconsole gevraagd; dat is geen
-werkbare manier. Daarom rapporteert de pagina het nu zelf aan de server.
+  "fase": "belofte-fout"
+  "details": "Cannot set properties of null (setting 'hidden')"
 
-NIEUW: DE PAGINA MELDT WAT ER GEBEURT
-=====================================
-Open na de deploy /bodemcheck, zoek een adres, en open dan:
+En er stond GEEN "zoeken-start"-melding bij. De fout gebeurde dus vóór de fetch.
 
-  https://aanenuitbouw.nl/bodemcheck/api/klantlog
+In de code staat, in deze volgorde:
 
-Daar staat, nieuwste bovenaan, wat de browser heeft gedaan:
+  bezig(true);        <- start de voortgangstimer
+  zetMelding(null);   <- HIER ging het stuk, en dit staat BUITEN het try-blok
+  try { ... }
 
-  23:35:52  zoeken-start   q=1401EX%205
-  23:35:52  antwoord       status=200 ms=3120
-            application/json; charset=utf-8 · 71234 bytes · {"locatie":{...
-  23:35:52  getekend       ms=3180  gevonden 6, uitgelezen 2
+zetMelding doet melding.hidden = true. Het element was null, dus dit gooide een
+fout die buiten elk try/catch viel. Gevolg: de voortgangstimer was al gestart en
+werd nooit gestopt, want bezig(false) staat in de finally van een blok dat nooit
+werd betreden. De knop bleef daarom eeuwig door de stappen lopen tot "Nog even
+geduld", en er gebeurde verder niets.
 
-Vijf mogelijke uitkomsten, elk met een eigen conclusie:
+Waarom was dat element null:
 
-  alleen "zoeken-start", verder niets
-     -> de fetch komt nooit terug. Dan zit er iets tussen browser en server dat
-        het verzoek tegenhoudt: een firewallregel of botbescherming van
-        Cloudflare die XHR-verzoeken anders behandelt dan een gewone
-        paginaopvraag. Dat zou verklaren waarom de URL in de adresbalk wel
-        werkt en de fetch niet.
+  el('sd-melding')
 
-  "antwoord" met een status die niet 200 is
-     -> ik zie de status en de eerste 200 tekens van wat er werd teruggestuurd.
-        Bij een tussenpagina van een firewall staat dat er letterlijk in.
+el() zet zelf 'sd-' voor de naam, dus dit zocht naar id "sd-sd-melding". Dat
+bestaat niet.
 
-  "antwoord" 200 maar geen "getekend"
-     -> het antwoord komt binnen en het tekenen loopt stuk. Dan staat er ook een
-        "js-fout"-regel met bestand, regelnummer en melding.
+Hoe dat erin kwam: in de ronde waarin ik alle klassen een sd-prefix gaf om
+botsingen met jouw site-CSS te voorkomen, verving een zoek-en-vervang de string
+'melding' overal in de JS. Bedoeld was melding.className = 'melding'. Geraakt
+werd ook el('melding'). Eén van de 23 id-verwijzingen, en juist die ene zat op
+het pad dat elke zoekactie doorloopt.
 
-  "afgebroken"
-     -> de 35-secondenlimiet is bereikt; het verzoek bleef hangen.
+WAT ER IS OPGELOST
+==================
+1. el('melding') gecorrigeerd.
 
-  "js-fout" of "belofte-fout"
-     -> een JavaScript-fout, met bestand en regelnummer.
+2. Zelfcontrole bij het opstarten: de 17 elementen die de code nodig heeft
+   worden gecontroleerd zodra de pagina laadt. Ontbreekt er een, dan staat dat
+   direct in de console EN in /api/klantlog, in plaats van pas zichtbaar te
+   worden doordat de pagina stilvalt.
 
-Ook toegevoegd: het antwoord wordt nu eerst als tekst ingelezen en dan zelf
-geparseerd. Daardoor kan een onverwacht antwoord letterlijk gemeld worden, in
-plaats van te verdwijnen in een mislukte JSON-parse.
+3. zetMelding en bezig zijn weerbaar tegen een ontbrekend element. Een gemiste
+   melding mag nooit een hele zoekactie omleggen.
 
-Het is bewust vluchtig: laatste 60 meldingen in het geheugen, niets op schijf,
-alleen IP en user-agent voor context. Bij een herstart is het weg. De endpoints
-staan buiten de rate limiter, want diagnostiek mag nooit zelf het probleem
-worden.
+4. Zes nieuwe tests die precies deze fout betrappen:
 
-EEN FOUT DIE IK ONDERWEG IN MIJN EIGEN WIJZIGING VOND
-=====================================================
-Ik zette de starttijd als const BINNEN het try-blok, terwijl de catch en de
-finally hem ook gebruiken. Dat had bij elke fout een ReferenceError gegeven in de
-foutafhandeling zelf -- precies op het moment dat je informatie nodig hebt. Nu
-staat hij ervoor, en er is een controle die dat vastlegt.
+     31  elk el(...) verwijst naar een id dat in pagina.html bestaat
+     32  geen dubbel geprefixte namen -- el('sd-x') zoekt naar 'sd-sd-x'
+     33  elk veld(...) verwijst naar een bestaand data-sd-veld
+     34  elke klasse in een querySelector bestaat in de markup
+     35  alle klassen in de markup zijn geprefixt
+     36  de voortgangstimer wordt in een finally gestopt
 
-GETEST
-======
-  klantlog leeg bij start, 4 meldingen geplaatst en correct teruggelezen
-  ringbuffer begrensd: na 74 meldingen staan er 60 in
-  een mislukte melding kan geen fout veroorzaken (lege catch, POST geeft 204)
-  analyse werkt onveranderd: 200, 2 uitgelezen
-  30 tests, alle geslaagd
+   Bewezen dat ze werken: met de fout er weer in vallen test 31 en 32 om. Na
+   herstel: 36 tests, alle geslaagd.
+
+WAT DIT ZEGT OVER DE AFGELOPEN UREN
+===================================
+Al mijn tests draaiden op de serverkant. De browserkant was volledig ongedekt,
+en juist daar zat de fout die je de hele avond hebt gezien. Mijn eerdere
+verklaringen -- traagheid, Cloudflare-cache, dubbele verzoeken -- waren allemaal
+plausibel en allemaal fout. Pas toen de pagina zelf ging rapporteren stond het
+er in één regel.
+
+De klantlog en die zes tests hadden er vanaf het begin moeten zijn.
+
+NA DE DEPLOY
+============
+/bodemcheck, adres invullen, zoeken. Je zou nu de sondeerstaat moeten zien: de
+grondlagen in kleur naast de qc-curve die zich van boven naar beneden tekent.
+
+Gebeurt er nog iets onverwachts, dan staat het in
+/bodemcheck/api/klantlog -- met fase, status, doorlooptijd en bij een
+JavaScript-fout het bestand en regelnummer.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   index.js en assets/sondeertool.js aangepast
+  src/sondeertool/   alleen assets/sondeertool.js aangepast

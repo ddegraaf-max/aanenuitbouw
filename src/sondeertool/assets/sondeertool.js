@@ -54,14 +54,34 @@
   window.addEventListener('unhandledrejection', function (e) {
     meld('belofte-fout', { details: String((e.reason && e.reason.message) || e.reason).slice(0, 300) });
   });
+
+  const ontbrekend = VERPLICHTE_IDS.filter(function (naam) {
+    return !document.getElementById('sd-' + naam);
+  });
+  if (ontbrekend.length > 0) {
+    console.error('[sondeertool] ontbrekende elementen:', ontbrekend);
+    meld('elementen-ontbreken', { details: ontbrekend.join(', ') });
+  }
   const el = (id) => document.getElementById('sd-' + id);
   const veld = (naam) => document.querySelector(`${WORTEL} [data-sd-veld="${naam}"]`);
+
+  /**
+   * Controle bij het opstarten dat alle elementen bestaan die deze code nodig
+   * heeft. Eén verkeerd id liet de pagina eerder stilvallen zonder enig spoor:
+   * de voortgangstimer liep dan eeuwig door terwijl er niets meer gebeurde.
+   * Nu staat het meteen in de console en in /api/klantlog.
+   */
+  const VERPLICHTE_IDS = [
+    'invoer', 'adres', 'suggesties', 'zoekknop', 'melding', 'uitkomst',
+    'tabs', 'lineaal', 'lagenbalk', 'grafiekhouder', 'grafiek', 'leesbalk',
+    'leeswaarde', 'lagentabel', 'schets', 'metinglijst', 'vraagform',
+  ];
 
   const invoerForm = el('invoer');
   const adresInput = el('adres');
   const suggestiesLijst = el('suggesties');
   const zoekknop = el('zoekknop');
-  const melding = el('sd-melding');
+  const melding = el('melding');
   const uitkomst = el('uitkomst');
 
   let huidigeData = null;
@@ -78,6 +98,13 @@
   }
 
   function zetMelding(tekst, soort) {
+    // Weerbaar tegen een ontbrekend element: eerder liet één verkeerd id de
+    // hele zoekactie stilvallen, buiten het try-blok om, met een eeuwig
+    // doorlopende voortgangstimer als gevolg.
+    if (!melding) {
+      if (tekst) console.warn('[sondeertool] melding:', tekst);
+      return;
+    }
     if (!tekst) {
       melding.hidden = true;
       return;
@@ -91,9 +118,15 @@
   let bezigMet = null; // AbortController van het lopende verzoek
 
   function bezig(aan) {
+    if (!zoekknop) return;
     zoekknop.disabled = aan;
-    zoekknop.querySelector('.sd-knop__spinner').hidden = !aan;
+    const spinner = zoekknop.querySelector('.sd-knop__spinner');
+    if (spinner) spinner.hidden = !aan;
     const label = zoekknop.querySelector('.sd-knop__tekst');
+    if (!label) {
+      clearInterval(voortgangTimer);
+      return;
+    }
 
     clearInterval(voortgangTimer);
     if (!aan) {
