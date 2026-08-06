@@ -55,6 +55,21 @@
     meld('belofte-fout', { details: String((e.reason && e.reason.message) || e.reason).slice(0, 300) });
   });
 
+  /**
+   * Controle bij het opstarten dat alle elementen bestaan die deze code nodig
+   * heeft. Eén verkeerd id liet de pagina eerder stilvallen zonder enig spoor.
+   *
+   * De lijst staat hier, direct boven het gebruik. Stond hij verderop in het
+   * bestand, dan is hij hier nog niet geïnitialiseerd en valt de hele JS om met
+   * "Cannot access 'VERPLICHTE_IDS' before initialization" -- wat precies is
+   * gebeurd toen ik deze controle toevoegde.
+   */
+  const VERPLICHTE_IDS = [
+    'invoer', 'adres', 'suggesties', 'zoekknop', 'melding', 'uitkomst',
+    'tabs', 'lineaal', 'lagenbalk', 'grafiekhouder', 'grafiek', 'leesbalk',
+    'leeswaarde', 'lagentabel', 'schets', 'metinglijst', 'vraagform',
+  ];
+
   const ontbrekend = VERPLICHTE_IDS.filter(function (naam) {
     return !document.getElementById('sd-' + naam);
   });
@@ -64,18 +79,6 @@
   }
   const el = (id) => document.getElementById('sd-' + id);
   const veld = (naam) => document.querySelector(`${WORTEL} [data-sd-veld="${naam}"]`);
-
-  /**
-   * Controle bij het opstarten dat alle elementen bestaan die deze code nodig
-   * heeft. Eén verkeerd id liet de pagina eerder stilvallen zonder enig spoor:
-   * de voortgangstimer liep dan eeuwig door terwijl er niets meer gebeurde.
-   * Nu staat het meteen in de console en in /api/klantlog.
-   */
-  const VERPLICHTE_IDS = [
-    'invoer', 'adres', 'suggesties', 'zoekknop', 'melding', 'uitkomst',
-    'tabs', 'lineaal', 'lagenbalk', 'grafiekhouder', 'grafiek', 'leesbalk',
-    'leeswaarde', 'lagentabel', 'schets', 'metinglijst', 'vraagform',
-  ];
 
   const invoerForm = el('invoer');
   const adresInput = el('adres');

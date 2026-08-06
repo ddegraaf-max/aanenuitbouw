@@ -1,85 +1,80 @@
-VERIFICATIERAPPORT — ronde 11
+VERIFICATIERAPPORT — ronde 12
 =============================
 
-DE OORZAAK, GEVONDEN
-====================
-Uit jouw klantlog:
+DE FOUT VAN DE VORIGE ZIP WAS DE MIJNE, EN NIEUW
+================================================
+Uit jouw klantlog, zeven keer achter elkaar:
 
-  "fase": "belofte-fout"
-  "details": "Cannot set properties of null (setting 'hidden')"
+  "Uncaught ReferenceError: Cannot access 'VERPLICHTE_IDS' before
+   initialization @ .../sondeertool.js?v=fd16d01668:58:22"
 
-En er stond GEEN "zoeken-start"-melding bij. De fout gebeurde dus vóór de fetch.
+De zelfcontrole die ik vorige ronde toevoegde om ontbrekende elementen te
+betrappen, gebruikte een const die verderop in het bestand werd gedeclareerd.
+Dat is een temporal dead zone: de hele JS valt om bij het laden. Ik heb dus een
+controle ingebouwd die zelf de storing werd.
 
-In de code staat, in deze volgorde:
+Opgelost door de lijst direct boven het gebruik te zetten.
 
-  bezig(true);        <- start de voortgangstimer
-  zetMelding(null);   <- HIER ging het stuk, en dit staat BUITEN het try-blok
-  try { ... }
+DE ECHTE MAATREGEL: DE BROWSERCODE WORDT NU UITGEVOERD IN DE TESTS
+==================================================================
+Drie fouten op rij zaten in de browserkant en geen enkele test raakte die. Al
+mijn 36 tests draaiden op de serverkant. Dat is nu opgelost met een minimale
+nabootsing van een browser (test/dom-shim.js, geen dependencies): document,
+getElementById, querySelector, canvas-context, timers, fetch. De echte
+assets/sondeertool.js wordt daarin uitgevoerd.
 
-zetMelding doet melding.hidden = true. Het element was null, dus dit gooide een
-fout die buiten elk try/catch viel. Gevolg: de voortgangstimer was al gestart en
-werd nooit gestopt, want bezig(false) staat in de finally van een blok dat nooit
-werd betreden. De knop bleef daarom eeuwig door de stappen lopen tot "Nog even
-geduld", en er gebeurde verder niets.
+Zeven nieuwe tests, waarvan vier een volledige zoekactie doorlopen:
 
-Waarom was dat element null:
+  37  het bestand wordt zonder fout uitgevoerd
+  38  de zelfcontrole vindt alle benodigde elementen
+  39  volledige zoekactie: resultaatpaneel zichtbaar, tabs en lagentabel gevuld,
+      voortgangstimer gestopt, knop weer bruikbaar
+  40  serverfout (502): melding zichtbaar, knop niet blijvend uitgeschakeld
+  41  onverwacht antwoord (HTML in plaats van JSON): nette melding
+  42  netwerkfout: komt in de catch, melding "verbinding is mislukt"
+  43  afgebroken verzoek: melding "duurde te lang"
 
-  el('sd-melding')
-
-el() zet zelf 'sd-' voor de naam, dus dit zocht naar id "sd-sd-melding". Dat
-bestaat niet.
-
-Hoe dat erin kwam: in de ronde waarin ik alle klassen een sd-prefix gaf om
-botsingen met jouw site-CSS te voorkomen, verving een zoek-en-vervang de string
-'melding' overal in de JS. Bedoeld was melding.className = 'melding'. Geraakt
-werd ook el('melding'). Eén van de 23 id-verwijzingen, en juist die ene zat op
-het pad dat elke zoekactie doorloopt.
-
-WAT ER IS OPGELOST
+DE PROEF OP DE SOM
 ==================
-1. el('melding') gecorrigeerd.
+Ik heb alle drie de fouten van vanavond opnieuw ingebracht en gekeken of de
+tests ze betrappen:
 
-2. Zelfcontrole bij het opstarten: de 17 elementen die de code nodig heeft
-   worden gecontroleerd zodra de pagina laadt. Ontbreekt er een, dan staat dat
-   direct in de console EN in /api/klantlog, in plaats van pas zichtbaar te
-   worden doordat de pagina stilvalt.
+  el('melding') -> el('sd-melding')                4 tests falen
+  VERPLICHTE_IDS na het gebruik gedeclareerd       5 tests falen
+  starttijd als const binnen de try                2 tests falen
 
-3. zetMelding en bezig zijn weerbaar tegen een ontbrekend element. Een gemiste
-   melding mag nooit een hele zoekactie omleggen.
+Na herstel: 43 tests, alle geslaagd. Die derde glipte er eerst nog door, omdat
+geen enkele test de catch-tak raakte; test 42 en 43 dekken die nu.
 
-4. Zes nieuwe tests die precies deze fout betrappen:
+WAT ER VANAVOND IS MISGEGAAN, EERLIJK OPGESCHREVEN
+==================================================
+Vier oorzaken, in de volgorde waarin ze zich voordeden:
 
-     31  elk el(...) verwijst naar een id dat in pagina.html bestaat
-     32  geen dubbel geprefixte namen -- el('sd-x') zoekt naar 'sd-sd-x'
-     33  elk veld(...) verwijst naar een bestaand data-sd-veld
-     34  elke klasse in een querySelector bestaat in de markup
-     35  alle klassen in de markup zijn geprefixt
-     36  de voortgangstimer wordt in een finally gestopt
+  1. het zoekantwoord van de BRO is XML, geen JSON
+  2. de meetreeks staat in 25 vaste kolommen zonder veldnamen, niet in het
+     formaat uit de specificatie
+  3. el('sd-melding') zocht een niet-bestaand id, waardoor elke zoekactie
+     stilviel met een eeuwig doorlopende voortgangstimer
+  4. mijn eigen zelfcontrole gebruikte een const voor de declaratie
 
-   Bewezen dat ze werken: met de fout er weer in vallen test 31 en 32 om. Na
-   herstel: 36 tests, alle geslaagd.
-
-WAT DIT ZEGT OVER DE AFGELOPEN UREN
-===================================
-Al mijn tests draaiden op de serverkant. De browserkant was volledig ongedekt,
-en juist daar zat de fout die je de hele avond hebt gezien. Mijn eerdere
-verklaringen -- traagheid, Cloudflare-cache, dubbele verzoeken -- waren allemaal
-plausibel en allemaal fout. Pas toen de pagina zelf ging rapporteren stond het
-er in één regel.
-
-De klantlog en die zes tests hadden er vanaf het begin moeten zijn.
+Nummer 1 en 2 kon ik niet weten zonder de echte BRO te zien; daarvoor was het
+diagnose-endpoint nodig en dat had ik meteen moeten bouwen in plaats van na drie
+rondes. Nummer 3 en 4 zijn fouten die een test had moeten vinden, en die tests
+bestonden niet omdat ik de browserkant ongedekt liet. Mijn tussentijdse
+verklaringen -- traagheid, Cloudflare, dubbele verzoeken -- waren plausibel en
+alle drie fout, en ik heb ze te lang als vermoeden behandeld in plaats van eerst
+meetbaar te maken wat er gebeurde.
 
 NA DE DEPLOY
 ============
-/bodemcheck, adres invullen, zoeken. Je zou nu de sondeerstaat moeten zien: de
-grondlagen in kleur naast de qc-curve die zich van boven naar beneden tekent.
+/bodemcheck, adres invullen, zoeken. De grondlagen in kleur naast de qc-curve.
 
-Gebeurt er nog iets onverwachts, dan staat het in
-/bodemcheck/api/klantlog -- met fase, status, doorlooptijd en bij een
-JavaScript-fout het bestand en regelnummer.
+Blijft er iets hangen: /bodemcheck/api/klantlog. Daar staat nu ook een regel
+"elementen-ontbreken" als er markup mist, en elke JS-fout met bestand en
+regelnummer.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   alleen assets/sondeertool.js aangepast
+  src/sondeertool/   assets/sondeertool.js gecorrigeerd, test/dom-shim.js nieuw

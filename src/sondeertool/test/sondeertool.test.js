@@ -390,3 +390,162 @@ test('client: de voortgangstimer wordt in een finally gestopt', () => {
   assert.match(clientJs, /finally\s*\{[^}]*bezig\(false\)/s);
   assert.match(clientJs, /clearInterval\(voortgangTimer\)/);
 });
+
+// ---------------------------------------------------------------------------
+// De client-JS daadwerkelijk uitvoeren.
+//
+// Drie fouten op rij zaten in de browserkant en geen enkele test raakte die:
+// een verkeerd id, een const die vóór de declaratie werd gebruikt, en een const
+// binnen een try die in de catch nodig was. Alle drie waren gevonden door het
+// bestand simpelweg uit te voeren. Zie test/dom-shim.js.
+// ---------------------------------------------------------------------------
+
+const { laadClient } = require('./dom-shim');
+const { bouwSamenvatting } = require('../services/interpret');
+
+function maakAnalyseAntwoord() {
+  const lijst = mock.zoekSonderingen(52.28, 5.09, 1);
+  const sonderingen = lijst.slice(0, 2).map((k) => {
+    const s = interpreteerSondering(mock.haalSondering(k.broId));
+    return { ...s, broId: k.broId, afstandM: k.afstandM, windstreek: k.windstreek, coordinaten: k.coordinaten };
+  });
+  return {
+    locatie: { omschrijving: 'Poststraat 5, 1401EX Bussum', soort: 'adres', lat: 52.28, lon: 5.09 },
+    zoekstraalKm: 1,
+    aantalGevonden: lijst.length,
+    aantalGeanalyseerd: sonderingen.length,
+    alleLocaties: lijst.map((k) => ({
+      broId: k.broId, lat: k.coordinaten.lat, lon: k.coordinaten.lon,
+      afstandM: k.afstandM, einddiepte: k.einddiepte, datum: k.datum,
+      geanalyseerd: sonderingen.some((s) => s.broId === k.broId),
+    })),
+    sonderingen,
+    samenvatting: bouwSamenvatting(sonderingen, { omschrijving: 'Poststraat 5' }),
+    mislukt: [],
+    waarschuwingen: [],
+    tijden: { adresOpzoeken: 500, zoekenBijBro: 1200, meetgegevensOphalen: 1400, grondlagenBepalen: 100 },
+    duurMs: 3200,
+  };
+}
+
+const tik = () => new Promise((r) => setImmediate(r));
+
+test('client: het bestand wordt zonder fout uitgevoerd in een nagemaakte DOM', () => {
+  const c = laadClient();
+  assert.deepEqual(c.log.consoleFouten, [], 'geen fouten bij het opstarten');
+  const soorten = c.log.fouten.map((f) => f.soort);
+  assert.ok(soorten.includes('error'), 'foutafhandelaar voor JS-fouten geregistreerd');
+  assert.ok(soorten.includes('unhandledrejection'), 'afhandelaar voor beloftefouten geregistreerd');
+});
+
+test('client: de zelfcontrole vindt alle benodigde elementen', () => {
+  const c = laadClient();
+  // Zou een element ontbreken, dan schrijft de code dat naar console.error.
+  const overOntbrekend = c.log.consoleFouten.filter((r) => /ontbrekende elementen/.test(r));
+  assert.deepEqual(overOntbrekend, []);
+});
+
+test('client: een volledige zoekactie tekent het resultaat en stopt de voortgangstimer', async () => {
+  const antwoord = maakAnalyseAntwoord();
+  let opgevraagd = null;
+
+  const c = laadClient({
+    fetch: (url) => {
+      opgevraagd = url;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json; charset=utf-8' },
+        text: () => Promise.resolve(JSON.stringify(antwoord)),
+      });
+    },
+  });
+
+  c.el('sd-adres').value = '1401EX 5';
+  c.el('sd-invoer').dispatch('submit');
+  for (let i = 0; i < 12; i++) await tik();
+
+  assert.ok(opgevraagd && opgevraagd.includes('/bodemcheck/api/analyse'), `verwachte analyse-aanroep, kreeg ${opgevraagd}`);
+  assert.equal(c.el('sd-uitkomst').hidden, false, 'het resultaatpaneel moet zichtbaar zijn');
+  assert.equal(c.log.intervals.size, 0, 'de voortgangstimer moet gestopt zijn');
+  assert.equal(c.el('sd-zoekknop').disabled, false, 'de knop moet weer bruikbaar zijn');
+  assert.match(c.el('sd-tabs').innerHTML, /CPT/, 'de tabs moeten de sonderingen tonen');
+  assert.match(c.el('sd-lagentabel').innerHTML, /<tr>/, 'de lagentabel moet gevuld zijn');
+  assert.ok(c.el('sd-metinglijst').innerHTML.includes('CPT'), 'de metinglijst moet gevuld zijn');
+  assert.deepEqual(c.log.consoleFouten, [], `geen fouten verwacht, kreeg ${c.log.consoleFouten.join(' | ')}`);
+});
+
+test('client: een serverfout laat de knop niet hangen', async () => {
+  const c = laadClient({
+    fetch: () => Promise.resolve({
+      ok: false,
+      status: 502,
+      headers: { get: () => 'application/json' },
+      text: () => Promise.resolve(JSON.stringify({ fout: 'BRO niet bereikbaar' })),
+    }),
+  });
+
+  c.el('sd-adres').value = '1401EX 5';
+  c.el('sd-invoer').dispatch('submit');
+  for (let i = 0; i < 12; i++) await tik();
+
+  assert.equal(c.log.intervals.size, 0, 'ook bij een fout moet de timer stoppen');
+  assert.equal(c.el('sd-zoekknop').disabled, false);
+  assert.equal(c.el('sd-melding').hidden, false, 'de foutmelding moet zichtbaar zijn');
+  assert.match(c.el('sd-melding').textContent, /niet bereikbaar/);
+});
+
+test('client: onverwacht antwoord (geen JSON) wordt netjes gemeld', async () => {
+  const c = laadClient({
+    fetch: () => Promise.resolve({
+      ok: true,
+      status: 200,
+      headers: { get: () => 'text/html' },
+      text: () => Promise.resolve('<html>Even geduld, controle...</html>'),
+    }),
+  });
+
+  c.el('sd-adres').value = '1401EX 5';
+  c.el('sd-invoer').dispatch('submit');
+  for (let i = 0; i < 12; i++) await tik();
+
+  assert.equal(c.log.intervals.size, 0);
+  assert.equal(c.el('sd-melding').hidden, false);
+  assert.match(c.el('sd-melding').textContent, /Onverwacht antwoord/);
+});
+
+test('client: een netwerkfout komt in de catch en levert een nette melding', async () => {
+  // Deze test raakt de catch-tak. Zonder hem bleef een fout onopgemerkt waarbij
+  // de starttijd als const binnen het try-blok stond en in de catch werd
+  // gebruikt: dan gooit de foutafhandeling zelf een ReferenceError, precies op
+  // het moment dat je een melding nodig hebt.
+  const c = laadClient({
+    fetch: () => Promise.reject(new TypeError('Failed to fetch')),
+  });
+
+  c.el('sd-adres').value = '1401EX 5';
+  c.el('sd-invoer').dispatch('submit');
+  for (let i = 0; i < 12; i++) await tik();
+
+  assert.equal(c.log.intervals.size, 0, 'de voortgangstimer moet stoppen');
+  assert.equal(c.el('sd-zoekknop').disabled, false, 'de knop moet weer bruikbaar zijn');
+  assert.equal(c.el('sd-melding').hidden, false, 'er moet een melding staan');
+  assert.match(c.el('sd-melding').textContent, /verbinding is mislukt/i);
+});
+
+test('client: een afgebroken verzoek geeft de juiste melding', async () => {
+  const c = laadClient({
+    fetch: () => {
+      const fout = new Error('aborted');
+      fout.name = 'AbortError';
+      return Promise.reject(fout);
+    },
+  });
+
+  c.el('sd-adres').value = '1401EX 5';
+  c.el('sd-invoer').dispatch('submit');
+  for (let i = 0; i < 12; i++) await tik();
+
+  assert.equal(c.log.intervals.size, 0);
+  assert.match(c.el('sd-melding').textContent, /duurde te lang/i);
+});
