@@ -1876,6 +1876,32 @@ img, svg { display: block; max-width: 100%; }
     gap: 28px;
   }
 }
+
+/* ---------- Versiestempel ---------- */
+/* Laat zien welke versie er daadwerkelijk live staat. Na een upload moet dit
+   getal veranderen; blijft het gelijk, dan is de deploy niet aangekomen of
+   kijk je naar een gecachte pagina. */
+.site-versie {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-mute);
+  opacity: 0.75;
+  cursor: pointer;
+  user-select: all;
+}
+.site-versie:hover { opacity: 1; }
+.site-versie pre {
+  font-family: inherit;
+  font-size: 10px;
+  text-align: left;
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  cursor: text;
+}
 </style>
 </head>
 <body>
@@ -2525,6 +2551,7 @@ img, svg { display: block; max-width: 100%; }
     <div class="footer-bottom">
       <div>© 2026 Creditline BV. Alle rechten voorbehouden.</div>
       <div>KvK 59683198 · BTW NL853603108B01</div>
+      <div class="site-versie" id="siteVersie" title="Welke versie er live staat. Klik om de details te zien." role="status"></div>
       <a href="#" class="beheer-link" onclick="event.preventDefault(); openAdminLogin();" title="Beheerder-toegang">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.6"/>
@@ -4731,6 +4758,33 @@ render();
 </script>
 
 <!-- 100% privacy-first analytics (Simple Analytics, geen cookies) -->
+<script>
+/* Versiestempel ophalen. Twee dingen worden hiermee zichtbaar:
+   - dat DIT bestand nieuw is (het element bestaat alleen in deze versie)
+   - welke versie de SERVER heeft (uit /bodemcheck/api/versie)
+   Wijken die na een upload niet mee, dan is de deploy niet aangekomen of kijk
+   je naar een gecachte pagina. */
+(function () {
+  var el = document.getElementById('siteVersie');
+  if (!el) return;
+  el.textContent = 'versie laden…';
+  fetch('/bodemcheck/api/versie', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+    .then(function (d) {
+      el.textContent = 'versie ' + d.versie;
+      el.title = 'Gestart ' + String(d.gestart).replace('T', ' ').slice(0, 16) + ' UTC · klik voor details';
+      el.addEventListener('click', function () {
+        if (el.querySelector('pre')) { el.querySelector('pre').remove(); return; }
+        var pre = document.createElement('pre');
+        var regels = ['site      ' + d.versie, 'assets    ' + d.assetVersie, 'node      ' + d.node, 'gestart   ' + d.gestart];
+        for (var k in d.bestanden) regels.push((k + '            ').slice(0, 20) + d.bestanden[k]);
+        pre.textContent = regels.join('\n');
+        el.appendChild(pre);
+      });
+    })
+    .catch(function () { el.textContent = 'versie onbekend'; });
+})();
+</script>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
 </body>

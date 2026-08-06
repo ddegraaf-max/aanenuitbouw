@@ -42,6 +42,7 @@ const path = require('path');
 const geocode = require('./services/geocode');
 const bro = require('./services/broClient');
 const { parseKengegevensXml } = require('./services/cptParser');
+const versie = require('./versie');
 const { interpreteerSondering, bouwSamenvatting, GRONDSOORTEN } = require('./services/interpret');
 
 const ASSETS_DIR = path.join(__dirname, 'assets');
@@ -261,6 +262,7 @@ function bouwPagina(req, vooringevuld) {
     VOORINGEVULD: ontsnap(vooringevuld),
     MOCKBALK: bro.MOCK ? MOCKBALK : '',
     KLEURSTRIP: kleurstrip(),
+    VERSIE_TEKST: ontsnap(versie.korteTekst()),
     KOP: instellingen.kop || terugbalk,
     VOET: instellingen.voet || '',
   };
@@ -718,6 +720,8 @@ async function doeDiagnose(req, res, params) {
     registratieVanaf: process.env.BRO_REGISTRATIE_VANAF || '2017-01-01',
     budgetMs: BUDGET_MS,
     assetVersie: ASSET_VERSIE,
+    siteVersie: versie.versie,
+    bestanden: versie.bestanden,
     testpunt: { lat, lon },
     stappen,
   });
@@ -769,6 +773,25 @@ async function handle(req, res, url) {
     // Stylesheet en client-JS
     if (rest.startsWith('/assets/') && isLezen) {
       stuurAsset(res, rest, alleenKoppen);
+      return true;
+    }
+
+    // Versie: bewust vóór de rate limiter. De hoofdsite vraagt dit bij elk
+    // paginabezoek op, en het antwoord is een vaste waarde die bij het
+    // opstarten al is berekend.
+    if (rest === '/api/versie' && isLezen) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Access-Control-Allow-Origin': '*',
+      });
+      res.end(alleenKoppen ? undefined : JSON.stringify({
+        versie: versie.versie,
+        gestart: versie.gestart,
+        node: versie.node,
+        assetVersie: ASSET_VERSIE,
+        bestanden: versie.bestanden,
+      }));
       return true;
     }
 

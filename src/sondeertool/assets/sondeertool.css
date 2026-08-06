@@ -1040,3 +1040,13 @@
 .sd-terugbalk a:hover {
   color: #e07338;
 }
+
+/* Versiestempel onderaan de pagina. Klein en grijs: bedoeld om te kunnen
+   controleren welke versie live staat, niet om de bezoeker bezig te houden. */
+.sondeertool-app .sd-versie {
+  font-family: var(--mono);
+  font-size: 0.688rem;
+  letter-spacing: 0.06em;
+  color: var(--inkt-flauw);
+  margin: 1.25rem 0 0;
+}

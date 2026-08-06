@@ -1,86 +1,100 @@
-VERIFICATIERAPPORT — ronde 4
+VERIFICATIERAPPORT — ronde 5
 ============================
 
-DE OORZAAK VAN DE EEUWIG DRAAIENDE SPINNER
-==========================================
+VERSIEMELDING OP DE SITE
+========================
 
-De diagnose op je live site bewees dat de server het goed doet:
+Waarvoor
+--------
+Na een upload binnen twee seconden zien of de nieuwe versie er echt op staat.
+Een deploy kan slagen terwijl een bestand niet is meegekomen, of terwijl
+Cloudflare of je browser nog een oude versie uitlevert. Dat is precies wat je
+een avond heeft gekost.
 
-  1. PDOK adres opzoeken      ok 496ms   status 200
-  2. BRO zoekopdracht         ok 1650ms  status 200  formaat=XML
-                              cptIdsGevonden 40, kengegevensGelezen 40, leesFout null
-  3. BRO sondering ophalen    ok 1415ms  status 200  323 KB, heeftWaarden true
+Hoe het werkt
+-------------
+Bij het opstarten wordt een sha1 berekend over de inhoud van server.js,
+configurator.html, project.html, package.json en alle 21 bestanden van de
+module. Elke wijziging in welk bestand dan ook geeft een andere stempel.
 
-Hele keten: ongeveer 3,5 seconde. Toch bleef het zoeken hangen.
+Op drie plekken te zien:
 
-Oorzaak: JOUW BROWSER had de oude client-JS vast.
+  1. Footer van de hoofdsite, naast het KvK-nummer:  "versie dcc247fbdb"
+     Klik erop en je krijgt de details per bestand.
 
-  De assets gingen met `Cache-Control: public, max-age=604800` de deur uit --
-  een week. Railway heeft NODE_ENV=production staan (zichtbaar aan de
-  "npm warn config production" in je log), dus die tak was actief.
+  2. Onderaan de bodemcheck-pagina:
+     "versie dcc247fbdb - 2026-08-06 22:41 UTC"
+     Deze staat SERVER-SIDE in de pagina, dus zonder extra verzoek.
 
-  Je had /bodemcheck geopend toen de eerste versie live stond. Die versie van
-  sondeertool.js had nog geen tijdslimiet en geen voortgangsstappen. Dat bestand
-  bleef een week in je browser staan, dus je keek naar een oude pagina die tegen
-  een nieuwe, werkende server praatte -- en die oude pagina wachtte oneindig.
+  3. Als JSON op /bodemcheck/api/versie:
 
-  Een harde verversing had het opgelost, maar dat is geen oplossing: elke
-  bezoeker die de tool eerder had geopend zou hetzelfde overkomen.
+     {
+       "versie": "dcc247fbdb",
+       "gestart": "2026-08-06T22:41:22.080Z",
+       "node": "v22.22.2",
+       "assetVersie": "83a94f3ba4",
+       "bestanden": {
+         "server.js": "33e5a885d8",
+         "configurator.html": "d31ed1c08d",
+         "project.html": "b8c1c1edc3",
+         "src/sondeertool": "93c3fb14f1 (21 bestanden)"
+       }
+     }
 
-WAT ER STRUCTUREEL IS OPGELOST
-==============================
+     Ook opgenomen in /bodemcheck/api/diagnose.
 
-1. Versiestempel in de asset-URL
-   Bij het opstarten wordt een sha1 over sondeertool.css, sondeertool.js en
-   pagina.html berekend. De eerste tien tekens staan achter de URL:
+Hoe je het gebruikt
+-------------------
+  Stempel veranderd na de deploy      -> de upload is aangekomen
+  Stempel ongewijzigd                 -> de deploy is niet aangekomen, of
+                                         Railway draait nog de oude container
+  Footer toont een andere stempel dan
+  /api/versie                         -> je kijkt naar een gecachte pagina
+  Eén bestandshash ongewijzigd terwijl
+  je dat bestand wel hebt aangepast   -> dat bestand is niet meegekomen in de
+                                         push (het probleem dat je eerder met de
+                                         projecten-map had)
 
-     <script src="/bodemcheck/assets/sondeertool.js?v=b4b7009bb4" defer>
+Het versie-element in de footer bestaat alleen in de nieuwe configurator.html.
+Zie je het staan, dan weet je dus ook dat DIE HTML nieuw is -- los van wat de
+server rapporteert.
 
-   Verandert er iets in die bestanden, dan verandert de URL en is de cache
-   irrelevant. Een week cachen mag dan ook blijven -- dat is nu juist gunstig.
+Bewijs
+------
+  versie nu                      3e2b5f87a4
+  na 1 regel in configurator.html 6b16986299   veranderd
+  na terugdraaien                3e2b5f87a4   weer gelijk, dus reproduceerbaar
 
-   Getest: na een wijziging van één regel in de JS ging de stempel van
-   b4b7009bb4 naar a386fc8726.
+Het endpoint /api/versie staat bewust BUITEN de rate limiter: de hoofdsite
+vraagt het bij elk paginabezoek op, en het antwoord is een vaste waarde die bij
+het opstarten al is berekend.
 
-   De stempel staat ook in /bodemcheck/api/diagnose als "assetVersie", zodat je
-   kunt vergelijken wat de server heeft met wat je browser gebruikt (zichtbaar
-   in de paginabron).
-
-2. De pagina zelf mag nergens blijven hangen
-   Cache-Control: no-store, no-cache, must-revalidate + Pragma: no-cache.
-   Anders werkt het versiemechanisme niet: een oude pagina bevat een oude
-   stempel en verwijst dus alsnog naar oude assets. Ook Cloudflare houdt de
-   pagina hiermee niet vast.
-
-3. HEAD-verzoeken worden nu bediend
-   Ik behandelde alleen GET, dus een HEAD op /bodemcheck viel door naar je eigen
-   404. Cloudflare en uptime-monitors gebruiken HEAD. Nu antwoordt hij met
-   dezelfde koppen en zonder body, inclusief Content-Length.
-
-GEMETEN (met NODE_ENV=production, zoals op Railway)
-===================================================
-  HEAD /bodemcheck
-    200, Cache-Control: no-store, no-cache, must-revalidate, Pragma: no-cache
-  HEAD /bodemcheck/assets/sondeertool.js?v=...
-    200, Cache-Control: public, max-age=604800, Content-Length 25737
-  GET  /bodemcheck                     200, 12285 bytes, versie in de bron
-  GET  /bodemcheck/api/analyse         200 in 0,8 s, 3 gevonden, 3 uitgelezen
-  19 tests, alle geslaagd
-
-WAT JE ZELF NOG MOET DOEN
+CONTROLES NA DE WIJZIGING
 =========================
-Deze deploy lost het op voor iedere bezoeker vanaf nu. Maar JOUW browser heeft
-nog de oude JS, want die oude URL (zonder ?v=) staat er nog een week in.
-Eenmalig: Ctrl+Shift+R op /bodemcheck, of een incognitovenster.
+  19 tests, alle geslaagd
+  /                       200    /project     200    /api/health   200
+  /server.js              404 (broncode nog steeds geblokkeerd)
+  /bodemcheck             200    analyse      200
+  adminlogin 11 pogingen  401 x10, dan 429
+  configurator.html: 4 scriptblokken, 0 fouten; JSON-LD geldig; div-balans
+    371 open / 371 dicht
+  pagina.html: div 33/33, section 7/7, p 38/38
 
-Daarna is dit probleem structureel weg.
+Onderweg gevonden en opgelost: mijn eerste invoeging in pagina.html sloot één
+div te veel, en /api/versie had dubbele velden. Beide gecorrigeerd voor deze
+ZIP.
 
 BESTANDEN
 =========
   server.js          sha256 5b7f88d933e2b4eb0210c9e066cda7cab7bb96a009f6aa6c38fd19c009611d8b
                      ONGEWIJZIGD sinds de eerste ZIP
-  configurator.html  sha256 729bea43194cd0760543a9dfec0679dd6197d501aa2780a478d4cb27d56d8bca
-                     ONGEWIJZIGD sinds v2
-  src/sondeertool/   index.js en pagina.html aangepast
+  configurator.html  sha256 59932a6b6af5ae0765293570975b6535a30540e7c602116374a845fab3e41e70
+                     versie-element + script + stijl toegevoegd
+  src/sondeertool/   nieuw bestand versie.js, plus index.js, pagina.html en
+                     sondeertool.css aangepast
 
-Alleen src/sondeertool/ hoeft dus verversd te worden.
+VERGEET NIET
+============
+Jouw browser heeft nog de oude client-JS van vóór de vorige ZIP. Eenmalig
+Ctrl+Shift+R op /bodemcheck. Daarna houdt het versiestempel in de asset-URL dit
+structureel tegen.
