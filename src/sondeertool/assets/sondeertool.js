@@ -17,6 +17,10 @@
   // zodat er niets kan botsen met de bestaande site. Die prefix zit hier in de
   // helpers, dus de rest van dit bestand blijft leesbaar.
   const WORTEL = '.sondeertool-app';
+  // ?debug=1 in de URL zet technische details op de pagina: HTTP-status,
+  // doorlooptijd en de faseklok van de server. Bedoeld om te kunnen zien wat er
+  // gebeurt zonder de ontwikkelaarsconsole te hoeven openen.
+  const DEBUG = /[?&]debug=1/.test(window.location.search);
   const el = (id) => document.getElementById('sd-' + id);
   const veld = (naam) => document.querySelector(`${WORTEL} [data-sd-veld="${naam}"]`);
 
@@ -51,6 +55,7 @@
   }
 
   let voortgangTimer = null;
+  let bezigMet = null; // AbortController van het lopende verzoek
 
   function bezig(aan) {
     zoekknop.disabled = aan;
@@ -149,6 +154,14 @@
   invoerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     suggestiesLijst.hidden = true;
+
+    // Loopt er al een verzoek? Dat afbreken in plaats van een tweede ernaast
+    // starten. Twee overlappende aanroepen lieten een voortgangstimer achter
+    // die eeuwig doorliep, ook nadat het antwoord al binnen was.
+    if (bezigMet) {
+      bezigMet.abort();
+      bezigMet = null;
+    }
     const vraag = adresInput.value.trim();
     if (vraag.length < 4) {
       zetMelding('Vul een postcode, adres of plaatsnaam in.');
@@ -166,7 +179,9 @@
       // Harde limiet aan onze kant. Zonder dit blijft de spinner draaien als de
       // verbinding onderweg wordt afgekapt en er nooit een antwoord komt.
       const afbreker = new AbortController();
+      bezigMet = afbreker;
       const tijdslimiet = setTimeout(() => afbreker.abort(), 35000);
+      const begonnen = Date.now();
 
       let res;
       let data;
@@ -192,6 +207,15 @@
         return;
       }
 
+      if (DEBUG) {
+        zetMelding(
+          `debug: HTTP ${res.status} in ${Date.now() - begonnen} ms · ` +
+            `gevonden ${data.aantalGevonden}, uitgelezen ${data.aantalGeanalyseerd} · ` +
+            `tijden ${JSON.stringify(data.tijden || {})}`,
+          'ok',
+        );
+      }
+
       huidigeData = data;
       actieveIndex = 0;
       // Eerst zichtbaar maken, dan tekenen: een verborgen element heeft
@@ -210,12 +234,14 @@
         zetMelding(data.waarschuwingen.join(' '), 'ok');
       }
     } catch (fout) {
+      console.error('[sondeertool] zoeken mislukt:', fout);
       zetMelding(
         fout && fout.name === 'AbortError'
           ? 'Het opzoeken duurde te lang en is afgebroken. De Basisregistratie Ondergrond is soms traag; probeer het over een paar minuten opnieuw.'
           : 'De verbinding is mislukt. Probeer het opnieuw.',
       );
     } finally {
+      bezigMet = null;
       bezig(false);
     }
   });

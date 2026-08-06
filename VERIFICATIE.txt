@@ -1,106 +1,77 @@
-VERIFICATIERAPPORT — ronde 8
+VERIFICATIERAPPORT — ronde 9
 ============================
 
-DE OORZAAK, DEFINITIEF
-======================
-Uit /bodemcheck/api/diagnose-sondering op je live site:
+STAND VAN ZAKEN
+===============
+Wat vaststaat na jouw laatste uitvoer:
 
-  "veldNamenGevonden": []
-  "heeftDataRecord": false
-  "eersteRijVeldenBijKomma": 25
-  "waardenLengte": 406588
+  server:   "aantalGeanalyseerd": 2, in ongeveer 3 seconden
+            CPT000000256805 op "geanalyseerd": true
+  assets:   jouw assetVersie bd0716d6f4 is byte-identiek aan mijn v8-build,
+            dus de client-JS in je browser is exact wat ik heb getest
+  client:   de tekst "nog even geduld" komt uit die nieuwe JS, dus die draait
 
-De echte BRO-bestanden gebruiken NIET het formaat uit de specificatie. Er is
-geen swe:DataRecord en er zijn geen <swe:field name="...">-definities. In plaats
-daarvan staat er een <cptcommon:parameters>-blok met ja/nee per parameter, en de
-waardenreeks heeft ALTIJD 25 vaste kolommen -- de niet-gemeten parameters op
--999999.
-
-Mijn parser leidde de kolomvolgorde af uit de veldnamen, vond er nul, en gooide
-daarom elke rij weg. Een sondering met 2255 meetpunten kwam er als leeg uit.
-
-Dat jouw eerste rij dit patroon heeft, bevestigt de standaardvolgorde:
-
-  kolom 1-4   0.000, 0.000, 0.0, 0.000   indringingslengte, diepte, tijd, qc
-  kolom 16    0                          resulterende hellinghoek
-  kolom 19    0.000                      plaatselijke wrijving
-  kolom 23    0.000                      waterspanning u2
-  kolom 25    0.0                        wrijvingsgetal
+De server werkt dus, en de code in de browser is de juiste. Het loopt vast
+tussen de fetch en het scherm.
 
 WAT ER IS OPGELOST
 ==================
-kolomnamen() gebruikt nu drie strategieen, in deze volgorde:
+Eén kandidaat in mijn eigen code, en die is nu uitgesloten:
 
-  1. swe:DataRecord met <swe:field name="..."> -- het specificatieformaat
-  2. <cptcommon:parameters> -- de kindelementen staan in dezelfde volgorde als
-     de kolommen; dit is wat de echte bestanden gebruiken
-  3. de vaste 25-parameterlijst, als het aantal velden in een rij daarmee
-     overeenkomt -- laatste redmiddel, maar beter dan de sondering weggooien
+  Twee gelijktijdige zoekopdrachten lieten een voortgangstimer achter.
+  bezig(true) zette voortgangTimer, en bij een tweede aanroep werd die variabele
+  overschreven -- de eerste setInterval bleef dan eeuwig doorlopen. De knoptekst
+  bleef door de stappen lopen ("Adres opzoeken", ... , "Nog even geduld") ook
+  nadat het antwoord al binnen was. Dat ziet er precies zo uit als vastlopen.
 
-De kolomvolgorde wordt nu pas bepaald NADAT de scheidingstekens zijn
-vastgesteld, want strategie 3 heeft het aantal velden per rij nodig.
+  Dat kon gebeuren doordat een klik op een adressuggestie requestSubmit()
+  aanroept: klikken en daarna zelf op de knop drukken gaf twee verzoeken.
 
-BEWIJS
-======
-Nieuwe fixture test/fixtures/cpt-echt-formaat.xml, gegenereerd naar het echte
-formaat: 402 kB, 2256 rijen van 25 kolommen, geen veldnamen, geen DataRecord,
-eerste rij identiek aan die van CPT000000256805.
+  Nu wordt een lopend verzoek afgebroken voordat een nieuw begint, en de
+  AbortController wordt bijgehouden in plaats van weggegooid.
 
-  parser: 25 kolommen gevonden, 2256 meetpunten, einddiepte 22,559 m,
-          maaiveld 0,68 m NAP, qc tot 25,9 MPa
+NIEUW: DEBUGSTAND OP DE PAGINA
+==============================
+  https://aanenuitbouw.nl/bodemcheck?debug=1
 
-  interpretatie:
-     0,00 -  1,20   Los zand                 qc  2,4
-     1,20 -  3,00   Klei                     qc  0,9
-     3,00 -  6,40   Veen                     qc  0,4
-     6,40 - 12,73   Klei                     qc  1,7
-    12,73 - 15,49   Vast zand                qc 14,6
-    15,49 - 22,54   Zeer vast zand / grind   qc 24,0
+Zet technische details in de meldingsbalk zodra het antwoord binnen is:
 
-    paalpunt 12,8 m onder maaiveld = -12,12 m NAP, slap pakket 11,5 m
+  debug: HTTP 200 in 3120 ms · gevonden 6, uitgelezen 2 ·
+         tijden {"adresOpzoeken":569,"zoekenBijBro":1228,...}
 
-  Dat is een geloofwaardig Bussums profiel.
+Twee mogelijke uitkomsten, en beide zijn informatie:
 
-Volledige keten tegen een BRO die dit formaat uitlevert:
-  HTTP 200 in 1,8 s, gevonden 3, geanalyseerd 2, 2256 meetpunten per sondering
-  tijden: zoeken 450 ms, meetgegevens 1076 ms, grondlagen 139 ms
+  a) die regel VERSCHIJNT -> de fetch komt terug en het probleem zit in het
+     tekenen van het resultaat daarna
+  b) die regel verschijnt NIET -> de fetch komt nooit terug, en dan is het de
+     verbinding of Cloudflare
+
+Elke fout gaat nu ook naar de browserconsole met de volledige melding.
+
+WAT IK DAN NOG NODIG HEB
+========================
+Verschijnt die debugregel niet, dan graag F12 in je browser:
+
+  tabblad Console  -> staan daar rode regels?
+  tabblad Network  -> zoek de regel "analyse". Wat staat er bij Status en bij
+                      Time? Blijft hij op "pending" staan?
+
+Dat is de enige plek waar nog informatie zit die ik niet kan zien.
+
+OPRUIMEN (niet urgent)
+======================
+Je src/sondeertool bevat 25 bestanden, mijn build 23. Twee restanten uit de
+Express-periode (tools/installeer.js en tools/preview-layout.ejs) staan er nog,
+omdat je de ZIP's over elkaar hebt uitgepakt. Ze worden nergens ingelezen en
+doen niets. Wil je het schoon: verwijder de map src/sondeertool helemaal voordat
+je deze ZIP uitpakt.
 
 TESTS
 =====
-30 tests, alle geslaagd (was 25). Vijf nieuwe:
-
-  26  de fixture heeft inderdaad geen veldnamen en 25 kolommen
-      (bewaakt de fixture zelf: gaat die op het specificatieformaat lijken,
-       dan test hij niet meer waarvoor hij bedoeld is)
-  27  kolomvolgorde komt uit het parameters-blok
-  28  alle 2256 meetpunten worden gelezen, inclusief wrijving en wrijvingsgetal
-  29  werkt ook zonder parameters-blok, via de vaste volgorde
-  30  interpretatie geeft een plausibel profiel met veen en een paalpunt
-
-De nagemaakte BRO in de testopstelling levert nu ook dit formaat, zodat de
-end-to-end tests niet meer op het specificatieformaat leunen.
-
-OOK AANGEPAST
-=============
-- Voortgangstekst "Nog even, de BRO is traag" -> "Nog even geduld". Die tekst
-  stuurde je het verkeerde spoor op; er ging niets traag.
-- Bij "opgehaald maar niet leesbaar" krijgt de bezoeker geen advies meer om het
-  later opnieuw te proberen, want dat helpt in dat geval niet. De volledige
-  reden gaat naar de serverlog.
-
-NA DE DEPLOY
-============
-  https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205
-
-"aantalGeanalyseerd" moet nu 2 zijn. Daarna de pagina zelf: die zou nu de
-sondeerstaat moeten tekenen met de grondlagen in kleur.
-
-Poststraat 5 in Bussum ligt op 626 m van de dichtstbijzijnde sondering, dus de
-betrouwbaarheid zal "indicatief" of "zwak" melden. Dat is correct en eerlijk.
+30 tests, alle geslaagd. Analyse tegen het echte BRO-formaat: 2 uitgelezen.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   services/cptParser.js, index.js, assets/sondeertool.js,
-                     plus nieuwe fixture en generator
+  src/sondeertool/   alleen assets/sondeertool.js aangepast
