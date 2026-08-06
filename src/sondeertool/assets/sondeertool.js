@@ -21,6 +21,39 @@
   // doorlooptijd en de faseklok van de server. Bedoeld om te kunnen zien wat er
   // gebeurt zonder de ontwikkelaarsconsole te hoeven openen.
   const DEBUG = /[?&]debug=1/.test(window.location.search);
+
+  /**
+   * Meldt wat er in de browser gebeurt aan de server, op te vragen via
+   * /bodemcheck/api/klantlog. Zonder dit is een pagina die blijft hangen alleen
+   * te onderzoeken met de ontwikkelaarsconsole erbij, en dat is niet altijd
+   * praktisch. Mag nooit zelf een fout veroorzaken, vandaar de lege catch.
+   */
+  function meld(fase, extra) {
+    try {
+      const lading = JSON.stringify(Object.assign({ fase: fase }, extra || {}));
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(`${BASIS}/api/klantlog`, new Blob([lading], { type: 'application/json' }));
+      } else {
+        fetch(`${BASIS}/api/klantlog`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: lading,
+          keepalive: true,
+        }).catch(function () {});
+      }
+    } catch (e) {
+      /* stil */
+    }
+  }
+
+  // JavaScript-fouten die buiten een try/catch ontstaan, ook melden. Zonder dit
+  // valt de pagina stil zonder spoor.
+  window.addEventListener('error', function (e) {
+    meld('js-fout', { details: `${e.message} @ ${e.filename}:${e.lineno}:${e.colno}` });
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    meld('belofte-fout', { details: String((e.reason && e.reason.message) || e.reason).slice(0, 300) });
+  });
   const el = (id) => document.getElementById('sd-' + id);
   const veld = (naam) => document.querySelector(`${WORTEL} [data-sd-veld="${naam}"]`);
 
@@ -171,6 +204,11 @@
     bezig(true);
     zetMelding(null);
 
+    // Buiten het try-blok, want de catch en de finally gebruiken dit ook. Als
+    // const binnen de try zou een fout een ReferenceError opleveren in de
+    // foutafhandeling zelf -- precies op het moment dat je informatie nodig hebt.
+    const begonnen = Date.now();
+
     try {
       const params = gekozenLocatie
         ? `lat=${gekozenLocatie.lat}&lon=${gekozenLocatie.lon}&label=${encodeURIComponent(gekozenLocatie.omschrijving)}`
@@ -181,18 +219,31 @@
       const afbreker = new AbortController();
       bezigMet = afbreker;
       const tijdslimiet = setTimeout(() => afbreker.abort(), 35000);
-      const begonnen = Date.now();
+
+      meld('zoeken-start', { details: params.slice(0, 200) });
 
       let res;
+      let ruweTekst;
       let data;
       try {
         res = await fetch(`${BASIS}/api/analyse?${params}`, { signal: afbreker.signal });
+        // Eerst als tekst inlezen, dan zelf parseren. Zo kan een onverwacht
+        // antwoord -- een foutpagina, een tussenpagina van een firewall --
+        // letterlijk gemeld worden in plaats van te verdwijnen in een
+        // mislukte JSON-parse.
+        ruweTekst = await res.text();
       } finally {
         clearTimeout(tijdslimiet);
       }
 
+      meld('antwoord', {
+        status: res.status,
+        ms: Date.now() - begonnen,
+        details: `${res.headers.get('content-type') || '?'} · ${ruweTekst.length} bytes · ${ruweTekst.slice(0, 200)}`,
+      });
+
       try {
-        data = await res.json();
+        data = JSON.parse(ruweTekst);
       } catch {
         zetMelding(
           res.status >= 500
@@ -222,6 +273,10 @@
       // clientWidth 0 en dan komt er een leeg canvas uit.
       uitkomst.hidden = false;
       toon(data);
+      meld('getekend', {
+        ms: Date.now() - begonnen,
+        details: `gevonden ${data.aantalGevonden}, uitgelezen ${data.aantalGeanalyseerd}, tijden ${JSON.stringify(data.tijden || {})}`,
+      });
       uitkomst.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       if (data.sonderingen.length === 0) {
@@ -235,6 +290,10 @@
       }
     } catch (fout) {
       console.error('[sondeertool] zoeken mislukt:', fout);
+      meld(fout && fout.name === 'AbortError' ? 'afgebroken' : 'fout', {
+        ms: Date.now() - begonnen,
+        details: `${(fout && fout.name) || '?'}: ${(fout && fout.message) || fout}`,
+      });
       zetMelding(
         fout && fout.name === 'AbortError'
           ? 'Het opzoeken duurde te lang en is afgebroken. De Basisregistratie Ondergrond is soms traag; probeer het over een paar minuten opnieuw.'

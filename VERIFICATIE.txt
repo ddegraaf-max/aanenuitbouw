@@ -1,77 +1,79 @@
-VERIFICATIERAPPORT — ronde 9
-============================
+VERIFICATIERAPPORT — ronde 10
+=============================
 
-STAND VAN ZAKEN
-===============
-Wat vaststaat na jouw laatste uitvoer:
+WAAROM DEZE RONDE
+=================
+Vaststaand:
+  server  geeft "aantalGeanalyseerd": 2 in ongeveer 3 seconden
+  assets  jouw assetVersie is byte-identiek aan mijn build
+  client  draait mijn nieuwe JS (de tekst "nog even geduld" komt daaruit)
 
-  server:   "aantalGeanalyseerd": 2, in ongeveer 3 seconden
-            CPT000000256805 op "geanalyseerd": true
-  assets:   jouw assetVersie bd0716d6f4 is byte-identiek aan mijn v8-build,
-            dus de client-JS in je browser is exact wat ik heb getest
-  client:   de tekst "nog even geduld" komt uit die nieuwe JS, dus die draait
+Het loopt dus vast tussen de fetch en het scherm, en die informatie zit alleen in
+de browser. Ik heb twee keer om de ontwikkelaarsconsole gevraagd; dat is geen
+werkbare manier. Daarom rapporteert de pagina het nu zelf aan de server.
 
-De server werkt dus, en de code in de browser is de juiste. Het loopt vast
-tussen de fetch en het scherm.
+NIEUW: DE PAGINA MELDT WAT ER GEBEURT
+=====================================
+Open na de deploy /bodemcheck, zoek een adres, en open dan:
 
-WAT ER IS OPGELOST
-==================
-Eén kandidaat in mijn eigen code, en die is nu uitgesloten:
+  https://aanenuitbouw.nl/bodemcheck/api/klantlog
 
-  Twee gelijktijdige zoekopdrachten lieten een voortgangstimer achter.
-  bezig(true) zette voortgangTimer, en bij een tweede aanroep werd die variabele
-  overschreven -- de eerste setInterval bleef dan eeuwig doorlopen. De knoptekst
-  bleef door de stappen lopen ("Adres opzoeken", ... , "Nog even geduld") ook
-  nadat het antwoord al binnen was. Dat ziet er precies zo uit als vastlopen.
+Daar staat, nieuwste bovenaan, wat de browser heeft gedaan:
 
-  Dat kon gebeuren doordat een klik op een adressuggestie requestSubmit()
-  aanroept: klikken en daarna zelf op de knop drukken gaf twee verzoeken.
+  23:35:52  zoeken-start   q=1401EX%205
+  23:35:52  antwoord       status=200 ms=3120
+            application/json; charset=utf-8 · 71234 bytes · {"locatie":{...
+  23:35:52  getekend       ms=3180  gevonden 6, uitgelezen 2
 
-  Nu wordt een lopend verzoek afgebroken voordat een nieuw begint, en de
-  AbortController wordt bijgehouden in plaats van weggegooid.
+Vijf mogelijke uitkomsten, elk met een eigen conclusie:
 
-NIEUW: DEBUGSTAND OP DE PAGINA
-==============================
-  https://aanenuitbouw.nl/bodemcheck?debug=1
+  alleen "zoeken-start", verder niets
+     -> de fetch komt nooit terug. Dan zit er iets tussen browser en server dat
+        het verzoek tegenhoudt: een firewallregel of botbescherming van
+        Cloudflare die XHR-verzoeken anders behandelt dan een gewone
+        paginaopvraag. Dat zou verklaren waarom de URL in de adresbalk wel
+        werkt en de fetch niet.
 
-Zet technische details in de meldingsbalk zodra het antwoord binnen is:
+  "antwoord" met een status die niet 200 is
+     -> ik zie de status en de eerste 200 tekens van wat er werd teruggestuurd.
+        Bij een tussenpagina van een firewall staat dat er letterlijk in.
 
-  debug: HTTP 200 in 3120 ms · gevonden 6, uitgelezen 2 ·
-         tijden {"adresOpzoeken":569,"zoekenBijBro":1228,...}
+  "antwoord" 200 maar geen "getekend"
+     -> het antwoord komt binnen en het tekenen loopt stuk. Dan staat er ook een
+        "js-fout"-regel met bestand, regelnummer en melding.
 
-Twee mogelijke uitkomsten, en beide zijn informatie:
+  "afgebroken"
+     -> de 35-secondenlimiet is bereikt; het verzoek bleef hangen.
 
-  a) die regel VERSCHIJNT -> de fetch komt terug en het probleem zit in het
-     tekenen van het resultaat daarna
-  b) die regel verschijnt NIET -> de fetch komt nooit terug, en dan is het de
-     verbinding of Cloudflare
+  "js-fout" of "belofte-fout"
+     -> een JavaScript-fout, met bestand en regelnummer.
 
-Elke fout gaat nu ook naar de browserconsole met de volledige melding.
+Ook toegevoegd: het antwoord wordt nu eerst als tekst ingelezen en dan zelf
+geparseerd. Daardoor kan een onverwacht antwoord letterlijk gemeld worden, in
+plaats van te verdwijnen in een mislukte JSON-parse.
 
-WAT IK DAN NOG NODIG HEB
-========================
-Verschijnt die debugregel niet, dan graag F12 in je browser:
+Het is bewust vluchtig: laatste 60 meldingen in het geheugen, niets op schijf,
+alleen IP en user-agent voor context. Bij een herstart is het weg. De endpoints
+staan buiten de rate limiter, want diagnostiek mag nooit zelf het probleem
+worden.
 
-  tabblad Console  -> staan daar rode regels?
-  tabblad Network  -> zoek de regel "analyse". Wat staat er bij Status en bij
-                      Time? Blijft hij op "pending" staan?
+EEN FOUT DIE IK ONDERWEG IN MIJN EIGEN WIJZIGING VOND
+=====================================================
+Ik zette de starttijd als const BINNEN het try-blok, terwijl de catch en de
+finally hem ook gebruiken. Dat had bij elke fout een ReferenceError gegeven in de
+foutafhandeling zelf -- precies op het moment dat je informatie nodig hebt. Nu
+staat hij ervoor, en er is een controle die dat vastlegt.
 
-Dat is de enige plek waar nog informatie zit die ik niet kan zien.
-
-OPRUIMEN (niet urgent)
-======================
-Je src/sondeertool bevat 25 bestanden, mijn build 23. Twee restanten uit de
-Express-periode (tools/installeer.js en tools/preview-layout.ejs) staan er nog,
-omdat je de ZIP's over elkaar hebt uitgepakt. Ze worden nergens ingelezen en
-doen niets. Wil je het schoon: verwijder de map src/sondeertool helemaal voordat
-je deze ZIP uitpakt.
-
-TESTS
-=====
-30 tests, alle geslaagd. Analyse tegen het echte BRO-formaat: 2 uitgelezen.
+GETEST
+======
+  klantlog leeg bij start, 4 meldingen geplaatst en correct teruggelezen
+  ringbuffer begrensd: na 74 meldingen staan er 60 in
+  een mislukte melding kan geen fout veroorzaken (lege catch, POST geeft 204)
+  analyse werkt onveranderd: 200, 2 uitgelezen
+  30 tests, alle geslaagd
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   alleen assets/sondeertool.js aangepast
+  src/sondeertool/   index.js en assets/sondeertool.js aangepast

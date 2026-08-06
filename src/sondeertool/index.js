@@ -208,6 +208,30 @@ function limietBereikt(req) {
 }
 
 // ---------------------------------------------------------------------------
+// Meldingen uit de browser
+// ---------------------------------------------------------------------------
+// De pagina rapporteert wat er bij de bezoeker gebeurt naar de server. Reden:
+// als het scherm blijft hangen terwijl de server een goed antwoord geeft, zit de
+// informatie alleen in de browser -- en die is niet te zien zonder de
+// ontwikkelaarsconsole te openen. Nu is hij op te vragen via een URL.
+//
+// Bewust vluchtig: laatste 60 meldingen in het geheugen, niets op schijf, geen
+// persoonsgegevens. Bij een herstart is het weg.
+
+const KLANTLOG_MAX = 60;
+const klantlog = [];
+
+function klantlogToevoegen(melding, req) {
+  klantlog.push({
+    tijd: new Date().toISOString(),
+    ip: ipVan(req),
+    userAgent: String(req.headers['user-agent'] || '').slice(0, 200),
+    ...melding,
+  });
+  while (klantlog.length > KLANTLOG_MAX) klantlog.shift();
+}
+
+// ---------------------------------------------------------------------------
 // Pagina opbouwen
 // ---------------------------------------------------------------------------
 
@@ -914,6 +938,39 @@ async function handle(req, res, url) {
         assetVersie: ASSET_VERSIE,
         bestanden: versie.bestanden,
       }));
+      return true;
+    }
+
+    if (rest === '/api/klantlog' && methode === 'POST') {
+      try {
+        const body = await leesJsonBody(req, 8000);
+        klantlogToevoegen(
+          {
+            fase: String(body.fase || '').slice(0, 40),
+            status: body.status ?? null,
+            ms: Number.isFinite(Number(body.ms)) ? Number(body.ms) : null,
+            details: typeof body.details === 'string' ? body.details.slice(0, 600) : body.details,
+          },
+          req,
+        );
+      } catch {
+        /* een mislukte melding mag nooit tot een fout leiden */
+      }
+      res.writeHead(204, { 'Cache-Control': 'no-store' });
+      res.end();
+      return true;
+    }
+
+    if (rest === '/api/klantlog' && isLezen) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      });
+      res.end(alleenKoppen ? undefined : JSON.stringify({
+        aantal: klantlog.length,
+        versie: versie.versie,
+        meldingen: [...klantlog].reverse(),
+      }, null, 2));
       return true;
     }
 
