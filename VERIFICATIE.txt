@@ -1,99 +1,106 @@
-VERIFICATIERAPPORT — ronde 7
+VERIFICATIERAPPORT — ronde 8
 ============================
 
-WAT JOUW UITVOER LIET ZIEN
-==========================
-  "duurMs": 3203
-  "tijden": { adresOpzoeken 569, zoekenBijBro 1228,
-              meetgegevensOphalen 1406, grondlagenBepalen 0 }
-  "aantalGevonden": 6
-  "aantalGeanalyseerd": 0
-  "mislukt": [{ "reden": "CPT CPT000000256805 bevat geen bruikbare meetpunten" },
-              { "reden": "CPT CPT000000256829 bevat geen bruikbare meetpunten" }]
+DE OORZAAK, DEFINITIEF
+======================
+Uit /bodemcheck/api/diagnose-sondering op je live site:
 
-Er ging NIETS traag: 3,2 seconde voor de hele keten. De XML komt binnen (1406 ms
-voor twee bestanden) en mijn parser haalt er nul meetpunten uit. "De BRO is
-traag" was mijn eigen voortgangstekst die het verkeerde beeld gaf; die is
-vervangen door "Nog even geduld".
+  "veldNamenGevonden": []
+  "heeftDataRecord": false
+  "eersteRijVeldenBijKomma": 25
+  "waardenLengte": 406588
 
-Die fout treedt alleen op als ELKE rij wordt overgeslagen, en dat gebeurt als de
-kolomnamen of de scheidingstekens afwijken van waarop ik test.
+De echte BRO-bestanden gebruiken NIET het formaat uit de specificatie. Er is
+geen swe:DataRecord en er zijn geen <swe:field name="...">-definities. In plaats
+daarvan staat er een <cptcommon:parameters>-blok met ja/nee per parameter, en de
+waardenreeks heeft ALTIJD 25 vaste kolommen -- de niet-gemeten parameters op
+-999999.
 
-WAT ER IS GEDAAN
-================
+Mijn parser leidde de kolomvolgorde af uit de veldnamen, vond er nul, en gooide
+daarom elke rij weg. Een sondering met 2255 meetpunten kwam er als leeg uit.
 
-1. Parser weerbaar gemaakt tegen precies die afwijkingen
+Dat jouw eerste rij dit patroon heeft, bevestigt de standaardvolgorde:
 
-   a. Scheidingstekens worden nu GECONTROLEERD in plaats van geloofd.
-      Levert de blokscheider uit TextEncoding maar één rij op, of een rij maar
-      één veld, dan worden ; \\n \\r\\n | en , spatie \\t geprobeerd. Een bestand
-      dat afwijkt van zijn eigen TextEncoding wordt dus alsnog gelezen.
+  kolom 1-4   0.000, 0.000, 0.0, 0.000   indringingslengte, diepte, tijd, qc
+  kolom 16    0                          resulterende hellinghoek
+  kolom 19    0.000                      plaatselijke wrijving
+  kolom 23    0.000                      waterspanning u2
+  kolom 25    0.0                        wrijvingsgetal
 
-   b. Kolomnamen worden ongevoelig voor schrijfwijze opgezocht: "Depth",
-      "cone_resistance" en "Local_Friction" worden nu gevonden. Historische
-      bestanden gaan tot 2004 terug (CPT000000018647 in jouw uitvoer is er een)
-      en zijn niet altijd consistent.
+WAT ER IS OPGELOST
+==================
+kolomnamen() gebruikt nu drie strategieen, in deze volgorde:
 
-   c. Ontbreekt de dieptekolom helemaal, dan wordt teruggevallen op de eerste
-      kolom -- in de BRO is dat altijd de indringingslengte. Zonder diepte is
-      elke rij onbruikbaar, dus dit is beter dan de hele sondering verliezen.
+  1. swe:DataRecord met <swe:field name="..."> -- het specificatieformaat
+  2. <cptcommon:parameters> -- de kindelementen staan in dezelfde volgorde als
+     de kolommen; dit is wat de echte bestanden gebruiken
+  3. de vaste 25-parameterlijst, als het aantal velden in een rij daarmee
+     overeenkomt -- laatste redmiddel, maar beter dan de sondering weggooien
 
-2. Foutmelding met alle context
-   In plaats van "bevat geen bruikbare meetpunten" staat er nu:
+De kolomvolgorde wordt nu pas bepaald NADAT de scheidingstekens zijn
+vastgesteld, want strategie 3 heeft het aantal velden per rij nodig.
 
-     CPT000000256805 bevat geen bruikbare meetpunten
-     (kolommen: penetrationLength|depth|...; scheiders blok=";" veld=",";
-      waardenlengte 298431; begin: 0.000,0.000,...)
+BEWIJS
+======
+Nieuwe fixture test/fixtures/cpt-echt-formaat.xml, gegenereerd naar het echte
+formaat: 402 kB, 2256 rijen van 25 kolommen, geen veldnamen, geen DataRecord,
+eerste rij identiek aan die van CPT000000256805.
 
-   Daarmee is bij de volgende keer in één blik duidelijk welke aanname niet
-   klopte, zonder extra ronde.
+  parser: 25 kolommen gevonden, 2256 meetpunten, einddiepte 22,559 m,
+          maaiveld 0,68 m NAP, qc tot 25,9 MPa
 
-3. Nieuw endpoint dat de parser van binnenuit toont
+  interpretatie:
+     0,00 -  1,20   Los zand                 qc  2,4
+     1,20 -  3,00   Klei                     qc  0,9
+     3,00 -  6,40   Veen                     qc  0,4
+     6,40 - 12,73   Klei                     qc  1,7
+    12,73 - 15,49   Vast zand                qc 14,6
+    15,49 - 22,54   Zeer vast zand / grind   qc 24,0
 
-     /bodemcheck/api/diagnose-sondering?id=CPT000000256805
+    paalpunt 12,8 m onder maaiveld = -12,12 m NAP, slap pakket 11,5 m
 
-   Toont: aantal bytes, of het values-element bestaat, alle gevonden veldnamen,
-   de TextEncoding-attributen letterlijk, hoe vaak ; , spatie tab en regeleinde
-   voorkomen, de eerste rij ruw, hoeveel velden die rij oplevert bij komma en
-   bij spatie, en wat de echte parser eruit haalt.
+  Dat is een geloofwaardig Bussums profiel.
 
-   Werkt de sondering na deze deploy nog niet, dan geeft die uitvoer het
-   antwoord zonder gissen.
-
-4. Eerlijker melding voor de bezoeker
-   Onderscheid tussen "niet opgehaald" (helpt: straks opnieuw proberen) en
-   "opgehaald maar niet leesbaar" (helpt niet). In het tweede geval staat er nu
-   dat wij op de hoogte zijn gesteld, en gaat de volledige reden naar de
-   serverlog.
+Volledige keten tegen een BRO die dit formaat uitlevert:
+  HTTP 200 in 1,8 s, gevonden 3, geanalyseerd 2, 2256 meetpunten per sondering
+  tijden: zoeken 450 ms, meetgegevens 1076 ms, grondlagen 139 ms
 
 TESTS
 =====
-25 tests, alle geslaagd (was 19). Zes nieuwe, elk met een bewust afwijkend
-bestand:
+30 tests, alle geslaagd (was 25). Vijf nieuwe:
 
-  20  rijen gescheiden door regeleindes in plaats van puntkomma
-  21  velden gescheiden door spaties in plaats van komma
-  22  TextEncoding noemt "|" en "!" terwijl het bestand ; en , gebruikt
-  23  kolomnamen als "Depth", "cone_resistance", "Local_Friction"
-  24  dieptekolom volledig onbekend -> terugval op de eerste kolom
-  25  foutmelding bevat kolommen, scheiders en het begin van de data
+  26  de fixture heeft inderdaad geen veldnamen en 25 kolommen
+      (bewaakt de fixture zelf: gaat die op het specificatieformaat lijken,
+       dan test hij niet meer waarvoor hij bedoeld is)
+  27  kolomvolgorde komt uit het parameters-blok
+  28  alle 2256 meetpunten worden gelezen, inclusief wrijving en wrijvingsgetal
+  29  werkt ook zonder parameters-blok, via de vaste volgorde
+  30  interpretatie geeft een plausibel profiel met veen en een paalpunt
 
-WAT ER NOG KAN MISGAAN
-======================
-Ik weet nog steeds niet WELKE afwijking het is bij jouw sonderingen -- ik heb de
-drie waarschijnlijkste gedekt. Werkt het na deze deploy:
+De nagemaakte BRO in de testopstelling levert nu ook dit formaat, zodat de
+end-to-end tests niet meer op het specificatieformaat leunen.
 
+OOK AANGEPAST
+=============
+- Voortgangstekst "Nog even, de BRO is traag" -> "Nog even geduld". Die tekst
+  stuurde je het verkeerde spoor op; er ging niets traag.
+- Bij "opgehaald maar niet leesbaar" krijgt de bezoeker geen advies meer om het
+  later opnieuw te proberen, want dat helpt in dat geval niet. De volledige
+  reden gaat naar de serverlog.
+
+NA DE DEPLOY
+============
   https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205
-  -> "aantalGeanalyseerd" moet nu 2 zijn in plaats van 0
 
-Werkt het niet, stuur dan de uitvoer van:
+"aantalGeanalyseerd" moet nu 2 zijn. Daarna de pagina zelf: die zou nu de
+sondeerstaat moeten tekenen met de grondlagen in kleur.
 
-  https://aanenuitbouw.nl/bodemcheck/api/diagnose-sondering?id=CPT000000256805
-
-Dat is een handvol regels en daar staat het antwoord letterlijk in.
+Poststraat 5 in Bussum ligt op 626 m van de dichtstbijzijnde sondering, dus de
+betrouwbaarheid zal "indicatief" of "zwak" melden. Dat is correct en eerlijk.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   cptParser.js, index.js en assets/sondeertool.js aangepast
+  src/sondeertool/   services/cptParser.js, index.js, assets/sondeertool.js,
+                     plus nieuwe fixture en generator

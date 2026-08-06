@@ -275,3 +275,63 @@ test('meetreeks: foutmelding bevat de context om het te kunnen oplossen', () => 
     },
   );
 });
+
+// ---------------------------------------------------------------------------
+// Het ECHTE BRO-formaat.
+//
+// Vastgesteld op CPT000000256805 (Bussum) via /api/diagnose-sondering: geen
+// swe:DataRecord, geen veldnamen, een cptcommon:parameters-blok met ja/nee, en
+// 25 vaste kolommen waarvan de niet-gemeten op -999999 staan. Mijn parser zocht
+// naar veldnamen, vond er nul, en gooide daarom elke rij weg -- de sondering
+// leek dan leeg terwijl er 2255 meetpunten in zaten.
+// ---------------------------------------------------------------------------
+
+const echtXml = fs.readFileSync(path.join(__dirname, 'fixtures', 'cpt-echt-formaat.xml'), 'utf8');
+
+test('echt formaat: fixture heeft inderdaad geen veldnamen en 25 kolommen', () => {
+  // Bewaakt de fixture zelf: gaat die per ongeluk op het specificatieformaat
+  // lijken, dan test hij niet meer waarvoor hij bedoeld is.
+  assert.equal((echtXml.match(/field[^>]*name=/g) || []).length, 0);
+  assert.ok(!/DataRecord/.test(echtXml));
+  assert.equal(echtXml.match(/<swe:values>([^;]*)/)[1].split(',').length, 25);
+});
+
+test('echt formaat: kolomvolgorde komt uit het parameters-blok', () => {
+  const s = parseCptXml(echtXml);
+  assert.equal(s.kolommen.length, 25);
+  assert.equal(s.kolommen[0], 'penetrationLength');
+  assert.equal(s.kolommen[3], 'coneResistance');
+  assert.equal(s.kolommen[18], 'localFriction');
+  assert.equal(s.kolommen[24], 'frictionRatio');
+});
+
+test('echt formaat: alle meetpunten worden gelezen', () => {
+  const s = parseCptXml(echtXml);
+  assert.ok(s.aantalPunten > 2200, `verwacht ~2256 punten, kreeg ${s.aantalPunten}`);
+  assert.equal(s.einddiepte, 22.559);
+  assert.equal(s.maaiveldNap, 0.68);
+  assert.ok(s.qcMax > 20, 'vast zand moet zichtbaar zijn');
+  assert.ok(s.punten[1].fs !== null, 'wrijving uit kolom 19');
+  assert.ok(s.punten[1].rf !== null, 'wrijvingsgetal uit kolom 25');
+});
+
+test('echt formaat: werkt ook zonder parameters-blok, via de vaste volgorde', () => {
+  // Sommige bestanden kunnen het blok missen. Met 25 kolommen is de volgorde
+  // bekend, dus dan is teruggeven van nul meetpunten onnodig.
+  const zonder = echtXml.replace(/<cptcommon:parameters>[\s\S]*?<\/cptcommon:parameters>/, '');
+  assert.ok(!/parameters/.test(zonder));
+  const s = parseCptXml(zonder);
+  assert.ok(s.aantalPunten > 2200, `verwacht ~2256 punten, kreeg ${s.aantalPunten}`);
+  assert.equal(s.kolommen[3], 'coneResistance');
+  assert.ok(s.qcMax > 20);
+});
+
+test('echt formaat: interpretatie geeft een plausibel Bussums profiel', () => {
+  const i = interpreteerSondering(parseCptXml(echtXml));
+  assert.ok(i.paalpunt, 'er moet een vaste zandlaag gevonden worden');
+  assert.ok(i.paalpunt.diepteMv > 10 && i.paalpunt.diepteMv < 16,
+    `paalpunt verwacht tussen 10 en 16 m, kreeg ${i.paalpunt.diepteMv}`);
+  assert.ok(i.slappeToplaagDikte > 8, 'dik slap pakket erboven');
+  assert.ok(i.lagen.some((l) => l.soort === 'veen'), 'veenlaag moet herkend worden');
+  assert.ok(i.reeks.punten.length <= 900, 'reeks verdund voor de browser');
+});

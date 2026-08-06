@@ -66,15 +66,86 @@ function positieUit(fragment) {
   return { lat, lon, srs: srs || 'EPSG:4258 (aangenomen)' };
 }
 
-/** Leest de kolomnamen in de juiste volgorde uit de DataRecord-definitie. */
-function kolomnamen(xml) {
+/**
+ * Vaste kolomvolgorde van de meetwaarden in IMBRO CPT-XML.
+ *
+ * De echte BRO-bestanden bevatten GEEN swe:DataRecord met veldnamen. Ze hebben
+ * een <cptcommon:parameters>-blok met ja/nee per parameter, en de waardenreeks
+ * heeft altijd deze 25 kolommen in deze volgorde -- ook de parameters die niet
+ * gemeten zijn, die staan dan op -999999.
+ *
+ * Vastgesteld op echte data (CPT000000256805, 414 kB, 2255 rijen van 25
+ * kolommen): kolom 1-4 gevuld met indringingslengte, diepte, tijd en
+ * conusweerstand, kolom 16 met de resulterende hellinghoek, 19 met de
+ * plaatselijke wrijving, 23 met waterspanning u2 en 25 met het wrijvingsgetal.
+ * Dat patroon sluit precies aan op onderstaande volgorde.
+ */
+const BRO_PARAMETER_ORDE = [
+  'penetrationLength',
+  'depth',
+  'elapsedTime',
+  'coneResistance',
+  'correctedConeResistance',
+  'netConeResistance',
+  'magneticFieldStrengthX',
+  'magneticFieldStrengthY',
+  'magneticFieldStrengthZ',
+  'magneticFieldStrengthTotal',
+  'electricalConductivity',
+  'inclinationEW',
+  'inclinationNS',
+  'inclinationX',
+  'inclinationY',
+  'inclinationResultant',
+  'magneticInclination',
+  'magneticDeclination',
+  'localFriction',
+  'poreRatio',
+  'temperature',
+  'porePressureU1',
+  'porePressureU2',
+  'porePressureU3',
+  'frictionRatio',
+];
+
+/**
+ * Bepaalt de kolomvolgorde van de meetwaarden. Drie strategieën, in deze orde:
+ *
+ *   1. swe:DataRecord met <swe:field name="..."> -- het formaat uit de
+ *      specificatie en uit de voorbeelden.
+ *   2. <cptcommon:parameters> -- wat de echte BRO-bestanden gebruiken. De
+ *      kindelementen staan in dezelfde volgorde als de kolommen.
+ *   3. de vaste volgorde hierboven, als het aantal velden in een rij
+ *      overeenkomt. Laatste redmiddel, maar beter dan de sondering weggooien.
+ *
+ * @param {string} xml
+ * @param {number} [aantalVelden] aantal velden in de eerste gegevensrij
+ */
+function kolomnamen(xml, aantalVelden) {
+  // 1. swe:field
   const record = xml.match(el('DataRecord'));
-  const bron = record ? record[1] : xml;
+  const veldBron = record ? record[1] : xml;
   const namen = [];
   const re = /<(?:[\w.-]+:)?field\b[^>]*\bname\s*=\s*"([^"]+)"/gi;
   let m;
-  while ((m = re.exec(bron)) !== null) namen.push(m[1]);
-  return namen;
+  while ((m = re.exec(veldBron)) !== null) namen.push(m[1]);
+  if (namen.length > 0) return namen;
+
+  // 2. cptcommon:parameters — de kindelementen in documentvolgorde
+  const parameters = xml.match(el('parameters'));
+  if (parameters) {
+    const uitParameters = [];
+    const paramRe = /<(?:[\w.-]+:)?([A-Za-z][\w-]*)\s*>/g;
+    while ((m = paramRe.exec(parameters[1])) !== null) uitParameters.push(m[1]);
+    if (uitParameters.length > 0) return uitParameters;
+  }
+
+  // 3. vaste volgorde, alleen als het aantal kolommen klopt
+  if (Number.isFinite(aantalVelden) && aantalVelden === BRO_PARAMETER_ORDE.length) {
+    return [...BRO_PARAMETER_ORDE];
+  }
+
+  return [];
 }
 
 /** Leest de scheidingstekens uit <swe:TextEncoding>, met BRO-defaults. */
@@ -128,7 +199,6 @@ function parseCptXml(xml) {
   const datum_vert = tekst(verticaal, 'verticalDatum');
 
   // Meetdata.
-  const kolommen = kolomnamen(xml);
   const enc = encoding(xml);
   const waardenBlok = xml.match(el('values'));
   if (!waardenBlok) {
@@ -151,6 +221,11 @@ function parseCptXml(xml) {
   enc.block = kiesScheider(ruw, enc.block, [';', '\n', '\r\n', '|'], 2);
   const proefRij = (ruw.split(enc.block).find((r) => r.trim()) || '').trim();
   enc.token = kiesScheider(proefRij, enc.token, [',', ' ', '\t', ';', '|'].filter((t) => t !== enc.block), 2);
+
+  // Pas nu de kolomvolgorde bepalen: het aantal velden in een rij is nodig als
+  // terugval op de vaste BRO-volgorde.
+  const veldenInProefRij = (enc.token === ' ' ? proefRij.split(/\s+/) : proefRij.split(enc.token)).length;
+  const kolommen = kolomnamen(xml, veldenInProefRij);
 
   // Kolommen opzoeken zonder te struikelen over schrijfwijze. De BRO is
   // consistent, maar historische bestanden (IMBRO/A, tot 2004 terug) zijn dat
