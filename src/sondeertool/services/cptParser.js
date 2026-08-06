@@ -204,4 +204,64 @@ function parseCptXml(xml) {
   };
 }
 
-module.exports = { parseCptXml, ONTBREEKT, _intern: { kolomnamen, encoding, positieUit } };
+/**
+ * Parser voor het antwoord van POST /characteristics/searches.
+ *
+ * De BRO negeert `Accept: application/json` en stuurt in de praktijk XML
+ * (`dispatchCharacteristicsResponse` met een CPT_C-blok per sondering). Deze
+ * functie leest daaruit de kengegevens: BRO-ID, locatie, datum en einddiepte.
+ *
+ * Twee manieren om de blokken te vinden, want de elementnaam kan tussen
+ * releases wijzigen: eerst op CPT_C, en als dat niets oplevert door de
+ * documenttekst op te knippen bij elke broId. Die terugval werkt ook als de BRO
+ * het omhulsel herbenoemt.
+ */
+function parseKengegevensXml(xml) {
+  if (typeof xml !== 'string' || xml.length < 20) return [];
+
+  const blokken = [];
+  const blokRe = /<(?:[\w.-]+:)?CPT_C\b[\s\S]*?<\/(?:[\w.-]+:)?CPT_C>/gi;
+  let m;
+  while ((m = blokRe.exec(xml)) !== null) blokken.push(m[0]);
+
+  if (blokken.length === 0) {
+    const idRe = /<(?:[\w.-]+:)?broId>/gi;
+    const posities = [];
+    while ((m = idRe.exec(xml)) !== null) posities.push(m.index);
+    for (let i = 0; i < posities.length; i++) {
+      blokken.push(xml.slice(posities[i], i + 1 < posities.length ? posities[i + 1] : xml.length));
+    }
+  }
+
+  const uit = [];
+  for (const blok of blokken) {
+    const broId = tekst(blok, 'broId');
+    if (!broId || !/^CPT/i.test(broId)) continue;
+
+    const geleverd = blok.match(el('deliveredLocation'));
+    const standaard = blok.match(el('standardizedLocation'));
+    const locatie =
+      positieUit(geleverd && geleverd[1]) ||
+      positieUit(standaard && standaard[1]) ||
+      positieUit(blok);
+
+    const rapportBlok = blok.match(el('researchReportDate'));
+    const datum =
+      (rapportBlok && (tekst(rapportBlok[1], 'date') || tekst(rapportBlok[1], 'year'))) ||
+      tekst(blok, 'researchReportDate') ||
+      null;
+
+    uit.push({
+      broId,
+      coordinaten: locatie ? { lat: locatie.lat, lon: locatie.lon } : null,
+      datum: datum && /^\d{4}-\d{2}-\d{2}/.test(datum) ? datum.slice(0, 10) : datum,
+      einddiepte: getal(blok, 'finalDepth'),
+      kwaliteitsregime: tekst(blok, 'qualityRegime'),
+      norm: tekst(blok, 'cptStandard'),
+      doel: tekst(blok, 'surveyPurpose'),
+    });
+  }
+  return uit;
+}
+
+module.exports = { parseCptXml, parseKengegevensXml, ONTBREEKT, _intern: { kolomnamen, encoding, positieUit } };

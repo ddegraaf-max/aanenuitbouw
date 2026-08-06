@@ -1,6 +1,6 @@
 'use strict';
 
-const { parseCptXml } = require('./cptParser');
+const { parseCptXml, parseKengegevensXml } = require('./cptParser');
 const { Cache } = require('../utils/cache');
 const { afstandMeter, richting, windstreek } = require('./rd');
 const mock = require('./mockBro');
@@ -193,14 +193,31 @@ async function zoekSonderingen(lat, lon, radiusKm = 1, timeoutMs) {
       throw new Error(`BRO zoekopdracht mislukt (HTTP ${res.status}): ${tekst.slice(0, 400)}`);
     }
 
-    let json;
-    try {
-      json = JSON.parse(tekst);
-    } catch {
-      throw new Error(`BRO gaf geen JSON terug: ${tekst.slice(0, 200)}`);
+    // De service negeert `Accept: application/json` en antwoordt in de praktijk
+    // met XML (dispatchCharacteristicsResponse). Beide vormen worden gelezen,
+    // zodat het blijft werken als de BRO ooit wel JSON gaat sturen.
+    const contentType = res.headers.get('content-type') || '';
+    const lijktXml = /xml/i.test(contentType) || tekst.trimStart().startsWith('<');
+
+    let ruw;
+    if (lijktXml) {
+      ruw = parseKengegevensXml(tekst);
+      if (ruw.length === 0 && /CPT\d{6,}/.test(tekst)) {
+        throw new Error(
+          `BRO stuurde XML die niet te lezen was (${tekst.length} bytes, wel CPT-ids aanwezig): ${tekst.slice(0, 300)}`,
+        );
+      }
+    } else {
+      let json;
+      try {
+        json = JSON.parse(tekst);
+      } catch {
+        throw new Error(`BRO gaf geen leesbaar antwoord: ${tekst.slice(0, 200)}`);
+      }
+      ruw = haalKengegevensUit(json);
     }
 
-    const gevonden = haalKengegevensUit(json)
+    const gevonden = ruw
       .filter((s) => s.coordinaten)
       .map((s) => {
         const { lat: sLat, lon: sLon } = s.coordinaten;

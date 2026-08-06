@@ -41,6 +41,7 @@ const path = require('path');
 
 const geocode = require('./services/geocode');
 const bro = require('./services/broClient');
+const { parseKengegevensXml } = require('./services/cptParser');
 const { interpreteerSondering, bouwSamenvatting, GRONDSOORTEN } = require('./services/interpret');
 
 const ASSETS_DIR = path.join(__dirname, 'assets');
@@ -389,6 +390,7 @@ async function doeAnalyse(req, res, params) {
 
     const sonderingen = [];
     const mislukt = [];
+    const gelukteIds = new Set();
 
     opgehaald.forEach((uitkomst, i) => {
       const kengegeven = kandidaten[i];
@@ -398,8 +400,10 @@ async function doeAnalyse(req, res, params) {
       }
       try {
         const geinterpreteerd = interpreteerSondering(uitkomst.value);
+        gelukteIds.add(kengegeven.broId);
         sonderingen.push({
           ...geinterpreteerd,
+          broId: kengegeven.broId, // het aangevraagde id is leidend
           afstandM: kengegeven.afstandM,
           windstreek: kengegeven.windstreek,
           richtingGraden: kengegeven.richtingGraden,
@@ -437,7 +441,7 @@ async function doeAnalyse(req, res, params) {
         afstandM: k.afstandM,
         einddiepte: k.einddiepte,
         datum: k.datum,
-        geanalyseerd: sonderingen.some((s) => s.broId === k.broId),
+        geanalyseerd: gelukteIds.has(k.broId),
       })),
       sonderingen,
       samenvatting: bouwSamenvatting(sonderingen, {
@@ -615,22 +619,38 @@ async function doeDiagnose(req, res, params) {
       signal: ac(),
     });
     const tekst = await r.text();
-    let aantalCpt = null;
-    try { aantalCpt = (tekst.match(/CPT\d{9,}/g) || []).length; } catch { /* niets */ }
+    const ids = tekst.match(/CPT\d{9,}/g) || [];
+    const contentType = r.headers.get('content-type') || '';
+    const lijktXml = /xml/i.test(contentType) || tekst.trimStart().startsWith('<');
+
+    // Belangrijkste vraag: krijgt de parser hier daadwerkelijk bruikbare
+    // kengegevens uit? Een status 200 met 40 ids zegt nog niets als het
+    // formaat niet gelezen kan worden.
+    let gelezen = null;
+    let leesFout = null;
+    try {
+      gelezen = lijktXml ? parseKengegevensXml(tekst).length : null;
+    } catch (fout) {
+      leesFout = fout.message;
+    }
+
     return {
       ok: r.ok,
       status: r.status,
-      contentType: r.headers.get('content-type'),
+      contentType,
+      formaat: lijktXml ? 'XML' : 'JSON',
       bytes: tekst.length,
-      cptIdsGevonden: aantalCpt,
-      begin: tekst.slice(0, 600),
+      cptIdsGevonden: ids.length,
+      kengegevensGelezen: gelezen,
+      leesFout,
+      eersteId: ids[0] || null,
+      begin: tekst.slice(0, 400),
     };
   });
 
   const eersteId = (() => {
     const zoek = stappen.find((x) => x.stap.startsWith('2.'));
-    const m = zoek && zoek.begin && zoek.begin.match(/CPT\d{9,}/);
-    return m ? m[0] : null;
+    return (zoek && zoek.eersteId) || null;
   })();
 
   if (eersteId) {

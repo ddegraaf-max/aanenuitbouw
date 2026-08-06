@@ -1,120 +1,96 @@
-VERIFICATIERAPPORT — ronde 2
+VERIFICATIERAPPORT — ronde 3
 ============================
 
-Wat er in deze ronde is opgelost
---------------------------------
-  1. het zoeken dat bleef draaien zonder resultaat
-  2. de bodemcheck op de hoofdsite (menu, footer, eigen sectie)
+DE OORZAAK, GEVONDEN VIA JOUW DIAGNOSE-UITVOER
+==============================================
 
+Uit /bodemcheck/api/diagnose op de live site:
 
-1. HET VASTLOPEN
-================
+  "stap": "2. BRO zoekopdracht (enclosingCircle)"
+  "status": 200
+  "contentType": "application/xml"      <-- XML
+  "cptIdsGevonden": 40
+  "bytes": 62696
 
-Oorzaak
--------
-Mijn zoekstrategie kon in het slechtste geval honderd seconden duren:
+De BRO negeert `Accept: application/json` en antwoordt met XML
+(dispatchCharacteristicsResponse). Mijn client deed daar JSON.parse op, die
+gooide een fout, en er kwam geen enkele sondering door -- terwijl er 40
+metingen binnen een kilometer van je testpunt liggen.
 
-  zoekstralen 0,5 / 1 / 2 / 5 km, achter elkaar, elk met 20 s timeout  = 80 s
-  daarna 3 sondeer-XML's van 0,5-3 MB, elk met 20 s timeout            = 20 s
+Dit stond in de vorige rapporten als "de enige onzekerheid": ik kon het formaat
+van dat antwoord vanaf hier niet controleren omdat mijn container niet bij de
+BRO kan. Jouw diagnose-uitvoer heeft het beslecht.
 
-Cloudflare kapt een verbinding na ongeveer 100 seconden af. Dan komt er nooit
-een antwoord bij de browser, en de client had zelf geen tijdslimiet -- dus bleef
-de spinner eeuwig draaien.
+WAT ER IS OPGELOST
+==================
 
-Wat er is veranderd
--------------------
-  timeout per BRO-call        20 s  ->  9 s
-  zoekstralen                 0,5/1/2/5 km  ->  1/3/5 km (start ruimer, minder rondes)
-  hard tijdsbudget            geen  ->  24 s voor de hele opvraging
-  bij tijdnood                niets  ->  gedeeltelijk antwoord met uitleg
-  tijdslimiet in de browser   geen  ->  35 s, met nette foutmelding
-  voortgang in de knop        "Bezig met opzoeken"  ->  vijf stappen die meelopen
+1. XML-antwoord van de zoekopdracht wordt nu gelezen
+   Nieuw: parseKengegevensXml() in services/cptParser.js. Leest per sondering
+   het BRO-ID, de locatie, de datum, de einddiepte en het kwaliteitsregime uit
+   het CPT_C-blok. Zowel XML als JSON wordt geaccepteerd, zodat het blijft
+   werken als de BRO ooit wel JSON gaat sturen.
 
-Bewijs: drie storingsscenario's tegen een nagemaakte, opzettelijk trage BRO
----------------------------------------------------------------------------
-A. de BRO-zoekopdracht hangt 30 s
-     HTTP 502 na 9,0 s
-     "De Basisregistratie Ondergrond is momenteel niet bereikbaar."
-     -> afgebroken op tijd, duidelijke melding, geen hangende verbinding
+   Twee manieren om de blokken te vinden: eerst op CPT_C, en als dat niets
+   oplevert door het document op te knippen bij elke broId. Die terugval werkt
+   ook als de BRO het omhulsel herbenoemt. Beide paden staan onder test.
 
-B. zoeken lukt, maar de XML-download hangt 30 s
-     HTTP 200 na 22,5 s
-     gevonden 2, geanalyseerd 0
-     waarschuwing: "De sonderingen zijn wel gevonden, maar de meetgegevens
-     konden niet worden opgehaald bij de BRO."
-     -> gedeeltelijk antwoord binnen het budget in plaats van niets
+2. Diagnose zegt nu of de parser het antwoord echt kan lezen
+   Een status 200 met 40 ids zei nog niets -- dat was precies de val. De stap
+   rapporteert nu ook formaat, kengegevensGelezen en eersteId:
 
-C. alles normaal traag (0,8 s)
-     HTTP 200 na 1,6 s
-     gevonden 2, geanalyseerd 2, 7 grondlagen, paalpunt op 11,52 m
-     -> volledig resultaat
+     2. BRO zoekopdracht   ok=True 255ms status=200
+        formaat=XML cptIdsGevonden=3 kengegevensGelezen=3 eersteId=CPT000000129384
 
-Nieuw: diagnose-endpoint
-------------------------
-Ik kan de echte BRO vanaf hier niet bereiken (mijn container mag alleen naar npm
-en GitHub). Werkt het bij jou nog niet, open dan:
+   Staat daar kengegevensGelezen=0 terwijl cptIdsGevonden hoger is, dan is het
+   formaat opnieuw gewijzigd.
 
-  https://aanenuitbouw.nl/bodemcheck/api/diagnose
+   Ook opgelost: stap 3 zocht het BRO-ID alleen in de eerste 600 tekens van het
+   antwoord en meldde daarom "geen CPT-id om te proberen", ook als er 40 in het
+   document stonden.
 
-Die loopt de keten stap voor stap na en geeft per stap de tijd, de HTTP-status
-en de eerste tekens van het ruwe antwoord. Zo is te zien WAAR het strandt in
-plaats van te moeten gokken. Voorbeelduitvoer hier, tegen de nagemaakte BRO:
+3. Koppeling op het aangevraagde BRO-ID
+   De vlag "uitgelezen" werd gematcht op het id in het antwoord. Wijkt dat af
+   van het aangevraagde id, dan viel de koppeling stil weg. Nu is het
+   aangevraagde id leidend.
 
-  1. PDOK adres opzoeken                     ok=False 225ms status=403
-  2. BRO zoekopdracht (enclosingCircle)      ok=True  305ms status=200 cpt=2
-  3. BRO sondering ophalen (CPT000000099999) ok=True  503ms status=200 waarden=True
+TESTS
+=====
+19 tests, alle geslaagd (was 13; zes nieuwe voor de kengegevens-XML):
 
-De 403 bij stap 1 is de firewall van mijn container, niet iets in de code.
-Stuur die uitvoer als het bij jou misgaat.
+  - alle sonderingen worden uit het XML-antwoord gelezen
+  - RD-locatie omgerekend, gecontroleerd tegen de standardizedLocation (<25 m)
+  - datum, einddiepte en kwaliteitsregime komen mee
+  - werkt ook als deliveredLocation ontbreekt
+  - terugval als het omhulsel anders heet
+  - onzin levert een lege lijst, geen fout
 
+Volledige keten tegen een nagemaakte BRO die XML teruggeeft:
 
-2. DE BODEMCHECK OP DE HOOFDSITE
-================================
+  HTTP 200 in 0,8 s
+  gevonden 3, geanalyseerd 3
+    CPT000000129384    0 m   uitgelezen
+    CPT000000129385   77 m   uitgelezen
+    CPT000000129386  302 m   uitgelezen
+  7 grondlagen, slap pakket 9,4 m, paalpunt 11,52 m
+  betrouwbaarheid: redelijk
 
-configurator.html: 135 regels toegevoegd, 0 verwijderd, 0 gewijzigd.
+BESTANDEN
+=========
+  server.js          sha256 5b7f88d933e2b4eb0210c9e066cda7cab7bb96a009f6aa6c38fd19c009611d8b
+                     ONGEWIJZIGD sinds de eerste ZIP -- alleen de module is aangepast
+  configurator.html  sha256 729bea43194cd0760543a9dfec0679dd6197d501aa2780a478d4cb27d56d8bca
+                     ONGEWIJZIGD sinds de vorige ZIP
+  src/sondeertool/   de module met de XML-parser
 
-  - menu-item "Bodemcheck" tussen Proces en Configurator
-  - link in de footerkolom "Navigatie"
-  - een sectie #bodemcheck tussen Proces en Configurator, met uitleg en een
-    postcodeveld dat doorstuurt naar /bodemcheck?q=...
-  - stijl uitsluitend met je bestaande CSS-variabelen (--color-primary,
-    --color-ink, --color-line), dus het beweegt mee met je huisstijl
+Je hoeft dus alleen src/sondeertool/ te verversen. server.js en
+configurator.html zijn identiek aan wat je al hebt gepusht; ze zitten erbij
+zodat je in één keer kunt uitpakken zonder te hoeven kiezen.
 
-Gemeten na de wijziging:
-  /                                  200, sectie id="bodemcheck" aanwezig
-  menu bevat #bodemcheck             ja (2x: hoofdmenu en footer)
-  /bodemcheck?q=1401EX+5             200, veld vooringevuld met "1401EX 5"
-  JSON-LD nog geldig                 ja
-  scriptblokken nog geldig           ja
-  <div>-balans                       370 open / 370 dicht
-  <section>-balans                   +1 open / +1 dicht (de scheve 10/9 in je
-                                     origineel is niet door mij veroorzaakt en
-                                     niet aangeraakt)
-
-Er staat GEEN base64 in configurator.html, dus het risico dat bij server.js
-speelde bestond hier niet. Beide bestanden zijn opgehaald van GitHub, niet
-overgetypt.
-
-
-BESTANDEN IN DEZE ZIP
-=====================
-  server.js            sha256 5b7f88d933e2b4eb0210c9e066cda7cab7bb96a009f6aa6c38fd19c009611d8b
-                       ONGEWIJZIGD ten opzichte van de vorige ZIP
-  configurator.html    sha256 729bea43194cd0760543a9dfec0679dd6197d501aa2780a478d4cb27d56d8bca
-                       origineel was ecb27ccd38bffb9a4c13b17dab48d7d53a364d6b191074c3d7611bc6bcf0c187
-  src/sondeertool/     de module, met de tijdsbudgetten en het diagnose-endpoint
-
-wijzigingen-server.diff       en   wijzigingen-configurator.diff
-staan erbij zodat je precies ziet wat er verandert. GitHub Desktop laat
-hetzelfde zien voor je commit.
-
-
-WAT NOG NIET IS GETEST
+EERSTE CHECK NA DEPLOY
 ======================
-De echte BRO. Alle bovenstaande tests liepen tegen een nagemaakte BRO of tegen
-BRO_MOCK=1. Eerste check na deploy:
-
   https://aanenuitbouw.nl/bodemcheck/api/diagnose
 
-Alle drie de stappen ok=True met status 200 betekent dat de keten werkt. Anders
-zie je meteen welke stap faalt en met welke status.
+Verwacht bij stap 2: formaat=XML, cptIdsGevonden gelijk aan
+kengegevensGelezen. Daarna een echt adres proberen, bijvoorbeeld een uitbouw
+die je hebt gedaan in Almere of Apeldoorn -- dan zie je meteen of de
+funderingsindicatie klopt met wat je daar in de grond bent tegengekomen.

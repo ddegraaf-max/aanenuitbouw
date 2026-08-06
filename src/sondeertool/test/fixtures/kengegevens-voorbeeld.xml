@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dispatchCharacteristicsResponse xmlns="http://www.broservices.nl/xsd/dscpt/1.1"
+                                 xmlns:swe="http://www.opengis.net/swe/2.0"
+                                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                                 xmlns:cptcommon="http://www.broservices.nl/xsd/cptcommon/1.1"
+                                 xmlns:gml="http://www.opengis.net/gml/3.2"
+                                 xmlns:brocom="http://www.broservices.nl/xsd/brocommon/3.0"
+                                 xmlns:om="http://www.opengis.net/om/2.0"
+                                 xmlns:sampling="http://www.opengis.net/sampling/2.0"
+                                 xmlns:ns9="http://www.isotc211.org/2005/gco"
+                                 xmlns:ns10="http://www.isotc211.org/2005/gmd">
+  <brocom:responseType>dispatch</brocom:responseType>
+  <brocom:requestReference>aanenuitbouw-sondeertool</brocom:requestReference>
+  <numberOfDocuments>3</numberOfDocuments>
+  <dispatchDocument>
+    <CPT_C>
+      <brocom:broId>CPT000000129384</brocom:broId>
+      <brocom:deliveryAccountableParty>27378529</brocom:deliveryAccountableParty>
+      <brocom:qualityRegime>IMBRO</brocom:qualityRegime>
+      <deliveredLocation>
+        <cptcommon:location gml:id="loc_1" srsName="urn:ogc:def:crs:EPSG::28992">
+          <gml:pos>134749.400 477799.800</gml:pos>
+        </cptcommon:location>
+      </deliveredLocation>
+      <standardizedLocation>
+        <brocom:location gml:id="sloc_1" srsName="urn:ogc:def:crs:EPSG::4258">
+          <gml:pos>52.28782 5.09041</gml:pos>
+        </brocom:location>
+      </standardizedLocation>
+      <cptStandard>NEN-EN-ISO22476D1</cptStandard>
+      <surveyPurpose>bouwrijp maken</surveyPurpose>
+      <researchReportDate>
+        <brocom:date>2021-06-15</brocom:date>
+      </researchReportDate>
+      <cptcommon:finalDepth uom="m">20.00</cptcommon:finalDepth>
+    </CPT_C>
+  </dispatchDocument>
+  <dispatchDocument>
+    <CPT_C>
+      <brocom:broId>CPT000000129385</brocom:broId>
+      <brocom:deliveryAccountableParty>27378529</brocom:deliveryAccountableParty>
+      <brocom:qualityRegime>IMBRO/A</brocom:qualityRegime>
+      <deliveredLocation>
+        <cptcommon:location gml:id="loc_2" srsName="urn:ogc:def:crs:EPSG::28992">
+          <gml:pos>134812.000 477845.000</gml:pos>
+        </cptcommon:location>
+      </deliveredLocation>
+      <standardizedLocation>
+        <brocom:location gml:id="sloc_2" srsName="urn:ogc:def:crs:EPSG::4258">
+          <gml:pos>52.28823 5.09133</gml:pos>
+        </brocom:location>
+      </standardizedLocation>
+      <cptStandard>NEN5140</cptStandard>
+      <surveyPurpose>onderzoek waterkering</surveyPurpose>
+      <researchReportDate>
+        <brocom:date>2018-11-02</brocom:date>
+      </researchReportDate>
+      <cptcommon:finalDepth uom="m">14.60</cptcommon:finalDepth>
+    </CPT_C>
+  </dispatchDocument>
+  <dispatchDocument>
+    <CPT_C>
+      <brocom:broId>CPT000000129386</brocom:broId>
+      <brocom:qualityRegime>IMBRO</brocom:qualityRegime>
+      <standardizedLocation>
+        <brocom:location gml:id="sloc_3" srsName="urn:ogc:def:crs:EPSG::4258">
+          <gml:pos>52.29010 5.08800</gml:pos>
+        </brocom:location>
+      </standardizedLocation>
+      <cptStandard>NEN-EN-ISO22476D1</cptStandard>
+      <researchReportDate>
+        <brocom:date>2023-02-20</brocom:date>
+      </researchReportDate>
+      <cptcommon:finalDepth uom="m">6.40</cptcommon:finalDepth>
+    </CPT_C>
+  </dispatchDocument>
+</dispatchCharacteristicsResponse>

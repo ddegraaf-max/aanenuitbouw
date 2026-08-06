@@ -151,3 +151,56 @@ test('kengegevens worden uit willekeurige JSON-vormen gevist', () => {
   assert.equal(broIntern.haalKengegevensUit(vormB)[0].broId, 'CPT000000000002');
   assert.equal(broIntern.haalKengegevensUit({ broId: 'BHR000000000003' }).length, 0, 'boringen zijn geen sonderingen');
 });
+
+// ---------------------------------------------------------------------------
+// Kengegevens: de BRO antwoordt op /characteristics/searches met XML, niet met
+// JSON, ondanks Accept: application/json. Dat is in productie vastgesteld via
+// het diagnose-endpoint: status 200, content-type application/xml, 40 CPT-ids.
+// ---------------------------------------------------------------------------
+
+const { parseKengegevensXml } = require('../services/cptParser');
+const kengegevensXml = fs.readFileSync(path.join(__dirname, 'fixtures', 'kengegevens-voorbeeld.xml'), 'utf8');
+
+test('kengegevens-XML: alle sonderingen worden eruit gelezen', () => {
+  const lijst = parseKengegevensXml(kengegevensXml);
+  assert.equal(lijst.length, 3);
+  assert.deepEqual(lijst.map((k) => k.broId), [
+    'CPT000000129384', 'CPT000000129385', 'CPT000000129386',
+  ]);
+});
+
+test('kengegevens-XML: RD-locatie wordt omgerekend en klopt met de standardizedLocation', () => {
+  const [eerste] = parseKengegevensXml(kengegevensXml);
+  const afwijking = afstandMeter(eerste.coordinaten.lat, eerste.coordinaten.lon, 52.28782, 5.09041);
+  assert.ok(afwijking < 25, `afwijking te groot: ${afwijking} m`);
+});
+
+test('kengegevens-XML: datum, einddiepte en regime komen mee', () => {
+  const lijst = parseKengegevensXml(kengegevensXml);
+  assert.equal(lijst[0].datum, '2021-06-15');
+  assert.equal(lijst[0].einddiepte, 20);
+  assert.equal(lijst[0].kwaliteitsregime, 'IMBRO');
+  assert.equal(lijst[1].kwaliteitsregime, 'IMBRO/A');
+  assert.equal(lijst[2].einddiepte, 6.4);
+});
+
+test('kengegevens-XML: werkt ook zonder deliveredLocation (alleen gestandaardiseerd)', () => {
+  const derde = parseKengegevensXml(kengegevensXml)[2];
+  assert.ok(derde.coordinaten, 'coordinaten moeten uit standardizedLocation komen');
+  assert.ok(Math.abs(derde.coordinaten.lat - 52.2901) < 0.001);
+});
+
+test('kengegevens-XML: terugval als het omhulsel anders heet', () => {
+  // Zelfde inhoud, maar CPT_C herbenoemd: de parser moet dan op broId knippen.
+  const herbenoemd = kengegevensXml.replace(/CPT_C/g, 'CPT_Kengegevens');
+  const lijst = parseKengegevensXml(herbenoemd);
+  assert.equal(lijst.length, 3, 'terugval op broId-posities moet werken');
+  assert.equal(lijst[0].broId, 'CPT000000129384');
+  assert.ok(lijst[0].coordinaten);
+});
+
+test('kengegevens-XML: onzin levert een lege lijst, geen fout', () => {
+  assert.deepEqual(parseKengegevensXml('<leeg/>'), []);
+  assert.deepEqual(parseKengegevensXml(''), []);
+  assert.deepEqual(parseKengegevensXml(null), []);
+});
