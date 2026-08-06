@@ -1,227 +1,216 @@
-# Sondeertool / Bodemcheck — aanenuitbouw.nl
+# AanEnUitbouw.nl — Deployment naar Railway
 
-Vraagt op adresniveau de openbare sonderingen op uit de **Basisregistratie
-Ondergrond**, leest de grondlagen eruit en laat zien op welke diepte de
-draagkrachtige laag begint. Bedoeld als gratis tool bovenaan de funnel: de
-bezoeker krijgt echte informatie, en de logische volgende stap is een sondering
-op zijn eigen perceel — die verkoop jij.
+Productieklare site met **centraal prijsbeheer**: één admin past de prijzen aan, alle bezoekers zien direct de nieuwe waardes.
 
-Geen API-sleutels, geen kosten, geen registratie bij een externe partij.
+## Architectuur in het kort
 
----
+- **Node-server** (`server.js`, geen externe dependencies) serveert `configurator.html` op de root-URL
+- **API-endpoints** voor prijsbeheer: `GET /api/prices` (publiek), `POST /api/prices` (auth-required)
+- **Persistente opslag** in een Railway Volume — prijzen blijven staan tussen deploys en restarts
+- **Admin authenticatie** via een `ADMIN_PASSWORD` environment variable
 
-## Wat er eerst moet gebeuren
+## Vereisten
 
-**Lees dit voordat je deployt.** Er is één ding dat ik niet heb kunnen
-verifiëren.
+- **GitHub-account** (https://github.com)
+- **Railway-account** met Hobby plan (~€5/mnd inclusief Volume) — https://railway.com
+- DNS-toegang tot **aanenuitbouw.nl** bij je domeinregistrar
 
-De omgeving waarin ik dit heb gebouwd mag alleen naar npm en GitHub, dus
-`publiek.broservices.nl` en `api.pdok.nl` waren niet bereikbaar. Alles is
-getest tegen een gegenereerde IMBRO-XML-fixture en een mockservice; de
-XML-parser, de laagclassificatie, de funderingslogica en de hele frontend zijn
-daarmee doorgemeten. Wat ik **niet** live heb kunnen aftikken:
+## Stap 1 — GitHub-repo aanmaken
 
-1. De exacte veldnamen in het JSON-antwoord van
-   `POST /characteristics/searches`. Daarom leest `broClient.js` dat antwoord
-   niet via vaste paden uit, maar loopt hij de hele boom door op zoek naar
-   objecten met een `broId` dat op `CPT` begint, en vist daar de coördinaten,
-   datum en einddiepte uit. Dat blijft werken als de BRO velden herbenoemt,
-   maar controleer bij de eerste echte call of `aantalGevonden` niet nul is.
-2. Of `registrationPeriod.beginDate` op `2017-01-01` de juiste ondergrens is.
-   Die datum werkt volgens publieke voorbeeldcode; eerdere data wordt door de
-   service geweigerd. Bij te weinig resultaten: zet `BRO_REGISTRATIE_VANAF`
-   lager en kijk of het antwoord nog geldig is.
+1. Log in op https://github.com en klik rechtsboven op `+` → `New repository`
+2. Naam: `aanenuitbouw-site`
+3. **Private** is prima — Railway leest ook private repos
+4. Klik **Create repository**
 
-Eerste rooktest na deploy:
+## Stap 2 — Bestanden uploaden naar GitHub
 
-```bash
-curl -s "https://jouwdomein.nl/bodemcheck/api/analyse?q=1401EX%205" | head -c 600
-```
+Klik op je nieuwe repo-pagina op **uploading an existing file** en sleep alle vier de bestanden uit deze map naar het upload-vlak:
 
-Zie je `"aantalGevonden": 0` bij een adres in bebouwd gebied, log dan het ruwe
-antwoord (`NODE_ENV` niet op `production`, dan komt het `detail`-veld mee) en
-kijk of de JSON-structuur afwijkt van wat de walk verwacht.
+- `configurator.html`
+- `server.js`
+- `package.json`
+- `.gitignore`
 
----
+Commit met `Initial deploy`.
 
-## Snel draaien
+## Stap 3 — Railway-project aanmaken
 
-```bash
-npm install
-BRO_MOCK=1 npm start          # fictieve data, werkt zonder internet
-open http://localhost:3000/bodemcheck
-```
+1. Ga naar https://railway.com en log in
+2. **New Project** → **Deploy from GitHub repo**
+3. Geef Railway toegang tot de repo en selecteer `aanenuitbouw-site`
+4. Railway detecteert het Node-project en start de eerste build (~1 minuut)
 
-Zonder `BRO_MOCK` gaat hij live naar de BRO en PDOK.
+## Stap 4 — Volume toevoegen voor prijsopslag
 
-```bash
-npm test                      # 13 tests: parser, RD-conversie, classificatie
-node test/fixtures/maak-fixture.js   # testfixture opnieuw genereren
-```
+Dit is **essentieel** — zonder volume verdwijnen je prijswijzigingen bij elke deploy.
 
----
+1. Klik in het Railway-project op de service-tile
+2. Rechts klikken op de service → **Attach Volume**
+3. Mount path: `/data`
+4. Size: standaard 0.5GB is genoeg (prijsbestand is ~1KB)
+5. Klik **Add**
 
-## Inbouwen in de bestaande site
+Railway start de service opnieuw met het volume gemount.
 
-De router is los te monteren. In je bestaande `app.js`:
+## Stap 5 — Admin-wachtwoord instellen
 
-```js
-const maakSondeerRouter = require('./src/routes/sonderingen');
+1. Bij de service → tab **Variables**
+2. Klik **+ New Variable**
+3. Name: `ADMIN_PASSWORD`
+4. Value: kies een sterk wachtwoord (minimaal 12 tekens, mix van letters/cijfers)
+5. Klik **Add**
 
-app.use('/bodemcheck', maakSondeerRouter({
-  pool,                        // optioneel: bestaande pg-pool voor logging
-  staticPad: '/static',        // waar sondeertool.css en .js staan
-  onLead: async (aanvraag) => {
-    await resend.emails.send({
-      from: 'site@aanenuitbouw.nl',
-      to: 'info@aanenuitbouw.nl',
-      subject: `Sondering aangevraagd — ${aanvraag.adres}`,
-      text: JSON.stringify(aanvraag, null, 2),
-    });
-  },
-}));
-```
+De service deployt automatisch opnieuw met de nieuwe variabele.
 
-Overzetten:
+> ⚠️ **Bewaar dit wachtwoord goed.** Wil je het later wijzigen? Ga terug naar Variables, pas `ADMIN_PASSWORD` aan, en de service deployt automatisch opnieuw.
 
-| Uit deze ZIP | Naar jouw project |
-| --- | --- |
-| `src/routes/sonderingen.js` | `src/routes/` |
-| `src/services/*.js` | `src/services/` |
-| `src/utils/cache.js` | `src/utils/` |
-| `views/sonderingen.ejs` | `views/` — kop en voet vervangen door je eigen partials |
-| `public/sondeertool.css` + `.js` | je statics-map |
-| `sql/001_sondeertool.sql` | uitvoeren op de database (optioneel) |
+## Stap 5b — E-mailverzending instellen (Resend)
 
-`server.js` heb je niet nodig; die is er alleen om de tool los te bekijken.
+Het contactformulier verstuurt offerte-aanvragen via Resend. De API-key staat veilig server-side (nooit in de HTML, zodat niemand 'm kan stelen).
 
-**In de EJS:** de pagina is nu een compleet HTML-document zodat hij standalone
-werkt. Voor de echte site knip je `<head>`, `.kop` en `.voet` eruit en zet je
-`<%- include('partials/header') %>` erboven. Alles tussen `<main id="uitkomst">`
-en het einde van `.uitleg` kan één op één blijven staan.
+### Resend-account en key
 
-**Compressie:** het analyse-antwoord is 60–120 kB JSON (drie sondeerreeksen).
-Gzip haalt daar ongeveer 80% af. Als je app nog geen `compression` gebruikt:
+1. Maak een gratis account op https://resend.com (gratis tier: 3.000 mails/maand, 100/dag — ruim voldoende)
+2. Ga naar **API Keys** → **Create API Key**
+3. Geef 'm een naam (bijv. "AanEnUitbouw productie"), kies **Sending access**
+4. Kopieer de key — die begint met `re_...` (je ziet 'm maar één keer!)
 
-```js
-app.use(require('compression')());
-```
+### Variabelen in Railway
 
----
+Bij de service → **Variables**, voeg deze drie toe:
 
-## Instellingen
+| Variable | Waarde | Toelichting |
+|---|---|---|
+| `RESEND_API_KEY` | `re_...` | De key die je net kopieerde |
+| `QUOTE_TO` | `info@aanenuitbouw.nl` | Waar offerte-aanvragen heen gemaild worden |
+| `QUOTE_FROM` | zie hieronder | Het afzenderadres |
 
-Alles heeft een werkende standaardwaarde; niets is verplicht.
+### Over `QUOTE_FROM` — twee opties
 
-| Variabele | Standaard | Waarvoor |
-| --- | --- | --- |
-| `BRO_MOCK` | uit | `1` = fictieve data. **Nooit aanzetten in productie.** |
-| `BRO_CPT_BASE` | `https://publiek.broservices.nl/sr/cpt/v1` | basis-URL uitgifteservice |
-| `BRO_REGISTRATIE_VANAF` | `2017-01-01` | ondergrens registratieperiode |
-| `BRO_TIMEOUT_MS` | `20000` | een sondeer-XML kan enkele MB zijn |
-| `SONDEER_MAX_DETAILS` | `3` | hoeveel sonderingen volledig worden uitgelezen |
-| `PDOK_LOCATIESERVER` | `https://api.pdok.nl/bzk/locatieserver/search/v3_1` | adres opzoeken |
-| `DATABASE_URL` | — | alleen voor logging en aanvragen |
+**Optie A — direct testen (geen domein-setup nodig):**
+Zet `QUOTE_FROM` op `AanEnUitbouw.nl <onboarding@resend.dev>`. Dit werkt meteen, maar Resend levert in deze testmodus alleen af op het e-mailadres waarmee je je Resend-account hebt aangemaakt. Prima om te testen, niet voor productie.
 
----
+**Optie B — productie (eigen domein, aanbevolen):**
+1. In Resend: **Domains** → **Add Domain** → voer `aanenuitbouw.nl` in
+2. Resend toont een aantal DNS-records (SPF, DKIM) — voeg die toe bij je domeinregistrar
+3. Wacht tot Resend het domein als "Verified" toont (meestal < 30 min)
+4. Zet dan `QUOTE_FROM` op bijv. `Offerte AanEnUitbouw <offerte@aanenuitbouw.nl>`
+5. Nu komen mails bij iedereen aan, niet meer beperkt tot je eigen adres
 
-## Endpoints
+> 💡 **Tip:** de interne mail gebruikt `reply_to` met het adres van de klant. Klik je in je mailprogramma op "Beantwoorden", dan mail je direct terug naar de klant — handig.
 
-| Route | Doel |
-| --- | --- |
-| `GET /` | de pagina; `?q=1401EX5` zoekt direct |
-| `GET /api/adres?q=` | adres-autocomplete via PDOK |
-| `GET /api/analyse?q=` of `?lat=&lon=` | de volledige analyse |
-| `GET /api/sondering/:broId` | één sondering, volledig |
-| `POST /api/aanvraag` | aanvraagformulier |
+### Twee mails per aanvraag
 
-Rate limiting zit erin: 20 per minuut en 120 per uur per IP. Dat is er niet om
-jouw bezoekers te hinderen maar om te voorkomen dat jouw server als
-scrape-proxy naar de BRO wordt gebruikt.
+Bij elke aanvraag worden twee e-mails verstuurd:
 
-Caching: zoekresultaten 12 uur, opgehaalde sonderingen 30 dagen, adressen 7
-dagen — in het geheugen van het proces. Een sondering uit 2019 verandert nooit
-meer, dus dat mag agressief. Herstart de container en de cache is leeg; wil je
-dat voorkomen, gebruik dan de tabel `sondeer_cache` uit de SQL.
+1. **Naar jou** (`QUOTE_TO`) — de offerte-aanvraag met alle contactgegevens en de volledige configuratie. Reply-to staat op de klant.
+2. **Naar de klant** — een nette bevestiging dat de aanvraag is ontvangen, met een overzicht van hun configuratie en jullie contactgegevens. Reply-to staat op `QUOTE_TO`.
 
----
+De klant-bevestiging is "best-effort": mocht die om wat voor reden niet verstuurd kunnen worden, dan komt de aanvraag alsnog bij jou binnen (je verliest dus nooit een lead door een mailprobleem). Beide mails gebruiken hetzelfde geverifieerde `QUOTE_FROM`-adres.
 
-## Hoe de interpretatie werkt
+## Stap 6 — Site zichtbaar maken
 
-Uit de conusweerstand q<sub>c</sub> (MPa) en het wrijvingsgetal
-R<sub>f</sub> = f<sub>s</sub>/q<sub>c</sub> × 100 wordt per meetpunt een
-grondsoort bepaald, waarna aangrenzende punten tot lagen worden samengevoegd.
+1. **Settings** → **Networking** → **Public Networking**
+2. Klik **Generate Domain**
+3. Bezoek de gegenereerde `.up.railway.app` URL — de site moet werken
+4. Test het beheer-paneel: scroll naar de footer, klik het ⚙ **Beheer**-icoon, log in met je `ADMIN_PASSWORD`
+5. Test het formulier: doorloop de configurator en verstuur een testaanvraag — check of de mail aankomt
 
-- q<sub>c</sub> wordt gefilterd met een voortschrijdende mediaan over 11
-  punten, R<sub>f</sub> over 21 punten. R<sub>f</sub> is een quotiënt van twee
-  metingen en dus veel ruiziger; zonder dat bredere venster flikkert de
-  classificatie rond elke grenswaarde heen en weer.
-- Lagen dunner dan 30 cm worden opgeslokt door hun dikste buur, herhaald tot er
-  niets dun meer over is. Anders krijg je een lagenkolom met vijftig streepjes.
-- **Draagkrachtig niveau:** eerste diepte waarop q<sub>c</sub> ≥ 5 MPa blijft
-  over minimaal 0,5 m aaneengesloten.
-- **Paalpuntniveau:** eerste diepte waarop q<sub>c</sub> ≥ 12 MPa blijft over
-  minimaal 1,0 m. De eis van aaneengesloten dikte is essentieel: een schelpenbank
-  van 10 cm geeft ook 20 MPa en daar kun je niet op funderen.
-- Aanlegdiepte-advies is minimaal 0,80 m onder maaiveld (vorstvrij).
+## Stap 7 — Eigen domein aanenuitbouw.nl koppelen
 
-Drempels staan als constanten bovenaan `interpret.js`. Wil je strenger of
-soepeler classificeren, dan is dat de enige plek die je aanraakt.
+1. **Settings** → **Networking** → **Custom Domain**
+2. Voeg toe: `aanenuitbouw.nl` (apex) en `www.aanenuitbouw.nl`
+3. Railway toont per domein de DNS-records die je moet aanmaken bij je registrar
+4. Bij je domeinregistrar (TransIP, Versio, Hostnet, GoDaddy, ...): voeg de records toe zoals Railway aangeeft
+   - Voor `www`: meestal een **CNAME** naar `xxx.up.railway.app`
+   - Voor het apex-domein (`aanenuitbouw.nl` zelf): een **A-record** naar het IP-adres dat Railway noemt, óf ALIAS/ANAME als je registrar dat ondersteunt
+5. Wacht 5–30 minuten voor DNS-propagatie. SSL-certificaten worden automatisch aangevraagd.
+6. Test https://aanenuitbouw.nl en https://www.aanenuitbouw.nl
 
-Dit is met opzet conservatief geformuleerd. Elke tekst die de bezoeker ziet zegt
-expliciet dat het een indicatie is en dat een sondering op de bouwlocatie nodig
-blijft — dat is niet alleen juridisch verstandig, het is ook precies het
-argument voor jouw dienst.
+## Hoe werkt het prijsbeheer?
 
----
+### Voor jou (de admin)
 
-## Vormgeving
+1. Bezoek je site, klik in de footer op het ⚙ **Beheer**-icoon
+2. Log in met je `ADMIN_PASSWORD`
+3. Wijzig prijzen in de 12 secties (plannen, daktypes, pui, gevel, electra, etc.)
+4. Klik **Opslaan** — de wijzigingen worden direct opgeslagen op de Railway-server in `/data/prices.json`
 
-De pagina is opgezet als geotechnisch veldrapport: warm papier met
-millimeterraster voor de leescontext, een donker meetpaneel voor de
-sondeerstaat, en de lagenkolom in echte grondkleuren (veen donkerbruin, klei
-grijsgroen, zand oker). De q<sub>c</sub>-curve tekent zich bij het laden van
-boven naar beneden op, zoals de conus de grond in gaat.
+### Voor bezoekers
 
-Fonts: Archivo voor tekst en koppen, IBM Plex Mono voor alle meetwaarden.
-Alle kleuren staan als variabelen in `:root` bovenaan `sondeertool.css`. Wil je
-dit in de huisstijl van aanenuitbouw.nl trekken, dan hoef je alleen die tien
-regels aan te passen — verderop in het bestand staat geen enkele losse kleur.
+Iedereen die de site opent ziet de nieuwste prijzen — direct, zonder dat zij hun browser hoeven te verversen of cookies te accepteren. Het werkt zo:
 
-De kaartweergave laadt Leaflet en de PDOK BRT-achtergrondkaart pas als iemand
-op de knop drukt, en valt terug op de SVG-situatieschets als dat mislukt. Geen
-Google Maps, dus geen cookiebanner-discussie.
+1. Bezoeker laadt de pagina
+2. JavaScript haalt `GET /api/prices` op van de server
+3. De server leest `prices.json` uit het volume
+4. De configurator gebruikt deze waardes voor alle berekeningen
 
----
+### Eerste deploy (geen prijzen.json nog)
 
-## Wat dit niet is
+Bij de allereerste keer staat er nog geen `prices.json` op het volume. Dan vallen bezoekers terug op de standaard-prijzen die in `configurator.html` zelf staan ingebakken (`DEFAULT_PRICES`). Zodra jij de eerste keer **Opslaan** klikt in het beheer-paneel, wordt het bestand aangemaakt en zien alle bezoekers vanaf dan jouw waardes.
 
-- Geen funderingsadvies. De disclaimer in de voet is er niet voor de sier.
-- De dichtstbijzijnde sondering kan honderden meters weg liggen. De tool zegt
-  zelf hoe betrouwbaar het beeld is (`betrouwbaarheid.niveau`: redelijk /
-  indicatief / zwak) op basis van afstand en de spreiding tussen metingen.
-- Sonderingen van vóór de BRO staan grotendeels in DINOloket en zijn niet
-  allemaal via deze REST-service opvraagbaar. In oudere wijken kan het beeld
-  dus dunner zijn dan in een nieuwbouwwijk.
-- De fundering van de bestaande woning zit hier niet in, en juist het verschil
-  tussen oud en nieuw veroorzaakt scheuren. Dat staat ook zo in het advies.
+## Updates van de site na de eerste deploy
 
-## Uitbreidingen die logisch volgen
+Code-wijzigingen (nieuwe features, tekst, design):
 
-- **Grondwaterstand** erbij: `publiek.broservices.nl/gm/gld/v1` is even openbaar.
-  Voor een aanbouw met kruipruimte of verdiepte vloer is dat minstens zo relevant
-  als de draagkracht.
-- **Bodemdaling** via bodemdalingskaart.nl (InSAR, open) — sterk verhaal in
-  West-Nederland.
-- **PDF-uitdraai** van de bodemcheck, met jouw logo, per e-mail. Dat is de
-  natuurlijke leadmagnet: e-mailadres in ruil voor het rapport.
-- **Landingspagina's per plaats** (`/bodemcheck/gouda`), voorgevuld met de
-  regionale bodemopbouw. Dat is precies de zoekvraag "kan ik hier op staal
-  funderen" en die is nu nauwelijks bezet.
+1. Pas `configurator.html` aan
+2. Upload de nieuwe versie naar GitHub (overschrijf het oude bestand)
+3. Railway detecteert de wijziging en deployt automatisch (~1 min)
+4. De prijzen op het volume blijven gewoon staan — alleen de code-bestanden worden vervangen
 
----
+## Backups van de prijzen
 
-Bronvermelding hoort op de pagina te blijven staan: sondeergegevens uit de
-Basisregistratie Ondergrond (BZK / TNO Geologische Dienst Nederland),
-adresgegevens uit de PDOK Locatieserver. Beide zijn open data, maar netjes
-attribueren kost niets.
+Vanuit het beheer-paneel:
+
+- **Export** download een `aeu-prijzen-YYYY-MM-DD.json` met de huidige prijzen
+- **Import** laadt zo'n bestand weer in en publiceert het op de server
+
+Aanrader: maak na elke grote prijswijziging een export en bewaar 'm in je email/cloud.
+
+## Kostenverwachting
+
+| Onderdeel | Kosten/maand |
+|---|---|
+| Hobby plan | $5 (~€4,60) |
+| Inclusief gebruik | $5 (compute + volume) |
+| Verwacht verbruik (statische site, ~1KB volume) | < $2 |
+| **Effectieve maandlast** | **~€5/mnd vast** |
+
+Als het verbruik onder de inclusieve $5 blijft, betaal je alleen het abonnement. HTTPS, custom domain, automatische deploys: allemaal inbegrepen.
+
+## Troubleshooting
+
+**Inloggen lukt niet ("Onjuist wachtwoord")**
+- Check `Variables` in Railway dashboard — staat `ADMIN_PASSWORD` daar correct ingesteld?
+- Na wijzigen van de variabele: heeft de service opnieuw gedeployt? (Settings → Deployments → check de timestamp)
+
+**Prijzen worden niet opgeslagen ("Opslaan mislukt")**
+- Check of het volume gemount is op `/data` (Settings → service → Volumes)
+- Check de logs: Settings → service → Deployments → klik laatste deploy → View Logs
+- Test `GET /api/health` in je browser: `https://jouwsite.up.railway.app/api/health` — die toont `dataDirExists` en `hasAdminPassword`
+
+**Wijzigingen verdwijnen na een deploy**
+- Volume niet correct gemount, of mount path is niet `/data`. Verwijder en koppel volume opnieuw met mount path `/data`.
+
+**Site geeft 502 of crasht**
+- Check de deploy-logs op Railway. Meestal een Node-error of port mismatch — server.js gebruikt `process.env.PORT` dus dat zou moeten werken.
+
+**Formulier verstuurt niet ("E-mailverzending is niet geconfigureerd")**
+- `RESEND_API_KEY` ontbreekt in Variables. Voeg toe en wacht op de re-deploy.
+
+**Formulier zegt "verzonden" maar er komt geen mail**
+- Gebruik je `onboarding@resend.dev` als afzender? Dan komt de mail alleen aan op je eigen Resend-account-adres. Verifieer je domein voor productie (zie stap 5b, optie B).
+- Check de Resend dashboard → **Logs** — daar zie je of de mail is geaccepteerd, gebounced, of geweigerd.
+- Check `https://jouwsite.up.railway.app/api/health` → `hasResendKey` moet `true` zijn.
+- Kijk in spam/ongewenst van het ontvangende adres.
+
+## Goedkopere alternatief overwogen?
+
+Voor een puur statische versie (zonder server-side prijsbeheer) zou Cloudflare Pages of Netlify gratis zijn. Maar omdat je centraal prijsbeheer nodig hebt heb je een server nodig — Railway is dan een goede keuze.
+
+Alternatieven met server-side support:
+- **Render** ($7/mnd voor de smallest web service tier, ook met persistent disk)
+- **Fly.io** (vergelijkbaar met Railway, soms iets goedkoper voor kleine workloads)
+- **DigitalOcean App Platform** ($5/mnd voor basic + extra voor disk)
+
+Allemaal vergelijkbaar in prijs en functionaliteit. Voor jouw use case is Railway prima.

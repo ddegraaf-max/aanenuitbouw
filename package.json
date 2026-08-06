@@ -1,19 +1,12 @@
 {
-  "name": "sondeertool",
+  "name": "aanenuitbouw-site",
   "version": "1.0.0",
-  "description": "Sonderingen- en funderingsdiepte-tool op basis van de BRO (Basisregistratie Ondergrond) voor aanenuitbouw.nl",
-  "main": "server.js",
-  "type": "commonjs",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "description": "AanEnUitbouw.nl — vakkundige aan- en uitbouwen op maat",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "test": "node --test test/*.test.js"
+    "start": "node server.js"
   },
-  "dependencies": {
-    "ejs": "^3.1.10",
-    "express": "^4.21.2"
+  "engines": {
+    "node": ">=18"
   }
 }
