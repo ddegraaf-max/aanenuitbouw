@@ -70,7 +70,7 @@
       'Sonderingen zoeken bij de BRO',
       'Meetgegevens ophalen',
       'Grondlagen bepalen',
-      'Nog even, de BRO is traag',
+      'Nog even geduld',
     ];
     let i = 0;
     label.textContent = stappen[0];

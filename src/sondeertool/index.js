@@ -41,7 +41,7 @@ const path = require('path');
 
 const geocode = require('./services/geocode');
 const bro = require('./services/broClient');
-const { parseKengegevensXml } = require('./services/cptParser');
+const { parseKengegevensXml, parseCptXml } = require('./services/cptParser');
 const versie = require('./versie');
 const { interpreteerSondering, bouwSamenvatting, GRONDSOORTEN } = require('./services/interpret');
 
@@ -471,9 +471,17 @@ async function doeAnalyse(req, res, params) {
     sonderingen.sort((a, b) => a.afstandM - b.afstandM);
 
     if (sonderingen.length === 0 && kengegevens.length > 0) {
+      // Onderscheid maken tussen "niet opgehaald" en "opgehaald maar niet te
+      // lezen". Dat eerste lost zich op met opnieuw proberen, dat tweede niet,
+      // en dan is "probeer het straks opnieuw" een misleidend advies.
+      const nietLeesbaar = mislukt.some((m) => /geen bruikbare meetpunten|Geen meetwaarden/.test(m.reden));
       waarschuwingen.push(
-        'De sonderingen zijn wel gevonden, maar de meetgegevens konden niet worden opgehaald bij de BRO. Probeer het over een paar minuten opnieuw.',
+        nietLeesbaar
+          ? 'Er liggen wel sonderingen in de buurt, maar de meetgegevens konden niet worden uitgelezen. Wij zijn hiervan op de hoogte gesteld.'
+          : 'De sonderingen zijn wel gevonden, maar de meetgegevens konden niet worden opgehaald bij de BRO. Probeer het over een paar minuten opnieuw.',
       );
+      // In de serverlog met volledige context, zodat het op te lossen is.
+      console.error('[sondeertool] geen enkele sondering leesbaar:', JSON.stringify(mislukt));
     } else if (sonderingen.length < kandidaten.length) {
       waarschuwingen.push(`${kandidaten.length - sonderingen.length} van de ${kandidaten.length} sonderingen kon niet worden uitgelezen.`);
     }
@@ -744,6 +752,103 @@ async function doeDiagnose(req, res, params) {
   });
 }
 
+/**
+ * Diagnose van één sondering, van binnenuit de parser.
+ *
+ * Aanleiding: op de live BRO gaf elke sondering "bevat geen bruikbare
+ * meetpunten", terwijl het ophalen lukte. Dat kan alleen als de kolomnamen of
+ * de scheidingstekens afwijken van waar ik op test. Dit endpoint toont precies
+ * wat de parser aantreft, zodat er niet meer gegokt hoeft te worden.
+ *
+ *   /bodemcheck/api/diagnose-sondering?id=CPT000000256805
+ */
+async function doeDiagnoseSondering(req, res, params) {
+  const id = String(params.get('id') || '').trim();
+  if (!/^CPT[0-9A-Z_]{4,}$/i.test(id)) {
+    return stuurJson(res, 400, { fout: 'Geef ?id=CPT... mee' });
+  }
+
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 15000);
+  let xml;
+  try {
+    const r = await fetch(`${bro.BASIS}/objects/${encodeURIComponent(id)}?requestReference=diagnose`, {
+      headers: { Accept: 'application/xml' },
+      signal: ac.signal,
+    });
+    xml = await r.text();
+    if (!r.ok) return stuurJson(res, 200, { stap: 'ophalen', ok: false, status: r.status, begin: xml.slice(0, 400) });
+  } catch (fout) {
+    return stuurJson(res, 200, { stap: 'ophalen', ok: false, fout: fout.name === 'AbortError' ? 'timeout' : fout.message });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  // Ruwe vondsten, los van de parser.
+  const zoek = (naam) => {
+    const m = xml.match(new RegExp(`<(?:[\\w.-]+:)?${naam}\\b[^>]*>([\\s\\S]*?)<\\/(?:[\\w.-]+:)?${naam}>`, 'i'));
+    return m ? m[1] : null;
+  };
+
+  const veldNamen = [];
+  const veldRe = /<(?:[\w.-]+:)?field\b[^>]*\bname\s*=\s*"([^"]+)"/gi;
+  let m;
+  while ((m = veldRe.exec(xml)) !== null) veldNamen.push(m[1]);
+
+  const encRuw = xml.match(/<(?:[\w.-]+:)?TextEncoding\b([^>]*)>/i);
+  const waardenBlok = zoek('values');
+
+  const uit = {
+    broId: id,
+    bytes: xml.length,
+    heeftValuesElement: waardenBlok !== null,
+    veldNamenGevonden: veldNamen,
+    heeftDataRecord: /<(?:[\w.-]+:)?DataRecord\b/i.test(xml),
+    textEncodingAttributen: encRuw ? encRuw[1].trim() : null,
+    elementCount: (() => {
+      const c = zoek('elementCount');
+      const v = c && c.match(/>\s*(\d+)\s*</);
+      return v ? Number(v[1]) : null;
+    })(),
+  };
+
+  if (waardenBlok) {
+    const kort = waardenBlok.trim();
+    uit.waardenLengte = kort.length;
+    uit.waardenBegin = kort.slice(0, 300);
+    // Hoe vaak komen de kandidaat-scheidingstekens voor? Daarmee is te zien
+    // welk teken de rijen scheidt, ook als TextEncoding ontbreekt of afwijkt.
+    uit.tekens = {
+      puntkomma: (kort.match(/;/g) || []).length,
+      komma: (kort.match(/,/g) || []).length,
+      regeleinde: (kort.match(/\n/g) || []).length,
+      spatie: (kort.match(/ /g) || []).length,
+      tab: (kort.match(/\t/g) || []).length,
+    };
+    const eersteRij = kort.split(/[;\n]/)[0];
+    uit.eersteRijRuw = eersteRij;
+    uit.eersteRijVeldenBijKomma = eersteRij.split(',').length;
+    uit.eersteRijVeldenBijSpatie = eersteRij.trim().split(/\s+/).length;
+  }
+
+  // En wat de echte parser ervan maakt.
+  try {
+    const geparseerd = parseCptXml(xml);
+    uit.parser = {
+      ok: true,
+      kolommen: geparseerd.kolommen,
+      aantalPunten: geparseerd.aantalPunten,
+      eerstePunten: geparseerd.punten.slice(0, 3),
+      maaiveldNap: geparseerd.maaiveldNap,
+      einddiepte: geparseerd.einddiepte,
+    };
+  } catch (fout) {
+    uit.parser = { ok: false, fout: fout.message };
+  }
+
+  stuurJson(res, 200, uit);
+}
+
 // ---------------------------------------------------------------------------
 // De enige functie die je server.js aanroept
 // ---------------------------------------------------------------------------
@@ -838,6 +943,10 @@ async function handle(req, res, url) {
       }
       if (rest === '/api/diagnose' && methode === 'GET') {
         await doeDiagnose(req, res, u.searchParams);
+        return true;
+      }
+      if (rest === '/api/diagnose-sondering' && methode === 'GET') {
+        await doeDiagnoseSondering(req, res, u.searchParams);
         return true;
       }
 

@@ -204,3 +204,74 @@ test('kengegevens-XML: onzin levert een lege lijst, geen fout', () => {
   assert.deepEqual(parseKengegevensXml(''), []);
   assert.deepEqual(parseKengegevensXml(null), []);
 });
+
+// ---------------------------------------------------------------------------
+// Weerbaarheid van de meetreeks-parser.
+//
+// Op de live BRO gaf elke sondering "bevat geen bruikbare meetpunten" terwijl
+// het ophalen lukte. Dat kan alleen als de kolomnamen of de scheidingstekens
+// afwijken van de fixture. Deze tests dekken de varianten af die dat kunnen
+// veroorzaken, zodat één afwijking niet de hele sondering laat wegvallen.
+// ---------------------------------------------------------------------------
+
+test('meetreeks: rijen gescheiden door regeleindes in plaats van puntkomma', () => {
+  const aangepast = xml
+    .replace('blockSeparator=";"', 'blockSeparator="&#10;"')
+    .replace(/;/g, '\n');
+  const s = parseCptXml(aangepast);
+  assert.ok(s.aantalPunten > 900, `verwacht ~1000 punten, kreeg ${s.aantalPunten}`);
+  assert.ok(s.punten[0].qc > 0);
+});
+
+test('meetreeks: velden gescheiden door spaties in plaats van komma', () => {
+  const aangepast = xml
+    .replace('tokenSeparator=","', 'tokenSeparator=" "')
+    .replace(/<swe:values>([\s\S]*?)<\/swe:values>/, (heel, inhoud) =>
+      `<swe:values>${inhoud.replace(/,/g, ' ')}</swe:values>`);
+  const s = parseCptXml(aangepast);
+  assert.ok(s.aantalPunten > 900, `verwacht ~1000 punten, kreeg ${s.aantalPunten}`);
+});
+
+test('meetreeks: TextEncoding liegt over de scheiders, parser kiest zelf', () => {
+  // Bestand zegt "|" maar gebruikt in werkelijkheid ; en ,
+  const aangepast = xml.replace(
+    /<swe:TextEncoding[^>]*>/,
+    '<swe:TextEncoding decimalSeparator="." tokenSeparator="|" blockSeparator="!"/>',
+  );
+  const s = parseCptXml(aangepast);
+  assert.ok(s.aantalPunten > 900, `parser moet de echte scheiders vinden, kreeg ${s.aantalPunten}`);
+});
+
+test('meetreeks: kolomnamen in andere schrijfwijze', () => {
+  const aangepast = xml
+    .replace('name="depth"', 'name="Depth"')
+    .replace('name="coneResistance"', 'name="cone_resistance"')
+    .replace('name="localFriction"', 'name="Local_Friction"');
+  const s = parseCptXml(aangepast);
+  assert.ok(s.aantalPunten > 900);
+  assert.ok(s.qcMax > 10, 'conusweerstand moet nog gevonden worden');
+  assert.ok(s.punten.some((p) => p.fs !== null), 'wrijving moet nog gevonden worden');
+});
+
+test('meetreeks: onbekende dieptekolom valt terug op de eerste kolom', () => {
+  const aangepast = xml
+    .replace('name="penetrationLength"', 'name="iets_onbekends"')
+    .replace('name="depth"', 'name="nog_iets_anders"');
+  const s = parseCptXml(aangepast);
+  assert.ok(s.aantalPunten > 900, 'de eerste kolom is in de BRO altijd de indringingslengte');
+  assert.ok(s.punten[0].d >= 0 && s.punten[0].d < 1);
+});
+
+test('meetreeks: foutmelding bevat de context om het te kunnen oplossen', () => {
+  // Waarden die niets bruikbaars bevatten
+  const kapot = xml.replace(/<swe:values>[\s\S]*?<\/swe:values>/, '<swe:values>abc;def;</swe:values>');
+  assert.throws(
+    () => parseCptXml(kapot),
+    (fout) => {
+      assert.match(fout.message, /kolommen:/, 'melding moet de kolommen noemen');
+      assert.match(fout.message, /scheiders/, 'melding moet de scheiders noemen');
+      assert.match(fout.message, /begin:/, 'melding moet het begin van de data laten zien');
+      return true;
+    },
+  );
+});

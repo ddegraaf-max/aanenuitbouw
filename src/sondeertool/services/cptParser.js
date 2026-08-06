@@ -135,21 +135,52 @@ function parseCptXml(xml) {
     throw new Error(`Geen meetwaarden gevonden in CPT-XML van ${broId || 'onbekend object'}`);
   }
 
-  const ruw = waardenBlok[1].trim();
-  const idx = (naam) => kolommen.indexOf(naam);
+  let ruw = waardenBlok[1].trim();
+
+  // Controleren of de opgegeven scheidingstekens daadwerkelijk werken. Levert
+  // de blokscheider maar één rij op, of een rij maar één veld, dan wijkt het
+  // bestand af van zijn eigen TextEncoding. Dan proberen we alternatieven, in
+  // plaats van nul meetpunten terug te geven en de hele sondering te verliezen.
+  const kiesScheider = (tekst, opgegeven, kandidaten, minDelen) => {
+    const werkt = (teken) => teken && tekst.split(teken).filter((d) => d.trim()).length >= minDelen;
+    if (werkt(opgegeven)) return opgegeven;
+    for (const kandidaat of kandidaten) if (werkt(kandidaat)) return kandidaat;
+    return opgegeven;
+  };
+
+  enc.block = kiesScheider(ruw, enc.block, [';', '\n', '\r\n', '|'], 2);
+  const proefRij = (ruw.split(enc.block).find((r) => r.trim()) || '').trim();
+  enc.token = kiesScheider(proefRij, enc.token, [',', ' ', '\t', ';', '|'].filter((t) => t !== enc.block), 2);
+
+  // Kolommen opzoeken zonder te struikelen over schrijfwijze. De BRO is
+  // consistent, maar historische bestanden (IMBRO/A, tot 2004 terug) zijn dat
+  // niet altijd, en op één niet-gevonden kolom valt de hele sondering weg.
+  const genormaliseerd = kolommen.map((k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const idx = (naam) => genormaliseerd.indexOf(String(naam).toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const idxBevat = (patroon) => genormaliseerd.findIndex((k) => patroon.test(k));
+
   const iLengte = idx('penetrationLength');
-  const iDiepte = idx('depth');
-  const iQc = idx('coneResistance');
+  let iDiepte = idx('depth');
+  let iQc = idx('coneResistance');
   const iQcGecorrigeerd = idx('correctedConeResistance');
-  const iFs = idx('localFriction');
+  let iFs = idx('localFriction');
   const iRf = idx('frictionRatio');
   const iU2 = idx('porePressureU2');
+
+  // Terugval op patronen als de exacte naam ontbreekt.
+  if (iDiepte < 0) iDiepte = idxBevat(/^depth|diepte/);
+  if (iQc < 0) iQc = idxBevat(/coneresist|conusweerstand|^qc$/);
+  if (iFs < 0) iFs = idxBevat(/localfriction|plaatselijkewrijving|^fs$/);
+
+  // Laatste terugval voor de diepte: in de BRO is penetrationLength altijd de
+  // eerste kolom. Zonder diepte is elke rij onbruikbaar.
+  const iDiepteTerugval = iDiepte >= 0 ? iDiepte : iLengte >= 0 ? iLengte : kolommen.length > 0 ? 0 : -1;
 
   const punten = [];
   for (const regel of ruw.split(enc.block)) {
     const rij = regel.trim();
     if (!rij) continue;
-    const velden = rij.split(enc.token);
+    const velden = enc.token === ' ' ? rij.split(/\s+/) : rij.split(enc.token);
     if (velden.length < 2) continue;
 
     const num = (i) => {
@@ -162,7 +193,7 @@ function parseCptXml(xml) {
       return n;
     };
 
-    const diepte = num(iDiepte) ?? num(iLengte);
+    const diepte = num(iDiepte) ?? num(iLengte) ?? num(iDiepteTerugval);
     if (diepte === null) continue;
 
     const qc = num(iQcGecorrigeerd) ?? num(iQc);
@@ -182,7 +213,14 @@ function parseCptXml(xml) {
   punten.sort((a, b) => a.d - b.d);
 
   if (punten.length === 0) {
-    throw new Error(`CPT ${broId || ''} bevat geen bruikbare meetpunten`);
+    // Fout met alle context erin: bij deze melding hoefde niet meer gegokt te
+    // worden welke aanname er niet klopte.
+    throw new Error(
+      `CPT ${broId || ''} bevat geen bruikbare meetpunten ` +
+        `(kolommen: ${kolommen.join('|') || 'geen'}; ` +
+        `scheiders blok=${JSON.stringify(enc.block)} veld=${JSON.stringify(enc.token)}; ` +
+        `waardenlengte ${ruw.length}; begin: ${ruw.slice(0, 80)})`,
+    );
   }
 
   const metQc = punten.filter((p) => p.qc !== null);

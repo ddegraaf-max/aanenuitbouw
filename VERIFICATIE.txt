@@ -1,76 +1,99 @@
-VERIFICATIERAPPORT — ronde 6
+VERIFICATIERAPPORT — ronde 7
 ============================
 
-WAT DIT OPLOST
-==============
-Niets, nog niet. Dit maakt meetbaar waar de tijd blijft, want daarover heb ik nu
-twee keer verkeerd gegokt en dat kost jou rondjes.
+WAT JOUW UITVOER LIET ZIEN
+==========================
+  "duurMs": 3203
+  "tijden": { adresOpzoeken 569, zoekenBijBro 1228,
+              meetgegevensOphalen 1406, grondlagenBepalen 0 }
+  "aantalGevonden": 6
+  "aantalGeanalyseerd": 0
+  "mislukt": [{ "reden": "CPT CPT000000256805 bevat geen bruikbare meetpunten" },
+              { "reden": "CPT CPT000000256829 bevat geen bruikbare meetpunten" }]
 
-Wat we weten:
-  - de diagnose doet de hele keten in 3,5 s (PDOK 0,5 + zoeken 1,65 + XML 1,4)
-  - de nieuwe client-JS is geladen (je zag "de BRO is traag", stap 5)
-  - die stap verschijnt na 14 s, dus de analyse duurt langer dan de diagnose
+Er ging NIETS traag: 3,2 seconde voor de hele keten. De XML komt binnen (1406 ms
+voor twee bestanden) en mijn parser haalt er nul meetpunten uit. "De BRO is
+traag" was mijn eigen voortgangstekst die het verkeerde beeld gaf; die is
+vervangen door "Nog even geduld".
 
-Het verschil tussen die twee: de analyse haalt MEERDERE sondeer-XML's op, en
-doet er de laagbepaling over.
+Die fout treedt alleen op als ELKE rij wordt overgeslagen, en dat gebeurt als de
+kolomnamen of de scheidingstekens afwijken van waarop ik test.
 
-WAT ER IS TOEGEVOEGD
-====================
-1. Faseklok in elk analyse-antwoord
+WAT ER IS GEDAAN
+================
 
-   "tijden": {
-     "adresOpzoeken": 480,
-     "zoekenBijBro": 1629,
-     "meetgegevensOphalen": 3052,
-     "grondlagenBepalen": 118
-   },
-   "detailsAangevraagd": ["CPT000000018289", "CPT000000018290"],
-   "puntenPerSondering": [1000, 1000]
+1. Parser weerbaar gemaakt tegen precies die afwijkingen
 
-   Daarmee is in één blik te zien welke fase de seconden opeet.
+   a. Scheidingstekens worden nu GECONTROLEERD in plaats van geloofd.
+      Levert de blokscheider uit TextEncoding maar één rij op, of een rij maar
+      één veld, dan worden ; \\n \\r\\n | en , spatie \\t geprobeerd. Een bestand
+      dat afwijkt van zijn eigen TextEncoding wordt dus alsnog gelezen.
 
-2. Twee sonderingen in plaats van drie (SONDEER_MAX_DETAILS)
-   Drie XML's van 300+ KB tegelijk bij de BRO opvragen kan door hun kant worden
-   afgeknepen; parallelle verzoeken naar een overheidsdienst worden vaak in een
-   wachtrij gezet. Twee is genoeg om spreiding tussen metingen te kunnen melden.
+   b. Kolomnamen worden ongevoelig voor schrijfwijze opgezocht: "Depth",
+      "cone_resistance" en "Local_Friction" worden nu gevonden. Historische
+      bestanden gaan tot 2004 terug (CPT000000018647 in jouw uitvoer is er een)
+      en zijn niet altijd consistent.
 
-3. Budget van 24 naar 18 seconden
-   Het antwoord komt daarmee altijd binnen 18 s, desnoods gedeeltelijk.
+   c. Ontbreekt de dieptekolom helemaal, dan wordt teruggevallen op de eerste
+      kolom -- in de BRO is dat altijd de indringingslengte. Zonder diepte is
+      elke rij onbruikbaar, dus dit is beter dan de hele sondering verliezen.
 
-GETEST
-======
-Tegen een nagemaakte BRO die 1,5 s over het zoeken en 3 s over elke XML doet:
-  HTTP 200 in 4,9 s
-  adresOpzoeken 0, zoekenBijBro 1629, meetgegevensOphalen 3052,
-  grondlagenBepalen 118 ms
-  gevonden 3, geanalyseerd 2, 1000 meetpunten per sondering
-19 tests, alle geslaagd.
+2. Foutmelding met alle context
+   In plaats van "bevat geen bruikbare meetpunten" staat er nu:
 
-WAT IK VAN JOU NODIG HEB
-========================
-Open na de deploy DIT in je browser:
+     CPT000000256805 bevat geen bruikbare meetpunten
+     (kolommen: penetrationLength|depth|...; scheiders blok=";" veld=",";
+      waardenlengte 298431; begin: 0.000,0.000,...)
+
+   Daarmee is bij de volgende keer in één blik duidelijk welke aanname niet
+   klopte, zonder extra ronde.
+
+3. Nieuw endpoint dat de parser van binnenuit toont
+
+     /bodemcheck/api/diagnose-sondering?id=CPT000000256805
+
+   Toont: aantal bytes, of het values-element bestaat, alle gevonden veldnamen,
+   de TextEncoding-attributen letterlijk, hoe vaak ; , spatie tab en regeleinde
+   voorkomen, de eerste rij ruw, hoeveel velden die rij oplevert bij komma en
+   bij spatie, en wat de echte parser eruit haalt.
+
+   Werkt de sondering na deze deploy nog niet, dan geeft die uitvoer het
+   antwoord zonder gissen.
+
+4. Eerlijker melding voor de bezoeker
+   Onderscheid tussen "niet opgehaald" (helpt: straks opnieuw proberen) en
+   "opgehaald maar niet leesbaar" (helpt niet). In het tweede geval staat er nu
+   dat wij op de hoogte zijn gesteld, en gaat de volledige reden naar de
+   serverlog.
+
+TESTS
+=====
+25 tests, alle geslaagd (was 19). Zes nieuwe, elk met een bewust afwijkend
+bestand:
+
+  20  rijen gescheiden door regeleindes in plaats van puntkomma
+  21  velden gescheiden door spaties in plaats van komma
+  22  TextEncoding noemt "|" en "!" terwijl het bestand ; en , gebruikt
+  23  kolomnamen als "Depth", "cone_resistance", "Local_Friction"
+  24  dieptekolom volledig onbekend -> terugval op de eerste kolom
+  25  foutmelding bevat kolommen, scheiders en het begin van de data
+
+WAT ER NOG KAN MISGAAN
+======================
+Ik weet nog steeds niet WELKE afwijking het is bij jouw sonderingen -- ik heb de
+drie waarschijnlijkste gedekt. Werkt het na deze deploy:
 
   https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205
+  -> "aantalGeanalyseerd" moet nu 2 zijn in plaats van 0
 
-Dat gaat om de server heen zonder de pagina. Drie mogelijke uitkomsten:
+Werkt het niet, stuur dan de uitvoer van:
 
-  a) JSON binnen een paar seconden
-     -> server is snel; het probleem zit dan in de pagina, en het "tijden"-blok
-        vertelt me alsnog wat de server deed
-  b) JSON na 15-18 seconden
-     -> stuur me het "tijden"-blok; daar staat precies welke fase het is
-  c) blijft hangen of geeft een foutpagina
-     -> dan is het de verbinding tussen Railway en de BRO, en zie ik dat aan de
-        foutmelding
+  https://aanenuitbouw.nl/bodemcheck/api/diagnose-sondering?id=CPT000000256805
 
-Kopieer in alle gevallen het "tijden"-blok en de regels "duurMs",
-"aantalGevonden" en "aantalGeanalyseerd".
-
-En op de pagina zelf: wacht na "de BRO is traag" nog even door tot 35 seconden.
-Dan breekt de client af met een melding, en ook die melding is informatie.
+Dat is een handvol regels en daar staat het antwoord letterlijk in.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
-  configurator.html  ONGEWIJZIGD sinds v5 (versie-element in de footer)
-  src/sondeertool/   index.js en services/interpret.js aangepast
+  configurator.html  ONGEWIJZIGD sinds v5
+  src/sondeertool/   cptParser.js, index.js en assets/sondeertool.js aangepast
