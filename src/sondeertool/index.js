@@ -45,6 +45,31 @@ const { parseKengegevensXml } = require('./services/cptParser');
 const { interpreteerSondering, bouwSamenvatting, GRONDSOORTEN } = require('./services/interpret');
 
 const ASSETS_DIR = path.join(__dirname, 'assets');
+
+/**
+ * Versiestempel uit de inhoud van de assets. Wordt achter de URL van de
+ * stylesheet en de client-JS gezet.
+ *
+ * Waarom dit nodig is: de assets gaan met een cache van een week naar de
+ * browser, want ze veranderen zelden. Maar bij een deploy waarin ze WEL
+ * veranderen, bleef een bezoeker de oude versie gebruiken -- met een oude
+ * pagina tegen een nieuwe server. Dat kostte een avond zoeken aan een spinner
+ * die eeuwig doordraaide. Met een hash in de URL is dat structureel onmogelijk:
+ * nieuwe inhoud betekent een nieuwe URL.
+ */
+const ASSET_VERSIE = (() => {
+  try {
+    const crypto = require('crypto');
+    const h = crypto.createHash('sha1');
+    for (const naam of ['sondeertool.css', 'sondeertool.js', 'pagina.html']) {
+      const pad = naam === 'pagina.html' ? path.join(__dirname, naam) : path.join(ASSETS_DIR, naam);
+      h.update(fs.readFileSync(pad));
+    }
+    return h.digest('hex').slice(0, 10);
+  } catch {
+    return String(Date.now());
+  }
+})();
 const PAGINA_BESTAND = path.join(__dirname, 'pagina.html');
 const MAX_DETAILS = Number(process.env.SONDEER_MAX_DETAILS || 3);
 
@@ -103,12 +128,17 @@ function stuurJson(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function stuurHtml(res, html) {
+function stuurHtml(res, html, alleenKoppen = false) {
+  // Expliciet: deze pagina mag nergens blijven hangen, ook niet bij Cloudflare.
+  // Hij bevat de versiestempel waarmee de assets worden doorbroken; is de
+  // pagina zelf oud, dan werkt dat mechanisme niet.
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'no-cache',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    Pragma: 'no-cache',
+    'Content-Length': Buffer.byteLength(html),
   });
-  res.end(html);
+  res.end(alleenKoppen ? undefined : html);
 }
 
 function leesJsonBody(req, maxBytes = 32000) {
@@ -226,6 +256,7 @@ function bouwPagina(req, vooringevuld) {
     BESCHRIJVING: ontsnap(instellingen.beschrijving),
     CANONICAL: canonical ? `<link rel="canonical" href="${ontsnap(canonical)}">` : '',
     ASSETS: `${pad}/assets`,
+    VERSIE: ASSET_VERSIE,
     BASISPAD: pad,
     VOORINGEVULD: ontsnap(vooringevuld),
     MOCKBALK: bro.MOCK ? MOCKBALK : '',
@@ -243,7 +274,7 @@ function bouwPagina(req, vooringevuld) {
 // Assets uitleveren
 // ---------------------------------------------------------------------------
 
-function stuurAsset(res, restPad) {
+function stuurAsset(res, restPad, alleenKoppen = false) {
   // Alleen de bestandsnaam gebruiken: daarmee is ../-trucwerk uitgesloten.
   const naam = path.basename(restPad);
   const bestand = path.join(ASSETS_DIR, naam);
@@ -263,8 +294,15 @@ function stuurAsset(res, restPad) {
     const ext = path.extname(bestand).toLowerCase();
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream',
+      'Content-Length': stat.size,
+      // Een week cachen mag, want de URL bevat een versiestempel uit de inhoud:
+      // verandert het bestand, dan verandert de URL en is de cache irrelevant.
       'Cache-Control': process.env.NODE_ENV === 'production' ? 'public, max-age=604800' : 'no-cache',
     });
+    if (alleenKoppen) {
+      res.end();
+      return;
+    }
     fs.createReadStream(bestand).pipe(res);
   });
 }
@@ -679,6 +717,7 @@ async function doeDiagnose(req, res, params) {
     broBasis: bro.BASIS,
     registratieVanaf: process.env.BRO_REGISTRATIE_VANAF || '2017-01-01',
     budgetMs: BUDGET_MS,
+    assetVersie: ASSET_VERSIE,
     testpunt: { lat, lon },
     stappen,
   });
@@ -714,18 +753,22 @@ async function handle(req, res, url) {
 
   const rest = pathname.slice(pad.length) || '/';
   const methode = req.method || 'GET';
+  // HEAD hetzelfde behandelen als GET, maar zonder body. Cloudflare en
+  // uptime-monitors gebruiken HEAD; zonder dit kregen die een 404.
+  const isLezen = methode === 'GET' || methode === 'HEAD';
+  const alleenKoppen = methode === 'HEAD';
 
   try {
     // De pagina zelf
-    if ((rest === '/' || rest === '') && methode === 'GET') {
+    if ((rest === '/' || rest === '') && isLezen) {
       const q = u.searchParams.get('q');
-      stuurHtml(res, bouwPagina(req, q ? String(q).slice(0, 120) : ''));
+      stuurHtml(res, bouwPagina(req, q ? String(q).slice(0, 120) : ''), alleenKoppen);
       return true;
     }
 
     // Stylesheet en client-JS
-    if (rest.startsWith('/assets/') && methode === 'GET') {
-      stuurAsset(res, rest);
+    if (rest.startsWith('/assets/') && isLezen) {
+      stuurAsset(res, rest, alleenKoppen);
       return true;
     }
 
