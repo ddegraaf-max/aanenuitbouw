@@ -1,0 +1,109 @@
+VERIFICATIERAPPORT — server.js
+==============================
+
+Bron van het bestand
+--------------------
+Opgehaald van github.com/ddegraaf-max/aanenuitbouw (raw), niet overgetypt.
+Origineel: 26537 tekens, 588 regels
+sha256 origineel: 037bbc4166de54674ea999d2de9105abbe0654b509f4a579121457af747cff46
+
+Alle wijzigingen zijn met exacte string-vervanging op unieke ankers gedaan. Geen
+enkele bestaande regel is opnieuw getypt.
+
+Integriteit van het base64-logo in de klantbevestiging
+-----------------------------------------------------
+                     base64        bytes    PNG-CRC-fouten
+  voor de wijziging  1460 tekens   1095       0
+  na de wijziging    1460 tekens   1095       0
+  sha256 voor: fbe119720a3afed96fe24be67d60c3b9345fdbe4d6b13d91a071197555b7c1fd
+  sha256 na:   fbe119720a3afed96fe24be67d60c3b9345fdbe4d6b13d91a071197555b7c1fd
+  identiek: JA
+
+Omvang van de wijziging
+-----------------------
+  toegevoegde regels: 88
+  vervangen regels:   6
+
+De 6 vervangen regels zijn precies deze, en niets anders:
+    -// Opruimen zodat de map niet oneindig groeit
+    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    -    return jsonResponse(res, checkAuth(req) ? 200 : 401, { ok: checkAuth(req) });
+    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+    -    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
+
+Wijziging 1 — broncode niet meer uitleveren
+-------------------------------------------
+serveStatic serveerde alles onder ROOT. Daardoor was /server.js publiek
+leesbaar, en straks ook /src/sondeertool/. Nu geblokkeerd:
+
+  /server.js                                    -> 404
+  /package.json                                 -> 404
+  /src/sondeertool/index.js                     -> 404
+  /.env                                         -> 404
+  /bodemcheck/assets/../../../server.js         -> 404
+
+Geen sleutels gelekt (die staan in Railway-variabelen), maar het gaf een
+aanvaller wel het bouwplan van je adminlogin.
+
+Wijziging 2 — rate limiting op adminpogingen
+--------------------------------------------
+/api/auth/check had geen limiet en geen vertraging: een schone 200 bij goed,
+401 bij fout. Daarmee was ADMIN_PASSWORD ongelimiteerd te raden. Nu:
+
+  10 mislukte pogingen per IP per 15 minuten, daarna 429
+  300 ms vertraging bij elke mislukte poging
+  ALLEEN mislukte pogingen tellen mee -- een geslaagde login wist de teller
+
+Gemeten:
+  poging  1-10  -> 401 {"ok":false}
+  poging 11-13  -> 429 Te veel mislukte inlogpogingen
+  juist wachtwoord terwijl IP geblokkeerd -> 429 (dus geen ontsnapping)
+  POST /api/prices, /api/planning, /api/projects met fout wachtwoord -> 429
+
+Tegenproef, want een limiet die jou buitensluit is nutteloos:
+  inloggen                          -> 200 {"ok":true}
+  20x achter elkaar prijzen opslaan -> 20x 200, geen enkele 429
+  9 fouten, dan juist wachtwoord    -> 200, teller gereset
+  daarna weer 9 fouten + juist      -> 200, dus de reset werkt echt
+  planning opslaan                  -> 200
+  project aanmaken                  -> 200, code AEB-XXXXX
+  publieke code-check               -> 200 met het juiste label
+
+Ook opgelost: /api/auth/check riep checkAuth twee keer aan.
+
+Wijziging 3 — sondeertool-hook
+------------------------------
+Eén regel vóór serveStatic, onderaan de request-handler:
+
+  if (await require('./src/sondeertool').handle(req, res, url)) return;
+
+handle() geeft false terug voor elk verzoek buiten /bodemcheck, dus serveStatic
+loopt dan gewoon door. Gemeten na de wijziging:
+
+  /                    -> 200 configurator
+  /project             -> 200 project
+  /configurator.html   -> 200
+  /api/health          -> 200
+  /api/prices          -> 404 (No prices set yet, zoals verwacht)
+  /nietbestaand        -> 404 Niet gevonden (jouw eigen tekst)
+  /bodemcheck                            -> 200 de bodemcheck-pagina
+  /bodemcheck/assets/sondeertool.css     -> 200
+  /bodemcheck/api/analyse?lat=..&lon=..  -> 200
+
+Geen nieuwe dependencies. package.json is niet aangeraakt.
+
+Wat NIET is getest
+------------------
+De live BRO-service. Mijn container mag alleen naar npm en GitHub, dus
+publiek.broservices.nl en api.pdok.nl waren onbereikbaar. Alle bovenstaande
+BRO-tests draaiden met BRO_MOCK=1 tegen een gegenereerde IMBRO-fixture.
+Controleer na deploy:
+
+  curl -s "https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205" | head -c 400
+
+Staat er "aantalGevonden": 0 bij een adres in bebouwd gebied, lees dan
+src/sondeertool/README.md onder "De enige onzekerheid".
+
+Ook niet getest: de echte Resend-verzending vanuit de bodemcheck, om dezelfde
+reden. De code gebruikt dezelfde variabelen als je bestaande /api/quote.

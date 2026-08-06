@@ -1,120 +1,154 @@
-# Installeren — lees dit eerst
+# Installeren
 
-Deze ZIP bevat **uitsluitend bestanden in submappen**. Er zit geen
-`server.js`, geen `app.js`, geen `package.json`, geen `.gitignore` en geen
-`.env` in. Je kunt de inhoud dus over je project heen pakken zonder dat er iets
-van jouw eigen configuratie wordt overschreven.
+## Uitpakken en één regel toevoegen
 
-Dat was vorige keer het probleem: de vorige ZIP had een standalone `server.js`
-en `package.json` in de root staan. Die zijn nu weg.
+Pak de ZIP uit boven je projectmap. Er komt precies één map bij:
+`src/sondeertool/`. Niets wordt overschreven — geen `server.js`, geen
+`package.json`, geen bestand in je root.
 
----
-
-## Stap 1 — bestanden overzetten
-
-Pak de ZIP uit boven je projectroot. Dit komt erbij:
-
-```
-src/sondeertool/routes/sonderingen.js
-src/sondeertool/services/          broClient, cptParser, geocode,
-                                   interpret, mockBro, rd
-src/sondeertool/utils/cache.js
-src/sondeertool/test/              tests + fixture
-src/sondeertool/tools/             preview-serverje, alleen lokaal
-views/sondeertool.ejs
-public/sondeertool.css
-public/sondeertool.js
-sql/001_sondeertool.sql
-```
-
-Alleen `views/`, `public/` en `sql/` mengen met jouw bestaande mappen, en de
-bestandsnamen daarin beginnen allemaal met `sondeertool`. Controleer voor de
-zekerheid of je die namen nog niet had. Al het overige zit in `src/sondeertool/`
-en raakt niets.
-
-## Stap 2 — één pagina-view maken
-
-De view `views/sondeertool.ejs` is een **fragment**, geen volledige pagina.
-Maak een eigen pagina die je layout eromheen zet, bijvoorbeeld
-`views/bodemcheck.ejs`:
-
-```ejs
-<%- include('partials/header') %>
-<%- include('sondeertool') %>
-<%- include('partials/footer') %>
-```
-
-Gebruik de namen van jouw eigen partials. Zet in de `<head>` van je layout
-niets extra's: het fragment brengt zijn eigen stylesheet en fonts mee.
-
-## Stap 3 — één regel in je bestaande app
+Daarna één regel in `server.js`. Zoek de laatste regel van je
+`http.createServer`-handler:
 
 ```js
-app.use('/bodemcheck', require('./src/sondeertool/routes/sonderingen')({
-  viewNaam: 'bodemcheck',      // de view uit stap 2
-  staticPad: '/static',        // jouw express.static-mount
-  pool,                        // optioneel, voor logging en aanvragen
-  onLead: async (aanvraag) => {
-    await resend.emails.send({
-      from: 'site@aanenuitbouw.nl',
-      to: 'info@aanenuitbouw.nl',
-      subject: `Sondering aangevraagd — ${aanvraag.adres}`,
-      text: JSON.stringify(aanvraag, null, 2),
-    });
-  },
-}));
+  serveStatic(req, res, pathname);
+});
 ```
 
-Zet die regel bij je andere `app.use`-regels, **vóór** je 404-handler.
+En zet daar bóven:
 
-Laat je `viewNaam` weg, dan rendert de router `views/sondeertool.ejs` direct.
-Dat werkt, maar dan krijgt de bezoeker de pagina zonder jouw navigatie.
-
-## Stap 4 — database (optioneel)
-
-```bash
-psql $DATABASE_URL -f sql/001_sondeertool.sql
+```js
+  // ===== Bodemcheck / sondeertool (BRO) =====
+  if (await require('./src/sondeertool').handle(req, res, url)) return;
 ```
 
-Sla je dit over, dan werkt de tool gewoon; alleen zonder logging en zonder dat
-aanvragen worden opgeslagen. Geef je geen `pool` mee maar wel `onLead`, dan
-komen aanvragen alleen per e-mail binnen.
+Dat is alles. Ook in `src/sondeertool/PLAK-DIT-IN-SERVER-JS.txt` te vinden.
 
-## Stap 5 — controleren
+Zonder terminal kan dit rechtstreeks op github.com: repo openen, `server.js`
+aanklikken, pennetje, regel invoegen, Commit changes. Railway deployt
+automatisch.
 
-Lokaal, zonder de site aan te raken:
+## Waarom juist daar
+
+`handle()` geeft `true` terug als het verzoek voor `/bodemcheck` was en al is
+afgehandeld, en `false` als het er niets mee te maken had. Bij `false` loopt
+jouw `serveStatic` gewoon door. De module kan dus geen enkele bestaande route
+van je onderscheppen — dat is met opzet zo gebouwd.
+
+Je handler is al `async`, en `req`, `res` en `url` bestaan daar alle drie al.
+
+## Waarom er niets te configureren is
+
+Deze module hangt niet aan jouw opzet:
+
+| | |
+| --- | --- |
+| Framework | Geen. Geen express, geen dependencies — alleen ingebouwde Node-modules, net als je eigen `server.js`. |
+| Template-engine | Geen. De pagina is een HTML-bestand met eigen placeholders. |
+| Statische bestanden | De module levert de stylesheet en client-JS zelf uit op `/bodemcheck/assets/`. |
+| Canonical-URL | Wordt uit de `Host`-header opgebouwd, dus altijd correct. |
+| Database | Niet nodig. Zonder `pool` werkt alles; aanvragen gaan dan naar je `onLead`-functie, of anders naar de log zodat ze nooit stil verdwijnen. |
+| Omgevingsvariabelen | Geen. Alles heeft een werkende standaard. Ook de BRO en PDOK vragen geen sleutel. |
+| Dependencies | Geen. `package.json` blijft ongewijzigd. |
+
+De hele stylesheet is gescoped onder `.sondeertool-app` en elke klasse en elk
+id begint met `sd-`, dus jouw site-CSS kan hier niet in lekken en deze CSS kan
+niets van jouw site raken.
+
+## E-mail bij een aanvraag
+
+De installer zet dit er standaard al in, met dezelfde variabelen die je server
+al gebruikt: `RESEND_API_KEY`, `QUOTE_FROM` en `QUOTE_TO`. Staat er geen
+`RESEND_API_KEY`, dan komt de aanvraag in de Railway-log terecht in plaats van
+stil te verdwijnen. Wil je het zelf regelen, gebruik dan `--geen-mail` en geef
+je eigen `onLead` mee.
+
+## Later: je eigen navigatie eromheen
+
+Standaard staat er een smalle donkere balk boven de pagina met een link terug
+naar de site. Wil je je echte navigatie eromheen, geef die dan als HTML mee:
+
+```js
+kop:  '<nav class="mijn-nav">…</nav>',
+voet: '<footer class="mijn-voet">…</footer>',
+```
+
+Je site is een one-pager met anchors, dus dit wordt de eerste losse pagina.
+Zet er ook een link naartoe in je menu en je footer — bijvoorbeeld
+"Bodemcheck" naast "Configurator". Anders vindt niemand hem behalve via Google.
+
+## Alle opties
+
+Alleen nodig als je iets wilt afwijken. Eenmalig bij het opstarten, boven je
+`http.createServer`:
+
+```js
+require('./src/sondeertool').configureer({
+  pad: '/bodemcheck',
+  terugLink: 'https://aanenuitbouw.nl/',
+  kop: '<nav>...</nav>',     // je eigen navigatie als HTML
+  voet: '<footer>...</footer>',
+  onLead: async (a) => { /* vervangt de standaard Resend-mail */ },
+});
+```
+
+| Optie | Standaard |
+| --- | --- |
+| `pad` | `/bodemcheck` |
+| `titel` / `beschrijving` | ingevuld, voor `<title>` en meta description |
+| `terugLink` | `/` — doel van de donkere balk boven de pagina |
+| `kop` / `voet` | eigen HTML boven en onder de tool |
+| `onLead` | standaard: Resend-mail via je bestaande variabelen |
+| `pool` | geen — pg-pool voor logging, optioneel |
+
+Omgevingsvariabelen, alle optioneel: `BRO_MOCK`, `BRO_CPT_BASE`,
+`BRO_REGISTRATIE_VANAF`, `BRO_TIMEOUT_MS`, `SONDEER_MAX_DETAILS`,
+`PDOK_LOCATIESERVER`.
+
+## Lokaal bekijken
+
+Vanuit je projectroot, zonder je site aan te raken:
 
 ```bash
 BRO_MOCK=1 node src/sondeertool/tools/preview.js
 # http://localhost:3777/bodemcheck
 ```
 
-Na deploy:
+`BRO_MOCK=1` gebruikt fictieve sondeerdata, dus dit werkt ook zonder internet.
+Zet die variabele **nooit** in je Railway-omgeving.
+
+## Tests
 
 ```bash
-curl -s "https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205" | head -c 500
-curl -s -o /dev/null -w "%{http_code}\n" https://aanenuitbouw.nl/
+node --test src/sondeertool/test/*.test.js
 ```
 
-De tweede regel moet `200` geven en je eigen homepage tonen. Zie je bij de
-eerste `"aantalGevonden": 0` bij een adres in bebouwd gebied, kijk dan in
-README.md onder "De enige onzekerheid".
+Dertien tests op de XML-parser, de RD-coördinaatconversie, de
+grondsoortclassificatie en de funderingslogica.
 
----
+## Database (optioneel)
 
-## Dependencies
+Alleen als je opvragingen en aanvragen wilt opslaan:
 
-Geen nieuwe. De module gebruikt `express` en `ejs` die je al hebt, en verder
-alleen ingebouwde Node-modules. `fetch` is globaal vanaf Node 18.
+```bash
+psql $DATABASE_URL -f src/sondeertool/sql/001_sondeertool.sql
+```
 
-**Voeg niets toe aan je `package.json`.** Als je vorige keer je dependencies
-kwijt bent geraakt, controleer dan eerst of alles er weer in staat voordat je
-dit toevoegt.
+Daarna `pool` meegeven. Sla je dit over, dan werkt de tool gewoon.
+
+## Eerste check na deploy
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://aanenuitbouw.nl/
+curl -s "https://aanenuitbouw.nl/bodemcheck/api/analyse?q=1401EX%205" | head -c 400
+```
+
+De eerste regel moet `200` geven. Zie je bij de tweede `"aantalGevonden": 0`
+bij een adres in bebouwd gebied, lees dan README.md onder "De enige
+onzekerheid".
 
 ## Wat je niet moet doen
 
-- `src/sondeertool/tools/preview.js` in je `start`-script zetten. Dat bestand
-  weigert te starten als `NODE_ENV=production`, maar zet het er niet in.
-- De EJS-view als losse pagina serveren zonder je layout eromheen.
+- `src/sondeertool/tools/preview.js` in je `start`-script zetten. Het weigert
+  te starten bij `NODE_ENV=production`, maar zet het er niet in.
 - `BRO_MOCK=1` in de Railway-variabelen zetten. Dan staat er fictieve
   sondeerdata op je site.

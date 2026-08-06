@@ -1,0 +1,57 @@
+PLAK DIT IN server.js
+=====================
+
+Er is één regel nodig. Je server.js eindigt met deze request-handler:
+
+        serveStatic(req, res, pathname);
+      });
+
+      server.listen(PORT, '0.0.0.0', () => {
+
+Zoek de regel
+
+        serveStatic(req, res, pathname);
+
+Die komt maar één keer voor als aanroep, helemaal onderaan de
+http.createServer-handler. Zet daar BOVEN deze twee regels:
+
+
+--------------------------------- knip ---------------------------------
+
+  // ===== Bodemcheck / sondeertool (BRO) =====
+  if (await require('./src/sondeertool').handle(req, res, url)) return;
+
+--------------------------------- knip ---------------------------------
+
+
+Het resultaat ziet er dan zo uit:
+
+  // ===== Bodemcheck / sondeertool (BRO) =====
+  if (await require('./src/sondeertool').handle(req, res, url)) return;
+
+  serveStatic(req, res, pathname);
+});
+
+
+Waarom precies daar
+-------------------
+handle() geeft true terug als het verzoek voor /bodemcheck was en al is
+afgehandeld, en false als het er niets mee te maken had. Bij false loopt jouw
+serveStatic gewoon door. Deze module kan dus niets van je bestaande routes
+onderscheppen -- hij zit er als laatste voor, niet ervoor.
+
+Zet je hem hoger in de handler, dan werkt hij ook, maar dan doet hij zijn
+padcheck bij elk verzoek eerder dan nodig. Onderaan is de juiste plek.
+
+Je handler is al async (`async (req, res) =>`), dus de await werkt zonder
+verdere aanpassing. De variabelen `req`, `res` en `url` bestaan daar allemaal
+al.
+
+
+Voorwaarden
+-----------
+  - de map src/sondeertool/ moet in je repo staan, met index.js erin
+  - GEEN nieuwe dependencies; package.json blijft ongewijzigd
+  - geen express, geen template-engine, alleen ingebouwde Node-modules
+  - RESEND_API_KEY, QUOTE_FROM en QUOTE_TO worden van je bestaande
+    instellingen gebruikt; zonder RESEND_API_KEY komt een aanvraag in de log

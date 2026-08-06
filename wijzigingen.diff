@@ -1,0 +1,157 @@
+--- server.js.origineel	2026-08-06 21:52:28.761925348 +0000
++++ server.js	2026-08-06 21:53:27.527410607 +0000
+@@ -138,12 +138,67 @@
+   entry.count++;
+   return entry.count <= MAX;
+ }
+-// Opruimen zodat de map niet oneindig groeit
++// ---- Rate limiting op admin-inlogpogingen ----
++// Zonder dit is /api/auth/check een orakel waarmee ADMIN_PASSWORD ongelimiteerd
++// te raden is: een schone 200 bij goed, 401 bij fout, zonder vertraging.
++// Alleen MISLUKTE pogingen tellen mee, zodat normaal adminwerk nooit vastloopt.
++const _adminFails = new Map(); // ip -> { count, reset }
++const ADMIN_WINDOW = 15 * 60 * 1000; // 15 minuten
++const ADMIN_MAX_FAILS = 10;
++
++function clientIp(req) {
++  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
++    || req.socket.remoteAddress
++    || 'onbekend';
++}
++
++function adminTooManyFails(ip) {
++  const entry = _adminFails.get(ip);
++  if (!entry || Date.now() > entry.reset) return false;
++  return entry.count >= ADMIN_MAX_FAILS;
++}
++
++function adminRegisterFail(ip) {
++  const now = Date.now();
++  const entry = _adminFails.get(ip);
++  if (!entry || now > entry.reset) {
++    _adminFails.set(ip, { count: 1, reset: now + ADMIN_WINDOW });
++  } else {
++    entry.count++;
++  }
++}
++
++function adminClearFails(ip) {
++  _adminFails.delete(ip);
++}
++
++// Poortwachter voor alle admin-endpoints. Geeft true terug als het verzoek al
++// is afgehandeld (geweigerd); dan moet de aanroeper meteen returnen.
++async function adminGeweigerd(req, res) {
++  const ip = clientIp(req);
++  if (adminTooManyFails(ip)) {
++    jsonResponse(res, 429, { error: 'Te veel mislukte inlogpogingen — probeer het over 15 minuten opnieuw' });
++    return true;
++  }
++  if (!checkAuth(req)) {
++    adminRegisterFail(ip);
++    await _sleep(300); // vertraging tegen snel raden
++    jsonResponse(res, 401, { error: 'Unauthorized' });
++    return true;
++  }
++  adminClearFails(ip);
++  return false;
++}
++
++// Opruimen zodat de maps niet oneindig groeien
+ setInterval(() => {
+   const now = Date.now();
+   for (const [ip, entry] of _projectLookups) {
+     if (now > entry.reset) _projectLookups.delete(ip);
+   }
++  for (const [ip, entry] of _adminFails) {
++    if (now > entry.reset) _adminFails.delete(ip);
++  }
+ }, 10 * 60 * 1000).unref();
+ 
+ // HTML-escape om injectie in de e-mail te voorkomen
+@@ -334,6 +389,16 @@
+ function serveStatic(req, res, urlPath) {
+   if (urlPath === '/' || urlPath === '') urlPath = '/configurator.html';
+   if (urlPath === '/project' || urlPath === '/project/') urlPath = '/project.html';
++
++  // Broncode en projectbestanden niet uitleveren. serveStatic serveert alles
++  // onder ROOT, dus zonder deze check zijn /server.js, /package.json en de
++  // inhoud van /src publiek leesbaar.
++  if (/^\/(server\.js|package(-lock)?\.json|src\/|node_modules\/|\.git|\.env)/i.test(urlPath)) {
++    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
++    res.end('Niet gevonden');
++    return;
++  }
++
+   const filePath = path.normalize(path.join(ROOT, urlPath));
+   if (!filePath.startsWith(ROOT)) {
+     res.writeHead(403, { 'Content-Type': 'text/plain' });
+@@ -372,7 +437,7 @@
+   }
+ 
+   if (pathname === '/api/prices' && req.method === 'POST') {
+-    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
++    if (await adminGeweigerd(req, res)) return;
+     try {
+       const body = await readJsonBody(req);
+       if (!body || typeof body !== 'object' || Array.isArray(body)) {
+@@ -392,7 +457,18 @@
+   }
+ 
+   if (pathname === '/api/auth/check' && req.method === 'POST') {
+-    return jsonResponse(res, checkAuth(req) ? 200 : 401, { ok: checkAuth(req) });
++    const ip = clientIp(req);
++    if (adminTooManyFails(ip)) {
++      return jsonResponse(res, 429, { error: 'Te veel mislukte inlogpogingen — probeer het over 15 minuten opnieuw' });
++    }
++    const ok = checkAuth(req);
++    if (ok) {
++      adminClearFails(ip);
++    } else {
++      adminRegisterFail(ip);
++      await _sleep(300);
++    }
++    return jsonResponse(res, ok ? 200 : 401, { ok });
+   }
+ 
+   if (pathname === '/api/quote' && req.method === 'POST') {
+@@ -440,7 +516,7 @@
+   }
+ 
+   if (pathname === '/api/planning' && req.method === 'POST') {
+-    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
++    if (await adminGeweigerd(req, res)) return;
+     try {
+       const body = await readJsonBody(req);
+       const months = (body && typeof body.months === 'object' && !Array.isArray(body.months)) ? body.months : null;
+@@ -489,7 +565,7 @@
+ 
+   // ---- Projectmonitor: beheer (admin) ----
+   if (pathname === '/api/projects' && req.method === 'GET') {
+-    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
++    if (await adminGeweigerd(req, res)) return;
+     try {
+       const projects = (await readDataFile(PROJECTS_FILE)) || {};
+       return jsonResponse(res, 200, projects);
+@@ -500,7 +576,7 @@
+   }
+ 
+   if (pathname === '/api/projects' && req.method === 'POST') {
+-    if (!checkAuth(req)) return jsonResponse(res, 401, { error: 'Unauthorized' });
++    if (await adminGeweigerd(req, res)) return;
+     try {
+       const body = await readJsonBody(req);
+       const action = String(body.action || '');
+@@ -575,6 +651,12 @@
+     });
+   }
+ 
++  // ===== Bodemcheck / sondeertool (BRO) =====
++  // Openbare sondeergegevens uit de Basisregistratie Ondergrond met een
++  // funderingsindicatie. Geeft false terug voor elk verzoek dat niet onder
++  // /bodemcheck valt, dus serveStatic hieronder loopt dan gewoon door.
++  if (await require('./src/sondeertool').handle(req, res, url)) return;
++
+   serveStatic(req, res, pathname);
+ });
+ 

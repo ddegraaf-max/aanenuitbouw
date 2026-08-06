@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITEL}}</title>
+<meta name="description" content="{{BESCHRIJVING}}">
+<meta name="robots" content="index, follow">
+{{CANONICAL}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ASSETS}}/sondeertool.css">
+</head>
+<body style="margin:0">
+
+{{KOP}}
+
+<div class="sondeertool-app">
+
+<a class="sd-overslaan" href="#sd-invoer">Naar het invoerveld</a>
+
+{{MOCKBALK}}
+
+<section class="sd-kop">
+  <div class="sd-kop__binnen">
+    <p class="sd-stempel">Bodemcheck · Bron: Basisregistratie Ondergrond</p>
+    <h1>Hoe diep zit de<br><span class="sd-kop__nadruk">draagkrachtige laag</span><br>onder uw aanbouw?</h1>
+    <p class="sd-kop__intro">
+      Elke sondering die in Nederland is uitgevoerd en aan de overheid is aangeleverd, is openbaar.
+      Wij halen de metingen rond uw adres op, lezen de grondlagen eruit en laten zien op welke diepte
+      het zand begint waarop gefundeerd kan worden. Gratis, direct, zonder registratie.
+    </p>
+
+    <form class="sd-invoer" id="sd-invoer" autocomplete="off">
+      <div class="sd-invoer__veld">
+        <label for="sd-adres">Adres of postcode van de bouwlocatie</label>
+        <input
+          type="text"
+          id="sd-adres"
+          name="adres"
+          value="{{VOORINGEVULD}}"
+          placeholder="bijv. 1401 EX 5 of Torenlaan 5 Bussum"
+          aria-describedby="sd-adres-hint"
+          spellcheck="false">
+        <ul class="sd-suggesties" id="sd-suggesties" role="listbox" hidden></ul>
+        <p class="sd-hint" id="sd-adres-hint">Vul een huisnummer mee voor het nauwkeurigste resultaat.</p>
+      </div>
+      <button type="submit" class="sd-knop sd-knop--primair" id="sd-zoekknop">
+        <span class="sd-knop__tekst">Bodem opzoeken</span>
+        <span class="sd-knop__spinner" hidden aria-hidden="true"></span>
+      </button>
+    </form>
+    <p class="sd-melding" id="sd-melding" role="alert" hidden></p>
+  </div>
+  <div class="sd-kop__lagen" aria-hidden="true">
+    {{KLEURSTRIP}}
+  </div>
+</section>
+
+<div id="sd-uitkomst" class="sd-uitkomst" hidden>
+
+  <!-- ================= CONCLUSIE ================= -->
+  <section class="sd-paneel sd-paneel--conclusie" aria-labelledby="sd-conclusie-titel">
+    <div class="sd-paneel__kop">
+      <p class="sd-stempel">Uitkomst</p>
+      <h2 id="sd-conclusie-titel" data-sd-veld="locatie">—</h2>
+      <p class="sd-stempel sd-stempel--zwak" data-sd-veld="metagegevens"></p>
+    </div>
+
+    <div class="sd-kerncijfers">
+      <div class="sd-kerncijfer" data-blok="staal">
+        <p class="sd-kerncijfer__label">Draagkrachtig vanaf</p>
+        <p class="sd-kerncijfer__waarde" data-sd-veld="staalDiepte">—</p>
+        <p class="sd-kerncijfer__voet" data-sd-veld="staalToelichting"></p>
+      </div>
+      <div class="sd-kerncijfer" data-blok="paal">
+        <p class="sd-kerncijfer__label">Vaste zandlaag vanaf</p>
+        <p class="sd-kerncijfer__waarde" data-sd-veld="paalDiepte">—</p>
+        <p class="sd-kerncijfer__voet" data-sd-veld="paalToelichting"></p>
+      </div>
+      <div class="sd-kerncijfer" data-blok="slap">
+        <p class="sd-kerncijfer__label">Slap pakket bovenin</p>
+        <p class="sd-kerncijfer__waarde" data-sd-veld="slapDikte">—</p>
+        <p class="sd-kerncijfer__voet">klei en/of veen boven de draagkrachtige laag</p>
+      </div>
+      <div class="sd-kerncijfer sd-kerncijfer--zacht" data-blok="afstand">
+        <p class="sd-kerncijfer__label">Dichtstbijzijnde meting</p>
+        <p class="sd-kerncijfer__waarde" data-sd-veld="afstand">—</p>
+        <p class="sd-kerncijfer__voet" data-sd-veld="afstandToelichting"></p>
+      </div>
+    </div>
+
+    <ul class="sd-advies" data-sd-veld="advies"></ul>
+  </section>
+
+  <!-- ================= SONDEERSTAAT ================= -->
+  <section class="sd-paneel sd-paneel--meting" aria-labelledby="sd-meting-titel">
+    <div class="sd-meting__kop">
+      <div>
+        <p class="sd-stempel sd-stempel--licht">Sondeerstaat</p>
+        <h2 id="sd-meting-titel">Conusweerstand tegen diepte</h2>
+      </div>
+      <div class="sd-tabs" id="sd-tabs" role="tablist" aria-label="Beschikbare sonderingen"></div>
+    </div>
+
+    <div class="sd-staat">
+      <div class="sd-staat__lineaal" id="sd-lineaal" aria-hidden="true"></div>
+
+      <div class="sd-staat__lagen" id="sd-lagenkolom">
+        <p class="sd-staat__koplabel">Grondslag</p>
+        <div class="sd-lagenbalk" id="sd-lagenbalk"></div>
+      </div>
+
+      <div class="sd-staat__grafiek">
+        <p class="sd-staat__koplabel">q<sub>c</sub> in MPa</p>
+        <div class="sd-grafiek" id="sd-grafiekhouder">
+          <canvas id="sd-grafiek" role="img" aria-label="Grafiek van de conusweerstand tegen de diepte"></canvas>
+          <div class="sd-grafiek__marker" id="sd-markerStaal" hidden><span></span></div>
+          <div class="sd-grafiek__marker sd-grafiek__marker--paal" id="sd-markerPaal" hidden><span></span></div>
+          <div class="sd-grafiek__leesbalk" id="sd-leesbalk" hidden></div>
+        </div>
+        <output class="sd-leeswaarde" id="sd-leeswaarde" aria-live="off"></output>
+      </div>
+    </div>
+
+    <table class="sd-lagentabel">
+      <caption>Grondlagen volgens de gekozen sondering (indicatieve classificatie uit q<sub>c</sub> en het wrijvingsgetal)</caption>
+      <thead>
+        <tr><th scope="col">Van</th><th scope="col">Tot</th><th scope="col">Dikte</th><th scope="col">Grondsoort</th><th scope="col">Gem. q<sub>c</sub></th><th scope="col">Draagkracht</th></tr>
+      </thead>
+      <tbody id="sd-lagentabel"></tbody>
+    </table>
+  </section>
+
+  <!-- ================= SITUATIE ================= -->
+  <section class="sd-paneel sd-paneel--situatie" aria-labelledby="sd-situatie-titel">
+    <div class="sd-paneel__kop">
+      <p class="sd-stempel">Situatie</p>
+      <h2 id="sd-situatie-titel">Sonderingen rond uw locatie</h2>
+    </div>
+
+    <div class="sd-situatie">
+      <div class="sd-schets" id="sd-schetshouder">
+        <svg id="sd-schets" viewBox="0 0 320 320" role="img" aria-label="Schets met de omliggende sondeerlocaties"></svg>
+        <button type="button" class="sd-knop sd-knop--klein" id="sd-kaartknop">Op de kaart bekijken</button>
+        <div class="sd-kaart" id="sd-kaart" hidden></div>
+      </div>
+      <ol class="sd-metinglijst" id="sd-metinglijst"></ol>
+    </div>
+  </section>
+
+  <!-- ================= AANVRAAG ================= -->
+  <section class="sd-paneel sd-paneel--vraag" aria-labelledby="sd-vraag-titel">
+    <p class="sd-stempel">Volgende stap</p>
+    <h2 id="sd-vraag-titel">Wij regelen de sondering op úw perceel</h2>
+    <p class="sd-vraag__intro">
+      Openbare sonderingen geven een goed eerste beeld, maar bij een aanbouw vraagt de gemeente een
+      sondering op de bouwlocatie zelf — meestal twee. Wij laten die uitvoeren, laten de fundering
+      berekenen en verwerken het resultaat direct in de constructieberekening en de
+      omgevingsvergunning.
+    </p>
+
+    <form class="sd-vraagform" id="sd-vraagform">
+      <div class="sd-rij">
+        <label>Naam<input type="text" name="naam" required autocomplete="name"></label>
+        <label>E-mail<input type="email" name="email" required autocomplete="email"></label>
+      </div>
+      <div class="sd-rij">
+        <label>Telefoon <span class="sd-optioneel">optioneel</span><input type="tel" name="telefoon" autocomplete="tel"></label>
+        <label>Adres bouwlocatie<input type="text" name="adres" id="sd-vraagAdres" required></label>
+      </div>
+      <label>Waar gaat het om?
+        <textarea name="toelichting" rows="3" placeholder="Bijvoorbeeld: aanbouw 4 x 6 m aan de achterzijde, jaren-30 woning."></textarea>
+      </label>
+      <div class="sd-vraagform__voet">
+        <button type="submit" class="sd-knop sd-knop--primair">Sondering aanvragen</button>
+        <p class="sd-hint">Wij gebruiken uw gegevens alleen om op deze aanvraag te reageren.</p>
+      </div>
+      <p class="sd-melding" id="sd-vraagmelding" role="alert" hidden></p>
+    </form>
+  </section>
+</div>
+
+<section class="sd-uitleg">
+  <div class="sd-uitleg__binnen">
+    <h2>Hoe deze bodemcheck werkt</h2>
+    <div class="sd-uitleg__grid">
+      <article>
+        <p class="sd-stempel">01</p>
+        <h3>Wat is een sondering?</h3>
+        <p>Een sondeerwagen drukt een stalen stang met een kegelvormige punt (de conus) de grond in en meet
+          continu hoeveel weerstand die punt ondervindt. Door veen glijdt de conus bijna zonder tegendruk;
+          door vast zand kost het tientallen megapascals. Die weerstandslijn is de sondeerstaat en verraadt de
+          hele bodemopbouw tot soms dertig meter diep.</p>
+      </article>
+      <article>
+        <p class="sd-stempel">02</p>
+        <h3>Waarom is dit openbaar?</h3>
+        <p>Sinds de Wet basisregistratie ondergrond zijn overheden verplicht sondeergegevens aan te leveren
+          aan de BRO, en is die registratie voor iedereen kosteloos toegankelijk. Elke wegverbreding,
+          rioolvervanging en nieuwbouwwijk levert zo metingen op waar u nu van meeprofiteert.</p>
+      </article>
+      <article>
+        <p class="sd-stempel">03</p>
+        <h3>Wat betekent q<sub>c</sub>?</h3>
+        <p>De conusweerstand q<sub>c</sub> in megapascal. Grofweg: onder 1 MPa is veen of zeer slappe klei,
+          1 tot 5 MPa klei en leem, 5 tot 12 MPa los tot matig vast zand, en boven 12 MPa het vaste zand
+          waarin paalpunten worden gezet. Het wrijvingsgetal helpt onderscheiden of een lage waarde klei of
+          los zand is.</p>
+      </article>
+      <article>
+        <p class="sd-stempel">04</p>
+        <h3>Waar het ophoudt</h3>
+        <p>Een sondering is een puntmeting. Vijftig meter verderop kan een oude sloot, een zandbaan of een
+          vergeten kelder liggen. Ook zegt de bodem niets over de fundering van uw bestaande woning, en juist
+          het verschil tussen oud en nieuw veroorzaakt scheuren. Gebruik deze pagina om te wéten wat u kunt
+          verwachten, niet om een fundering op te baseren.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sd-voet">
+  <div class="sd-voet__binnen">
+    <p class="sd-stempel">Verantwoording</p>
+    <p>
+      Sondeergegevens: Basisregistratie Ondergrond (BRO), Ministerie van Binnenlandse Zaken en
+      Koninkrijksrelaties / TNO Geologische Dienst Nederland. Adresgegevens: PDOK Locatieserver.
+      Beide bronnen zijn open data en worden hier onbewerkt opgehaald; de indeling in grondsoorten en de
+      funderingsindicatie zijn onze eigen interpretatie.
+    </p>
+    <p class="sd-voet__disclaimer">
+      Deze pagina geeft een <strong>indicatie</strong> en is geen geotechnisch advies. Aan de weergegeven
+      dieptes kunnen geen rechten worden verleend. Voor een fundering is een sondering op de bouwlocatie en
+      een berekening volgens NEN 9997-1 (Eurocode 7) nodig.
+    </p>
+  </div>
+</section>
+
+</div><!-- /.sondeertool-app -->
+
+<script>
+  window.SONDEERTOOL = { basisPad: "{{BASISPAD}}" };
+</script>
+<script src="{{ASSETS}}/sondeertool.js" defer></script>
+
+{{VOET}}
+
+</body>
+</html>

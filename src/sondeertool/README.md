@@ -45,31 +45,46 @@ kijk of de JSON-structuur afwijkt van wat de walk verwacht.
 
 ## Snel draaien
 
-Zie **INSTALLEREN.md** voor het inhangen. Lokaal bekijken zonder de site aan te
-raken, vanuit je projectroot:
+Inbouwen is één regel; zie **INSTALLEREN.md**. Boven de laatste regel van je
+`http.createServer`-handler:
+
+```js
+if (await require('./src/sondeertool').handle(req, res, url)) return;
+```
+
+Lokaal bekijken zonder de site aan te raken, vanuit je projectroot:
 
 ```bash
 BRO_MOCK=1 node src/sondeertool/tools/preview.js
 # http://localhost:3777/bodemcheck
 ```
 
-Zonder `BRO_MOCK` gaat hij live naar de BRO en PDOK.
-
 ```bash
 node --test src/sondeertool/test/*.test.js          # 13 tests
 node src/sondeertool/test/fixtures/maak-fixture.js  # fixture opnieuw genereren
 ```
 
-Geen nieuwe dependencies: alleen `express` en `ejs` die je al hebt.
+Geen dependencies. Geen framework. Alleen ingebouwde Node-modules, net als je
+eigen `server.js`.
 
----
+## Hoe het is opgebouwd
 
-## Inbouwen
+```
+src/sondeertool/
+  index.js            handle() — dit is het enige dat je require't
+  pagina.html         het paginatemplate, met eigen {{placeholders}}
+  assets/             stylesheet en client-JS, door de module zelf uitgeleverd
+  services/           broClient, cptParser, geocode, interpret, mockBro, rd
+  utils/cache.js
+  sql/                optionele tabellen voor logging en aanvragen
+  test/               13 tests + gegenereerde IMBRO-fixture
+  tools/preview.js    lokaal bekijken, nooit deployen
+```
 
-Staat in **INSTALLEREN.md**, in vijf stappen. Kort: alles zit in
-`src/sondeertool/`, je maakt één pagina-view die het fragment include't, en je
-zet één `app.use`-regel in je bestaande app. Er hoort niets in je projectroot
-te veranderen.
+De module raakt niets buiten deze map en heeft geen framework, template-engine,
+database of omgevingsvariabele nodig. `handle()` geeft false terug voor elk
+verzoek dat niet onder het eigen pad valt, dus je bestaande routing blijft
+volledig intact.
 
 ## Instellingen
 
@@ -83,11 +98,13 @@ Alles heeft een werkende standaardwaarde; niets is verplicht.
 | `BRO_TIMEOUT_MS` | `20000` | een sondeer-XML kan enkele MB zijn |
 | `SONDEER_MAX_DETAILS` | `3` | hoeveel sonderingen volledig worden uitgelezen |
 | `PDOK_LOCATIESERVER` | `https://api.pdok.nl/bzk/locatieserver/search/v3_1` | adres opzoeken |
-| `DATABASE_URL` | — | alleen voor logging en aanvragen |
+| `DATABASE_URL` | — | niet gebruikt door de module; geef zelf een `pool` mee |
 
 ---
 
 ## Endpoints
+
+Alle routes zijn relatief aan `instellingen.pad`, standaard `/bodemcheck`.
 
 | Route | Doel |
 | --- | --- |
@@ -96,6 +113,7 @@ Alles heeft een werkende standaardwaarde; niets is verplicht.
 | `GET /api/analyse?q=` of `?lat=&lon=` | de volledige analyse |
 | `GET /api/sondering/:broId` | één sondering, volledig |
 | `POST /api/aanvraag` | aanvraagformulier |
+| `GET /assets/sondeertool.css` en `.js` | door de module zelf uitgeleverd |
 
 Rate limiting zit erin: 20 per minuut en 120 per uur per IP. Dat is er niet om
 jouw bezoekers te hinderen maar om te voorkomen dat jouw server als
@@ -104,7 +122,7 @@ scrape-proxy naar de BRO wordt gebruikt.
 Caching: zoekresultaten 12 uur, opgehaalde sonderingen 30 dagen, adressen 7
 dagen — in het geheugen van het proces. Een sondering uit 2019 verandert nooit
 meer, dus dat mag agressief. Herstart de container en de cache is leeg; wil je
-dat voorkomen, gebruik dan de tabel `sondeer_cache` uit de SQL.
+dat voorkomen, gebruik dan de tabel `sondeer_cache` uit `sql/001_sondeertool.sql`.
 
 ---
 
