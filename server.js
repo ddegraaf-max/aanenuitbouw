@@ -56,14 +56,14 @@ function checkAuth(req) {
   return mismatch === 0;
 }
 
-function readJsonBody(req) {
+function readJsonBody(req, maxBytes = 100000) {
   return new Promise((resolve, reject) => {
     let body = '';
     let aborted = false;
     req.on('data', chunk => {
       if (aborted) return;
       body += chunk;
-      if (body.length > 100000) {
+      if (body.length > maxBytes) {
         aborted = true;
         reject(new Error('Body te groot'));
       }
@@ -206,6 +206,77 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000).unref();
 
+// ---- Rate limiting op offerteaanvragen ----
+// Stond er niet, en met fotobijlagen erbij is dat een groter probleem: elke
+// aanvraag verstuurt twee e-mails via Resend en kan enkele megabytes bevatten.
+const _quoteSubmits = new Map(); // ip -> { count, reset }
+function quoteAllowed(ip) {
+  const now = Date.now();
+  const WINDOW = 60 * 60 * 1000; // een uur
+  const MAX = 6;
+  const entry = _quoteSubmits.get(ip);
+  if (!entry || now > entry.reset) {
+    _quoteSubmits.set(ip, { count: 1, reset: now + WINDOW });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= MAX;
+}
+
+// Toegestane fototypes en grenzen. De browser verkleint al naar maximaal
+// 1600 px en JPEG-kwaliteit 0,82, dus in de praktijk blijft een foto onder de
+// 500 kB. Deze grenzen zijn het vangnet als iemand het verzoek zelf opbouwt.
+const FOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const FOTO_MAX_AANTAL = 3;
+const FOTO_MAX_BYTES = 4 * 1024 * 1024;
+const QUOTE_BODY_MAX = 14 * 1024 * 1024;
+
+/** Controleert en normaliseert de meegestuurde foto's. */
+function schoonFotos(ruw) {
+  if (!Array.isArray(ruw)) return [];
+  const uit = [];
+  for (const foto of ruw.slice(0, FOTO_MAX_AANTAL)) {
+    if (!foto || typeof foto !== 'object') continue;
+    const type = String(foto.type || '');
+    const data = String(foto.data || '');
+    if (!FOTO_TYPES.includes(type)) continue;
+    if (!/^[A-Za-z0-9+/=]+$/.test(data)) continue;          // alleen base64
+    if (data.length * 0.75 > FOTO_MAX_BYTES) continue;       // te groot
+    const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+    uit.push({
+      filename: `achterzijde-${uit.length + 1}.${ext}`,
+      type,
+      data,
+      bytes: Math.round(data.length * 0.75),
+    });
+  }
+  return uit;
+}
+
+/** Alleen http(s)-adressen, bijvoorbeeld een Funda-link. */
+function schoonWebadres(ruw) {
+  const tekst = oneLine(ruw).slice(0, 300);
+  if (!tekst) return '';
+  if (!/^https?:\/\/[^\s]+\.[^\s]{2,}/i.test(tekst)) return '';
+  return tekst;
+}
+
+/** '2026-09' of 'flexibel'; al het andere wordt genegeerd. */
+function schoonStartmaand(ruw) {
+  const tekst = oneLine(ruw).slice(0, 20);
+  if (tekst === 'flexibel') return 'flexibel';
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test(tekst) ? tekst : '';
+}
+
+function startmaandLabel(waarde) {
+  if (waarde === 'flexibel') return 'Flexibel / zo snel mogelijk';
+  if (!waarde) return '';
+  const [jaar, maand] = waarde.split('-');
+  const namen = ['januari', 'februari', 'maart', 'april', 'mei', 'juni',
+    'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+  return `${namen[Number(maand) - 1]} ${jaar}`;
+}
+
 // HTML-escape om injectie in de e-mail te voorkomen
 function esc(str) {
   return String(str == null ? '' : str)
@@ -246,6 +317,13 @@ function buildQuoteEmail(data) {
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">E-mail</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.email)}</td></tr>
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Telefoon</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.phone) || '—'}</td></tr>
         </table>
+        ${(data.startMonth || data.listingUrl || (data.photos && data.photos.length)) ? `
+        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Woning en planning</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+          ${data.startMonth ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Gewenste start</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(startmaandLabel(data.startMonth))}${data.startMonthStatus ? ' — ' + esc(data.startMonthStatus) : ''}</td></tr>` : ''}
+          ${data.listingUrl ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Woning online</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;"><a href="${esc(data.listingUrl)}" style="color:#1E4FC7;">${esc(data.listingUrl)}</a></td></tr>` : ''}
+          ${(data.photos && data.photos.length) ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Foto's achterzijde</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${data.photos.length} bijgevoegd als bijlage</td></tr>` : ''}
+        </table>` : ''}
         ${data.message ? `<h2 style="font-size:15px;color:#1A2540;margin:0 0 8px;">Bericht</h2><p style="font-size:14px;color:#333;line-height:1.6;background:#f7f9fb;padding:12px 16px;border-radius:8px;margin:0 0 24px;">${esc(data.message)}</p>` : ''}
         <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Configuratie</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
@@ -262,6 +340,10 @@ function buildQuoteEmail(data) {
   const lines = rows.map(r => `${r.label}: ${r.value}`).join('\n');
   const text = `Nieuwe offerte-aanvraag via AanEnUitbouw.nl\n\n` +
     `Naam: ${data.name}\nE-mail: ${data.email}\nTelefoon: ${data.phone || '—'}\n\n` +
+    (data.startMonth ? `Gewenste start: ${startmaandLabel(data.startMonth)}${data.startMonthStatus ? ' (' + data.startMonthStatus + ')' : ''}\n` : '') +
+    (data.listingUrl ? `Woning online: ${data.listingUrl}\n` : '') +
+    ((data.photos && data.photos.length) ? `Foto's achterzijde: ${data.photos.length} als bijlage\n` : '') +
+    ((data.startMonth || data.listingUrl || (data.photos && data.photos.length)) ? '\n' : '') +
     (data.message ? `Bericht:\n${data.message}\n\n` : '') +
     `Configuratie:\n${lines}\nIndicatieve totaalprijs: ${cfg.total}\n`;
 
@@ -289,6 +371,7 @@ function buildCustomerEmail(data) {
         <p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;">
           Hieronder vindt u een overzicht van de configuratie die u heeft samengesteld. De genoemde prijs is een richtprijs — na een vrijblijvend gesprek en eventueel een opname ter plaatse stellen we een definitieve offerte op.
         </p>
+        ${data.startMonth ? `<p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;padding:14px 18px;background:#eef3fd;border-radius:10px;">Uw voorkeur voor de start van de werkzaamheden: <strong>${esc(startmaandLabel(data.startMonth))}</strong>. Wij houden daar in de planning rekening mee en laten u weten wat haalbaar is.</p>` : ''}
         <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Uw configuratie</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           ${rowsHtml}
@@ -309,6 +392,7 @@ function buildCustomerEmail(data) {
   const lines = rows.map(r => `${r.label}: ${r.value}`).join('\n');
   const text = `Bedankt voor uw aanvraag${firstName ? ', ' + firstName : ''}!\n\n` +
     `We hebben uw configuratie ontvangen en nemen zo snel mogelijk contact met u op.\n\n` +
+    (data.startMonth ? `Uw voorkeur voor de start: ${startmaandLabel(data.startMonth)}\n\n` : '') +
     `Uw configuratie:\n${lines}\nIndicatieve totaalprijs: ${cfg.total}\n\n` +
     `De genoemde prijs is een richtprijs. Na een vrijblijvend gesprek stellen we een definitieve offerte op.\n\n` +
     `Vragen? Bel ons op +31 646 150 160.\n\n` +
@@ -326,7 +410,8 @@ async function _sendOnce(payload, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    // Adres instelbaar zodat de verzendweg te testen is zonder echte mail.
+    const res = await fetch(process.env.RESEND_API_URL || 'https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
@@ -366,13 +451,22 @@ async function sendEmail(payload) {
 async function sendQuoteEmails(data) {
   // 1. Interne notificatie naar het bedrijf (kritiek — fout hierop laat de hele aanvraag falen)
   const internal = buildQuoteEmail(data);
+
+  // Foto's gaan alleen naar het bedrijf mee, niet terug naar de klant: die heeft
+  // ze zelf al, en het houdt de bevestigingsmail klein en betrouwbaar.
+  const bijlagen = (data.photos || []).map(foto => ({
+    filename: foto.filename,
+    content: foto.data,
+  }));
+
   await sendEmail({
     from: QUOTE_FROM,
     to: [QUOTE_TO],
     reply_to: data.email,
-    subject: `Offerte-aanvraag van ${oneLine(data.name)}`,
+    subject: `Offerte-aanvraag van ${oneLine(data.name)}${data.startMonth ? ' — start ' + startmaandLabel(data.startMonth) : ''}`,
     html: internal.html,
     text: internal.text,
+    ...(bijlagen.length ? { attachments: bijlagen } : {}),
   });
 
   // 2. Bevestiging naar de klant (best-effort — als dit faalt is de aanvraag alsnog binnen)
@@ -481,8 +575,12 @@ const server = http.createServer(async (req, res) => {
       console.error('Quote endpoint aangeroepen maar RESEND_API_KEY ontbreekt');
       return jsonResponse(res, 503, { error: 'E-mailverzending is niet geconfigureerd' });
     }
+    if (!quoteAllowed(clientIp(req))) {
+      return jsonResponse(res, 429, { error: 'Te veel aanvragen — probeer het later opnieuw of bel ons direct.' });
+    }
     try {
-      const body = await readJsonBody(req);
+      // Ruimere limiet dan de rest: hier kunnen fotobijlagen in zitten.
+      const body = await readJsonBody(req, QUOTE_BODY_MAX);
       const name = oneLine(body.name).slice(0, 120);
       const email = oneLine(body.email).slice(0, 254);
       const phone = oneLine(body.phone).slice(0, 40);
@@ -500,7 +598,20 @@ const server = http.createServer(async (req, res) => {
         : [];
       const config = { rows, total: oneLine(cfgIn.total).slice(0, 40) };
 
-      await sendQuoteEmails({ name, email, phone, message, config });
+      const startMonth = schoonStartmaand(body.startMonth);
+      const listingUrl = schoonWebadres(body.listingUrl);
+      const photos = schoonFotos(body.photos);
+      const startMonthStatus = oneLine(body.startMonthStatus).slice(0, 40);
+
+      if (photos.length) {
+        const totaal = photos.reduce((som, p) => som + p.bytes, 0);
+        console.log(`Offerte-aanvraag met ${photos.length} foto('s), samen ${Math.round(totaal / 1024)} kB`);
+      }
+
+      await sendQuoteEmails({
+        name, email, phone, message, config,
+        startMonth, startMonthStatus, listingUrl, photos,
+      });
       return jsonResponse(res, 200, { success: true });
     } catch (e) {
       console.error('Quote send error:', e.message);

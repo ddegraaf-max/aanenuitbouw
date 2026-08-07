@@ -1772,6 +1772,55 @@ img, svg { display: block; max-width: 100%; }
   .hero-stat-num { font-size: 23px; }
 }
 
+/* ─── Stap 8: startvoorkeur, foto's en woninglink ─── */
+.c-extra { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.c-extra-kop { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--color-ink); margin-bottom: 6px; }
+.c-optioneel { font-family: var(--font-body); font-weight: 500; font-size: 12px; color: var(--color-mute); letter-spacing: 0.02em; }
+.c-extra-uitleg { font-size: 13.5px; color: var(--color-mute); line-height: 1.6; margin: 0 0 16px; max-width: 62ch; }
+
+.start-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.start-chip {
+  border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: #fff;
+  padding: 10px 8px; text-align: center; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; gap: 2px; transition: border-color .12s, box-shadow .12s;
+}
+.start-chip:hover { border-color: var(--color-primary); }
+.start-chip .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; color: var(--color-ink); }
+.start-chip .m-status { font-size: 11.5px; font-weight: 600; color: var(--color-mute); }
+.start-chip.st-green  { background: #EDFAF1; border-color: #BFE9CC; } .start-chip.st-green .m-status  { color: var(--color-success); }
+.start-chip.st-orange { background: #FEF6EA; border-color: #F3DCB4; } .start-chip.st-orange .m-status { color: #A96A0F; }
+.start-chip.st-red    { background: #FBEDEE; border-color: #F2CCCE; } .start-chip.st-red .m-status    { color: #B4232A; }
+.start-chip.flex { background: var(--color-bg-soft); }
+/* Gekozen maand: dubbele rand in het primair blauw, zodat de keuze ook zichtbaar
+   is voor wie kleuren niet goed onderscheidt. */
+.start-chip.gekozen { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.start-chip.gekozen .m-name::after { content: ' ✓'; color: var(--color-primary); }
+
+.foto-rij { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.foto-thumb { position: relative; width: 104px; height: 104px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-line); }
+.foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-weg {
+  position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0;
+  border-radius: 50%; background: rgba(15,26,46,.78); color: #fff; font-size: 16px;
+  line-height: 1; cursor: pointer;
+}
+.foto-weg:hover { background: #B4232A; }
+.foto-add {
+  width: 104px; height: 104px; border: 1.5px dashed var(--color-line); border-radius: var(--radius-lg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  cursor: pointer; color: var(--color-mute); background: var(--color-bg-soft); text-align: center;
+}
+.foto-add:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.foto-add-plus { font-size: 22px; line-height: 1; font-weight: 300; }
+.foto-add-tekst { font-size: 11.5px; font-weight: 600; padding: 0 6px; }
+.foto-melding { font-size: 12.5px; color: var(--color-mute); margin-top: 8px; min-height: 1em; }
+.foto-melding.fout { color: #B4232A; }
+
+@media (max-width: 520px) {
+  .start-chips { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .foto-thumb, .foto-add { width: 88px; height: 88px; }
+}
+
 /* ---------- Bodemcheck ---------- */
 .bodemcheck-wrap {
   display: grid;
@@ -2694,7 +2743,8 @@ const state = {
   electraBuiten: 0,
   lightBuiten: 0,
   m2Prijs: 4500,
-  contact: { name: '', email: '', phone: '', message: '', consent: false },
+  contact: { name: '', email: '', phone: '', message: '', consent: false,
+             startMonth: '', listingUrl: '', photos: [] },
   submitted: false,
 };
 
@@ -3528,6 +3578,22 @@ function renderStep() {
         <div class="form-field full"><label>E-mailadres</label><input type="email" id="cemail" value="${state.contact.email}" placeholder="naam@voorbeeld.nl"></div>
         <div class="form-field full"><label>Bericht (optioneel)</label><textarea id="cmsg" placeholder="Bijzonderheden over uw woning, gewenste planning, etc.">${state.contact.message}</textarea></div>
       </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Wanneer wilt u starten?</div>
+        <p class="c-extra-uitleg">Onze actuele beschikbaarheid staat hieronder. Kies de maand die u het beste past — bij een volle maand zetten we u op de wachtlijst.</p>
+        ${renderStartMaanden()}
+      </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Foto van de achterzijde <span class="c-optioneel">optioneel</span></div>
+        <p class="c-extra-uitleg">Eén foto van de achtergevel zegt ons meer dan een half uur bellen: we zien de bestaande pui, de dakrand en het niveauverschil. Maximaal drie foto's; ze worden in uw browser verkleind voordat ze worden verstuurd.</p>
+        ${renderFotoKiezer()}
+        <div class="form-field full" style="margin-top:16px">
+          <label>Of een link naar de woning, bijvoorbeeld op Funda</label>
+          <input type="url" id="clisting" value="${escAttr(state.contact.listingUrl)}" placeholder="https://www.funda.nl/...">
+        </div>
+      </div>
       <label class="form-consent"><input type="checkbox" id="cconsent" ${state.contact.consent ? 'checked' : ''}><span>Ik ga akkoord met het privacybeleid en ontvang graag een offerte op basis van bovenstaande configuratie.</span></label>`;
   }
 
@@ -3546,6 +3612,10 @@ function renderStep() {
     document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
     document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
     document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
+    const listing = document.getElementById('clisting');
+    if (listing) listing.addEventListener('input', e => state.contact.listingUrl = e.target.value.trim());
+    const fotoInput = document.getElementById('cfotos');
+    if (fotoInput) fotoInput.addEventListener('change', e => verwerkFotos(e.target.files));
   }
 }
 
@@ -4106,6 +4176,156 @@ function prevStep() {
     document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
+// ─── Stap 8: startvoorkeur, foto's en woninglink ───
+
+// De beschikbaarheid uit /api/planning, gedeeld met het blok op de homepage,
+// zodat de maandkeuze hieronder en dat blok altijd hetzelfde tonen.
+//
+// Staat met opzet HIER, boven het gebruik. Zou deze declaratie verderop in het
+// bestand staan, dan is hij nog niet geïnitialiseerd op het moment dat render()
+// hem aanroept, en valt de hele pagina om met "Cannot access before
+// initialization". Dat is eerder gebeurd en het kost onnodig veel zoektijd.
+let _publicPlanning = null;
+
+function startMaandStatus(ym) {
+  if (!ym || ym === 'flexibel') return '';
+  const planning = (_publicPlanning && _publicPlanning.months) || null;
+  const st = planning ? planning[ym] : null;
+  return st ? MONTH_STATUS_LABEL[st] : '';
+}
+
+function escAttr(v) {
+  return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/**
+ * Maandkeuze met de echte beschikbaarheid uit /api/planning. Zelfde kleuren en
+ * labels als het blok op de homepage en het adminpaneel, zodat er maar één
+ * waarheid is: wat jij in Beschikbaarheid instelt, ziet de klant hier.
+ *
+ * Is er nog geen planning ingesteld, dan tonen we de maanden zonder kleur --
+ * beter een keuze zonder kleurcode dan geen keuze.
+ */
+function renderStartMaanden() {
+  const planning = (_publicPlanning && _publicPlanning.months) || null;
+  const maanden = upcomingMonths(9);
+  const gekozen = state.contact.startMonth;
+
+  const chips = maanden.map(ym => {
+    const st = planning ? planning[ym] : null;
+    const vol = st === 'red';
+    const klassen = ['start-chip'];
+    if (st) klassen.push('st-' + st);
+    if (gekozen === ym) klassen.push('gekozen');
+    if (vol) klassen.push('vol');
+    return `<button type="button" class="${klassen.join(' ')}" onclick="kiesStartMaand('${ym}')"
+      title="${vol ? 'Volgeboekt — u komt op de wachtlijst' : ''}">
+      <span class="m-name">${monthName(ym)}</span>
+      ${st ? `<span class="m-status">${MONTH_STATUS_LABEL[st]}</span>` : ''}
+    </button>`;
+  }).join('');
+
+  const flex = `<button type="button" class="start-chip flex ${gekozen === 'flexibel' ? 'gekozen' : ''}"
+    onclick="kiesStartMaand('flexibel')">
+    <span class="m-name">Flexibel</span><span class="m-status">Zo snel mogelijk</span>
+  </button>`;
+
+  return `<div class="start-chips">${flex}${chips}</div>
+    ${planning ? `<div class="avail-legend" style="margin-top:14px">
+      <span><i class="dot dot-green"></i>Ruimte beschikbaar</span>
+      <span><i class="dot dot-orange"></i>Beperkte ruimte</span>
+      <span><i class="dot dot-red"></i>Volgeboekt — wachtlijst</span>
+    </div>` : ''}`;
+}
+
+function kiesStartMaand(ym) {
+  state.contact.startMonth = state.contact.startMonth === ym ? '' : ym;
+  render();
+}
+
+function renderFotoKiezer() {
+  const fotos = state.contact.photos || [];
+  const thumbs = fotos.map((f, i) => `<div class="foto-thumb">
+    <img src="${f.preview}" alt="Foto ${i + 1} van de achterzijde">
+    <button type="button" class="foto-weg" onclick="verwijderFoto(${i})" aria-label="Foto verwijderen">×</button>
+  </div>`).join('');
+
+  const knop = fotos.length >= 3 ? '' : `<label class="foto-add">
+    <input type="file" id="cfotos" accept="image/jpeg,image/png,image/webp" multiple hidden>
+    <span class="foto-add-plus">+</span>
+    <span class="foto-add-tekst">${fotos.length ? 'Nog een foto' : 'Foto kiezen'}</span>
+  </label>`;
+
+  return `<div class="foto-rij">${thumbs}${knop}</div>
+    <div class="foto-melding" id="fotoMelding"></div>`;
+}
+
+function verwijderFoto(i) {
+  state.contact.photos.splice(i, 1);
+  render();
+}
+
+/**
+ * Leest de gekozen bestanden en verkleint ze in de browser tot maximaal
+ * 1600 px met JPEG-kwaliteit 0,82. Een telefoonfoto van 4 MB wordt daarmee
+ * doorgaans 200 tot 400 kB. Dat is nodig: ongewijzigd zouden drie foto's de
+ * aanvraag te groot maken voor de e-mail.
+ */
+async function verwerkFotos(bestanden) {
+  const melding = document.getElementById('fotoMelding');
+  const zeg = (tekst, soort) => { if (melding) { melding.textContent = tekst; melding.className = 'foto-melding ' + (soort || ''); } };
+  const ruimte = 3 - (state.contact.photos || []).length;
+  if (ruimte <= 0) { zeg('Maximaal drie foto\'s.', 'fout'); return; }
+
+  zeg('Foto\'s verkleinen…');
+  let toegevoegd = 0;
+  for (const bestand of Array.from(bestanden).slice(0, ruimte)) {
+    if (!/^image\/(jpeg|png|webp)$/.test(bestand.type)) { zeg('Alleen JPG, PNG of WEBP.', 'fout'); continue; }
+    if (bestand.size > 25 * 1024 * 1024) { zeg('Die foto is groter dan 25 MB.', 'fout'); continue; }
+    try {
+      const klein = await verkleinFoto(bestand);
+      state.contact.photos.push(klein);
+      toegevoegd++;
+    } catch (e) {
+      zeg('Deze foto kon niet worden gelezen.', 'fout');
+    }
+  }
+  if (toegevoegd) {
+    render();
+    const m2 = document.getElementById('fotoMelding');
+    if (m2) m2.textContent = toegevoegd === 1 ? 'Foto toegevoegd.' : toegevoegd + ' foto\'s toegevoegd.';
+  }
+}
+
+function verkleinFoto(bestand) {
+  return new Promise((klaar, mislukt) => {
+    const lezer = new FileReader();
+    lezer.onerror = () => mislukt(new Error('lezen mislukt'));
+    lezer.onload = () => {
+      const img = new Image();
+      img.onerror = () => mislukt(new Error('geen geldige afbeelding'));
+      img.onload = () => {
+        const MAX = 1600;
+        const schaal = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * schaal));
+        canvas.height = Math.max(1, Math.round(img.height * schaal));
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        klaar({
+          type: 'image/jpeg',
+          data: dataUrl.split(',')[1],
+          preview: dataUrl,
+          bytes: Math.round(dataUrl.length * 0.75),
+        });
+      };
+      img.src = lezer.result;
+    };
+    lezer.readAsDataURL(bestand);
+  });
+}
+
 async function submitConfig() {
   const c = state.contact;
   if (!c.name || !c.email) { alert('Vul a.u.b. uw naam en e-mailadres in.'); return; }
@@ -4124,6 +4344,10 @@ async function submitConfig() {
       rows: buildSummaryRows(),
       total: fmt(calc.total),
     },
+    startMonth: c.startMonth || '',
+    startMonthStatus: startMaandStatus(c.startMonth),
+    listingUrl: c.listingUrl || '',
+    photos: (c.photos || []).map(f => ({ type: f.type, data: f.data })),
   };
 
   try {
@@ -4156,7 +4380,8 @@ function resetConfig() {
     extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
     electra: 0, light: 0,
     electraBuiten: 0, lightBuiten: 0,
-    contact: { name: '', email: '', phone: '', message: '', consent: false },
+    contact: { name: '', email: '', phone: '', message: '', consent: false,
+             startMonth: '', listingUrl: '', photos: [] },
     submitted: false,
   });
   _viewPreset = '3d';
@@ -4633,7 +4858,10 @@ async function loadPublicAvailability() {
   try {
     const res = await fetch('/api/planning');
     if (!res.ok) return; // geen planning ingesteld → blok blijft verborgen
-    renderPublicAvailability(await res.json());
+    _publicPlanning = await res.json();
+    renderPublicAvailability(_publicPlanning);
+    // Staat de bezoeker al op de contactstap, dan de maanden bijwerken.
+    if (STEPS[state.step] && STEPS[state.step].id === 'contact') render();
   } catch (e) { /* stil falen — puur cosmetisch blok */ }
 }
 loadPublicAvailability();

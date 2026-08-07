@@ -1,84 +1,112 @@
-DEPLOY CRASHED — OORZAAK EN OPLOSSING (ronde 17)
-================================================
+STAP 8 UITGEBREID — ronde 18
+============================
 
-DE OORZAAK
+WAT ERBIJ IS GEKOMEN
+====================
+Drie dingen in stap 8 van de configurator, plus de bijbehorende serverkant.
+
+1. GEWENSTE STARTDATUM MET DE ECHTE AGENDA ERBIJ
+------------------------------------------------
+Onder de contactgegevens staat nu een maandkeuze: negen maanden vooruit plus een
+knop "Flexibel / zo snel mogelijk". De kleuren en labels komen rechtstreeks uit
+/api/planning, dus uit wat jij in het adminpaneel onder Beschikbaarheid instelt.
+Eén waarheid: wat jij daar op oranje zet, ziet de klant hier als "Beperkt".
+
+  groen   Beschikbaar
+  oranje  Beperkt
+  rood    Vol — bij aanklikken komt de klant op de wachtlijst
+
+Volle maanden zijn met opzet WEL aan te klikken. Iemand die per se in maart wil
+bouwen is een lead, geen foutmelding. De keuze gaat mee in de mail met het
+statuslabel erbij ("start november 2026 — Beperkte ruimte"), zodat je in de
+onderwerpregel al ziet waar het over gaat.
+
+Is er nog geen planning ingesteld, dan worden de maanden zonder kleur getoond.
+Beter een keuze zonder kleurcode dan geen keuze.
+
+2. FOTO VAN DE ACHTERZIJDE
+--------------------------
+Maximaal drie foto's, met miniaturen en een verwijderknop. De foto's worden IN DE
+BROWSER verkleind naar maximaal 1600 px, JPEG-kwaliteit 0,82. Een telefoonfoto
+van 4 MB wordt daarmee 200 tot 400 kB. Zonder dat verkleinen zou een aanvraag met
+drie foto's te groot zijn voor de e-mail.
+
+Ze worden nergens opgeslagen: ze gaan als bijlage mee in de mail naar
+montage@creditline.nl en verdwijnen daarna uit het geheugen. Dus geen bestanden
+op je volume, geen publieke URL's die kunnen uitlekken, geen opruimwerk.
+
+De klantbevestiging krijgt de foto's NIET mee — die heeft de klant zelf al, en
+het houdt die mail klein en betrouwbaar.
+
+3. LINK NAAR DE WONING
+----------------------
+Een veld voor bijvoorbeeld een Funda-link. Alleen http(s) wordt overgenomen; iets
+als javascript: wordt genegeerd. In de mail staat het als aanklikbare link.
+
+SERVERKANT
 ==========
-Uit je eerdere log:
+Drie blokkades weggenomen en één risico gedicht:
 
-  npm error command failed
-  npm error signal SIGTERM
-
-Bij elke deploy sluit Railway de oude container af met SIGTERM. Dat is normaal.
-Maar jouw startcommando is `npm start`, en npm verpakt `node server.js`. Als npm
-een signaal krijgt, sluit hij af met een foutcode. Railway ziet een niet-nul
-exitcode en stuurt een "Deployment crashed"-mail voor wat in werkelijkheid een
-nette herstart was. Elke deploy = één crashmail.
+  bodylimiet     was 100 kB voor alle verzoeken -> nu 14 MB, maar ALLEEN voor
+                 /api/quote; de rest blijft op 100 kB
+  rate limiting  /api/quote had er geen; nu 6 per uur per IP. Dat was al een
+                 spamrisico en met fotobijlagen erbij een groter probleem:
+                 elke aanvraag verstuurt twee mails
+  validatie      startmaand moet jjjj-mm zijn, webadres moet http(s), foto's
+                 moeten jpeg/png/webp zijn, geldige base64, maximaal 4 MB per
+                 stuk en maximaal drie. Alles wat daar niet aan voldoet wordt
+                 stil weggelaten in plaats van doorgestuurd
+  testbaarheid   het Resend-adres is nu instelbaar via RESEND_API_URL, zodat de
+                 verzendweg te testen is zonder echte mail te sturen
 
 GEMETEN
 =======
-  oude server.js, rechtstreeks gestart, SIGTERM   -> exitcode 143
-  nieuwe server.js, rechtstreeks gestart, SIGTERM -> exitcode 0
-  oude server.js via npm start, SIGTERM           -> exitcode 143
-  nieuwe server.js via npm start, SIGTERM         -> exitcode 143
+Met een nagemaakte Resend die de payload vastlegt in plaats van te versturen:
 
-Die laatste regel is belangrijk, en hij weerlegt wat ik eerst dacht. Ik zei dat
-ik het in de code zou oplossen zodat het niet van een Railway-instelling
-afhangt. Dat is niet waar: met npm ertussen krijgt Node het signaal NIET eens.
-In de log staat de regel "SIGTERM ontvangen" dan helemaal niet -- npm vangt het
-signaal zelf op, sluit af met 143, en het Node-proces eronder wordt gedood.
+  aanvraag met 2 foto's, startmaand en Funda-link
+    HTTP 200
+    interne mail  subject "Offerte-aanvraag van Jan Jansen — start november 2026"
+                  bijlagen achterzijde-1.png, achterzijde-2.png
+                  bevat "Gewenste start", de Funda-link en "bijgevoegd als bijlage"
+    klantmail     geen bijlagen, bevat "voorkeur voor de start"
 
-Er zijn dus TWEE dingen nodig, en de eerste is de belangrijkste.
+  aanvraag met rommel (startMonth 2026-13, javascript:-link, een pdf als foto,
+  ongeldige base64)
+    HTTP 200, en in de mail: geen startmaand, geen javascript:-link, 0 bijlagen
 
-STAP 1 — VERPLICHT: NPM UIT DE KETEN HALEN
-==========================================
-Railway → je service → Settings → Deploy → Custom Start Command:
+  foto van 6 MB naast een geldige kleine foto
+    alleen de geldige komt als bijlage mee, log meldt "1 foto('s)"
 
-    node server.js
+  rate limiting        200 200 200 200 200 429 429 429
+  body van 20 MB       502, en de server blijft draaien
+  planning via admin   opgeslagen en publiek opvraagbaar
 
-Daarmee draait Node als hoofdproces en krijgt het het stopsignaal direct.
-Je package.json hoeft niet te veranderen; het start-script blijft bruikbaar voor
-lokaal gebruik. Bijkomend: de verwarrende "npm warn config production" in je log
-verdwijnt ook.
+Frontend, functies los uitgevoerd:
+  zonder planning   11 chips, geen kleurklassen, geen legenda
+  met planning      rood/oranje/groen komen overeen met de ingestelde maanden
+  kiezen            markering verschijnt, statuslabel wordt meegestuurd,
+                    nogmaals klikken maakt de keuze weer leeg
+  fotokiezer        knop verdwijnt bij drie foto's en komt terug na verwijderen
+  escAttr           aanhalingstekens en < worden onschadelijk gemaakt
 
-STAP 2 — DE CODE: NETJES AFSLUITEN
-==================================
-In server.js staat nu een afhandeling voor SIGTERM en SIGINT:
+EEN VAL DIE IK ONDERWEG HEB WEGGEHAALD
+======================================
+_publicPlanning stond gedeclareerd op regel 213.000 terwijl renderStartMaanden
+hem op regel 187.000 gebruikt. Dat werkt vandaag, omdat de eerste render()
+daarna komt. Maar verplaatst iemand ooit een render()-aanroep naar boven, of
+wordt de contactstap ooit direct getoond, dan valt de hele pagina om met "Cannot
+access before initialization" -- precies de fout die vannacht uren kostte. De
+declaratie staat nu boven het gebruik, met een commentaar waarom.
 
-  - lopende verzoeken worden afgemaakt (server.close)
-  - inactieve keep-alive-verbindingen gaan direct dicht
-  - daarna exitcode 0
-  - noodrem: hangt er toch iets, dan na acht seconden alsnog met code 0, want
-    Railway wacht niet veel langer voordat het proces alsnog wordt gedood
-
-Zonder stap 1 doet dit niets, want dan bereikt het signaal Node niet. Met stap 1
-erbij is de afsluiting nette én snel.
-
-Ook toegevoegd: afhandeling van uncaughtException en unhandledRejection. Die
-laten het proces WEL stoppen met code 1 -- een echte fout moet als crash
-zichtbaar blijven -- maar schrijven eerst de volledige stack naar de log. Anders
-verdwijnt de oorzaak in de opstartruis en heb je aan de crashmail niets.
-
-WAT JE HIERNA ZIET
-==================
-  normale deploy  ->  "SIGTERM ontvangen — server sluit af, lopende verzoeken
-                      worden afgemaakt" en "Alle verbindingen afgehandeld",
-                      GEEN crashmail
-  echte fout      ->  crashmail, en in de log "ONVERWACHTE FOUT — server stopt"
-                      met de volledige stack
-
-Daarmee is het verschil tussen een herstart en een storing weer uit je
-monitoring te lezen. Dat was het punt: een melding die altijd afgaat, negeer je
-op een dag precies wanneer het wel echt is.
-
-MOCHT HET NA STAP 1 TOCH TERUGKOMEN
-===================================
-Dan is het geen rollover maar een echte crash. Kijk in Railway bij Deployments
-naar het tijdstip en vergelijk dat met de deploy-log. Staat er
-"ONVERWACHTE FOUT — server stopt" met een stack, stuur die dan; daar staat dan
-precies in welk bestand en op welke regel het misgaat.
+CONTROLES NA DE WIJZIGING
+=========================
+  4 scriptblokken geldig, JSON-LD geldig
+  381 div's open en dicht, 35 buttons, 10 labels
+  server.js geldig
+  56 sondeertool-tests, alle geslaagd
 
 BESTANDEN
 =========
-  server.js          nette afsluiting + foutafhandeling toegevoegd
-  configurator.html  ONGEWIJZIGD sinds v13
+  server.js          validatie, limieten, bijlagen en beide e-mails
+  configurator.html  stap 8, stijl en de nieuwe functies
   src/sondeertool/   ONGEWIJZIGD sinds v16
