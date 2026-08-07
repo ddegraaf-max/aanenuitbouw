@@ -1,112 +1,132 @@
-STAP 8 UITGEBREID — ronde 18
-============================
+WONINGCHECK + BOUWTEKENINGEN — ronde 19
+=======================================
 
-WAT ERBIJ IS GEKOMEN
-====================
-Drie dingen in stap 8 van de configurator, plus de bijbehorende serverkant.
+WAT ER IS GEBOUWD
+=================
+Twee dingen, zoals gevraagd.
 
-1. GEWENSTE STARTDATUM MET DE ECHTE AGENDA ERBIJ
-------------------------------------------------
-Onder de contactgegevens staat nu een maandkeuze: negen maanden vooruit plus een
-knop "Flexibel / zo snel mogelijk". De kleuren en labels komen rechtstreeks uit
-/api/planning, dus uit wat jij in het adminpaneel onder Beschikbaarheid instelt.
-Eén waarheid: wat jij daar op oranje zet, ziet de klant hier als "Beperkt".
+1. DE VRAAG OVER BOUWTEKENINGEN IN STAP 8
+-----------------------------------------
+Nieuw in de contactstap:
 
-  groen   Beschikbaar
-  oranje  Beperkt
-  rood    Vol — bij aanklikken komt de klant op de wachtlijst
+  - een veld "Adres van de woning". Dat ontbrak volledig in de configurator,
+    en zonder adres is er geen gemeente en dus geen archieflink. Voor een echte
+    offerte wilde je het toch al.
+  - bij het verlaten van dat veld wordt het adres gecontroleerd en de gemeente
+    opgezocht. De bezoeker ziet "Gevonden: Poststraat 5, 1401EX Bussum
+    (gemeente Gooise Meren)" of een nette melding dat het adres niet klopt.
+  - de vraag "Heeft u bouwtekeningen van de woning?" met drie antwoorden, elk
+    met een ander gevolg voor jullie:
 
-Volle maanden zijn met opzet WEL aan te klikken. Iemand die per se in maart wil
-bouwen is een lead, geen foutmelding. De keuze gaat mee in de mail met het
-statuslabel erbij ("start november 2026 — Beperkte ruimte"), zodat je in de
-onderwerpregel al ziet waar het over gaat.
+      Ja, die heb ik          -> klant stuurt ze per e-mail
+      Nee, wil ik opvragen    -> directe link naar het bouwarchief van ZIJN
+                                 gemeente verschijnt in het formulier
+      Nee, en dat lukt niet   -> jullie weten dat een opname nodig is en kunnen
+                                 dat in de offerte meenemen
 
-Is er nog geen planning ingesteld, dan worden de maanden zonder kleur getoond.
-Beter een keuze zonder kleurcode dan geen keuze.
+  Alles gaat mee in de mail. De onderwerpregel is nu:
+    "Offerte-aanvraag Jan Jansen — Poststraat 5, 1401 EX Bussum — start november 2026"
 
-2. FOTO VAN DE ACHTERZIJDE
---------------------------
-Maximaal drie foto's, met miniaturen en een verwijderknop. De foto's worden IN DE
-BROWSER verkleind naar maximaal 1600 px, JPEG-kwaliteit 0,82. Een telefoonfoto
-van 4 MB wordt daarmee 200 tot 400 kB. Zonder dat verkleinen zou een aanvraag met
-drie foto's te groot zijn voor de e-mail.
+2. DE WONINGCHECK, EIGEN PAGINA OP /woningcheck
+-----------------------------------------------
+Zelfde opzet als de bodemcheck: framework-vrij, geen dependencies, één regel in
+server.js. Vijf open bronnen zonder sleutel:
 
-Ze worden nergens opgeslagen: ze gaan als bijlage mee in de mail naar
-montage@creditline.nl en verdwijnen daarna uit het geheugen. Dus geen bestanden
-op je volume, geen publieke URL's die kunnen uitlekken, geen opruimwerk.
+  PDOK Locatieserver    adres -> coördinaten, gemeente, BAG-identificaties
+  BAG via PDOK          bouwjaar, woonoppervlak (NEN 2580), pandcontour
+  BRK Kadastrale kaart  perceeloppervlakte en -grens (CC-BY Kadaster NL)
+  3D BAG (TU Delft)     goot- en nokhoogte, aantal bouwlagen
+  PDOK luchtfoto        drie uitsnedes van bovenaf, tot 3,2 cm per pixel
 
-De klantbevestiging krijgt de foto's NIET mee — die heeft de klant zelf al, en
-het houdt die mail klein en betrouwbaar.
+Elke bron is LOS optioneel. Valt er één weg, dan verschijnt de rest met een
+melding erbij welke bron ontbrak. Vijf bronnen die allemaal moeten werken is
+vijf keer zo veel kans op een lege pagina, en dat wilde ik niet.
 
-3. LINK NAAR DE WONING
-----------------------
-Een veld voor bijvoorbeeld een Funda-link. Alleen http(s) wordt overgenomen; iets
-als javascript: wordt genegeerd. In de mail staat het als aanklikbare link.
+DE VERTALING NAAR JULLIE WERK
+=============================
+De pagina zegt niet alleen wat de cijfers zijn, maar wat ze betekenen:
 
-SERVERKANT
-==========
-Drie blokkades weggenomen en één risico gedicht:
+  - de kortste zijde van het pand is de vermoedelijke gevelbreedte, dus de
+    maximale doorbraak minus circa 30 cm per zijde voor de stalen kolommen
+  - uit de bouwlagen en de goothoogte volgt of er boven die doorbraak een
+    verdiepingsvloer zit of alleen een dak. Dat bepaalt de zwaarte van de ligger
+    sterker dan de overspanning zelf
+  - het bouwjaar zegt wat over vloertype en of de achtergevel dragend is
+  - de vrije ruimte tussen pand en perceelgrens begrenst de aanbouwdiepte
+  - het bebouwingspercentage, met een waarschuwing boven de 55%, omdat
+    omgevingsplannen daar vaak een maximum aan stellen
 
-  bodylimiet     was 100 kB voor alle verzoeken -> nu 14 MB, maar ALLEEN voor
-                 /api/quote; de rest blijft op 100 kB
-  rate limiting  /api/quote had er geen; nu 6 per uur per IP. Dat was al een
-                 spamrisico en met fotobijlagen erbij een groter probleem:
-                 elke aanvraag verstuurt twee mails
-  validatie      startmaand moet jjjj-mm zijn, webadres moet http(s), foto's
-                 moeten jpeg/png/webp zijn, geldige base64, maximaal 4 MB per
-                 stuk en maximaal drie. Alles wat daar niet aan voldoet wordt
-                 stil weggelaten in plaats van doorgestuurd
-  testbaarheid   het Resend-adres is nu instelbaar via RESEND_API_URL, zodat de
-                 verzendweg te testen is zonder echte mail te sturen
+En steeds erbij: registraties beschrijven de woning op papier. De werkelijke
+overspanning, het vloertype en de fundering staan er niet in, en niet-gemelde
+verbouwingen al helemaal niet. Een opname blijft nodig; deze pagina maakt hem
+korter.
+
+OVER DE BOUWTEKENINGEN, EERLIJK
+===============================
+Er is geen landelijke bron en er komt er ook geen. Drie redenen die niet weggaan:
+auteursrecht van de architect, privacy van plattegronden, en het feit dat veel
+gemeenten volledige dossiers alleen aan de eigenaar verstrekken. Dat laatste
+werkt in jullie voordeel — de aanvrager IS de eigenaar.
+
+De lijst met archieven is met de hand samengesteld voor 25 gemeenten waar het
+meeste werk ligt. Staat een gemeente er niet in, dan krijgt de bezoeker een
+instructie met zijn eigen gemeentenaam erin in plaats van een dode link.
+Uitbreiden is één regel in services/gemeentearchief.js. Controleer die links een
+keer per jaar; gemeenten verbouwen hun sites.
+
+WAT IK NIET HEB KUNNEN TESTEN
+=============================
+De vijf echte API's. Mijn omgeving mag alleen naar npm en GitHub. Alles is
+getest tegen een mock en met defensieve veldnamen: de attribuutnamen van de BAG
+OGC API, de BRK-WFS en 3D BAG worden niet op vaste paden gelezen maar met een
+lijst kandidaten. Bij de bodemcheck bleek dat precies het verschil tussen werken
+en stil nul resultaten.
+
+Daarom zit het diagnose-endpoint er DEZE keer vanaf de eerste regel in:
+
+  /woningcheck/api/diagnose?sleutel=<jouw sleutel>
+
+Die loopt de vijf bronnen los na en toont per bron de tijd, of het lukte, en
+welke veldnamen er werkelijk in het antwoord zitten. Werkt iets niet, dan staat
+het antwoord daarin en niet in mijn vermoedens.
+
+De sleutel is dezelfde als die van de bodemcheck (SONDEER_SLEUTEL), of wordt bij
+het opstarten gegenereerd en in de Railway-log gezet.
 
 GEMETEN
 =======
-Met een nagemaakte Resend die de payload vastlegt in plaats van te versturen:
+  bestaande routes:  /  /project  /api/health  /bodemcheck  -> alle 200
+  onbekende route:   404, jouw eigen pagina
+  /woningcheck                          200, 7,6 kB
+  asset-URL met versiestempel           woningcheck.js?v=8740b566b5
+  /woningcheck/assets/*.css en *.js     200
+  /woningcheck/api/analyse              200, alle velden gevuld, 3 luchtfotos,
+                                        8 conclusies, 0 gemiste bronnen
+  /woningcheck/api/gemeente             Gooise Meren -> archieflink
+  /woningcheck/api/diagnose             404 zonder sleutel, 200 met
+  volledige offerteaanvraag             adres, gemeente en tekeningkeuze staan
+                                        in beide e-mails en in de onderwerpregel
 
-  aanvraag met 2 foto's, startmaand en Funda-link
-    HTTP 200
-    interne mail  subject "Offerte-aanvraag van Jan Jansen — start november 2026"
-                  bijlagen achterzijde-1.png, achterzijde-2.png
-                  bevat "Gewenste start", de Funda-link en "bijgevoegd als bijlage"
-    klantmail     geen bijlagen, bevat "voorkeur voor de start"
+  30 nieuwe tests voor de woningcheck, alle geslaagd
+  56 bestaande tests voor de bodemcheck, alle geslaagd
+  configurator: 4 scriptblokken geldig, JSON-LD geldig, 388 divs open en dicht
 
-  aanvraag met rommel (startMonth 2026-13, javascript:-link, een pdf als foto,
-  ongeldige base64)
-    HTTP 200, en in de mail: geen startmaand, geen javascript:-link, 0 bijlagen
+De client-JS wordt in de tests echt uitgevoerd in een nagemaakte DOM, inclusief
+een volledige opzoeking, een serverfout, een netwerkfout en het geval waarin
+twee van de vijf bronnen wegvallen. Die aanpak vond bij de bodemcheck drie
+fouten die geen enkele serverzijdige test zag.
 
-  foto van 6 MB naast een geldige kleine foto
-    alleen de geldige komt als bijlage mee, log meldt "1 foto('s)"
-
-  rate limiting        200 200 200 200 200 429 429 429
-  body van 20 MB       502, en de server blijft draaien
-  planning via admin   opgeslagen en publiek opvraagbaar
-
-Frontend, functies los uitgevoerd:
-  zonder planning   11 chips, geen kleurklassen, geen legenda
-  met planning      rood/oranje/groen komen overeen met de ingestelde maanden
-  kiezen            markering verschijnt, statuslabel wordt meegestuurd,
-                    nogmaals klikken maakt de keuze weer leeg
-  fotokiezer        knop verdwijnt bij drie foto's en komt terug na verwijderen
-  escAttr           aanhalingstekens en < worden onschadelijk gemaakt
-
-EEN VAL DIE IK ONDERWEG HEB WEGGEHAALD
-======================================
-_publicPlanning stond gedeclareerd op regel 213.000 terwijl renderStartMaanden
-hem op regel 187.000 gebruikt. Dat werkt vandaag, omdat de eerste render()
-daarna komt. Maar verplaatst iemand ooit een render()-aanroep naar boven, of
-wordt de contactstap ooit direct getoond, dan valt de hele pagina om met "Cannot
-access before initialization" -- precies de fout die vannacht uren kostte. De
-declaratie staat nu boven het gebruik, met een commentaar waarom.
-
-CONTROLES NA DE WIJZIGING
-=========================
-  4 scriptblokken geldig, JSON-LD geldig
-  381 div's open en dicht, 35 buttons, 10 labels
-  server.js geldig
-  56 sondeertool-tests, alle geslaagd
+MENU
+====
+"Woningcheck" staat nu in het hoofdmenu en in de footer, naast Bodemcheck. In het
+bodemcheck-blok op de homepage staat een verwijzing naar de woningcheck en
+omgekeerd — ze horen bij elkaar: de een gaat over de grond, de ander over het
+gebouw.
 
 BESTANDEN
 =========
-  server.js          validatie, limieten, bijlagen en beide e-mails
-  configurator.html  stap 8, stijl en de nieuwe functies
+  server.js          één regel voor de woningcheck, plus adres/gemeente/
+                     tekeningen in de validatie en beide e-mails
+  configurator.html  adresveld, tekeningenvraag, menulinks, stijl
+  src/woningcheck/   nieuwe module: 17 bestanden
   src/sondeertool/   ONGEWIJZIGD sinds v16

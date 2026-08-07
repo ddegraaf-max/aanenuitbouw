@@ -1772,6 +1772,30 @@ img, svg { display: block; max-width: 100%; }
   .hero-stat-num { font-size: 23px; }
 }
 
+/* ─── Stap 8: bouwtekeningen en adrescontrole ─── */
+.adres-status { font-size: 12.5px; color: var(--color-mute); margin-top: 6px; min-height: 1em; }
+.adres-status.ok { color: var(--color-success); }
+.adres-status.fout { color: #B4232A; }
+
+.tk-keuzes { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.tk-keuze {
+  border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: #fff;
+  padding: 14px 16px; text-align: left; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; gap: 4px; transition: border-color .12s, box-shadow .12s;
+}
+.tk-keuze:hover { border-color: var(--color-primary); }
+.tk-keuze .tk-titel { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; color: var(--color-ink); }
+.tk-keuze .tk-uitleg { font-size: 12.5px; color: var(--color-mute); line-height: 1.5; }
+/* Gekozen: rand plus vinkje, zodat de keuze ook zonder kleuronderscheid zichtbaar is. */
+.tk-keuze.gekozen { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.tk-keuze.gekozen .tk-titel::after { content: ' ✓'; color: var(--color-primary); }
+
+.tk-archief {
+  margin-top: 14px; padding: 14px 18px; background: #eef3fd; border-radius: 10px;
+  font-size: 13.5px; line-height: 1.6; color: var(--color-ink);
+}
+.tk-archief a { color: var(--color-primary); font-weight: 600; }
+
 /* ─── Stap 8: startvoorkeur, foto's en woninglink ─── */
 .c-extra { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--color-line); }
 .c-extra-kop { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--color-ink); margin-bottom: 6px; }
@@ -1986,6 +2010,7 @@ img, svg { display: block; max-width: 100%; }
       <a href="#plannen">Plannen</a>
       <a href="#proces">Proces</a>
       <a href="#bodemcheck">Bodemcheck</a>
+      <a href="/woningcheck">Woningcheck</a>
       <a href="#configurator">Configurator</a>
       <a href="#over-ons">Over ons</a>
       <a href="#werk" data-nav="werk">Werk</a>
@@ -2343,7 +2368,7 @@ img, svg { display: block; max-width: 100%; }
           <input type="text" id="bodemcheckPostcode" name="q" placeholder="1401 EX 5" autocomplete="postal-code" spellcheck="false">
           <button type="submit">Bodem bekijken</button>
         </div>
-        <p class="bodemcheck-hint">Of open de <a href="/bodemcheck">bodemcheck</a> zonder adres.</p>
+        <p class="bodemcheck-hint">Of open de <a href="/bodemcheck">bodemcheck</a> zonder adres. Wilt u weten wat er van uw wóning bekend is &mdash; bouwjaar, oppervlakte, hoogtes &mdash; ga dan naar de <a href="/woningcheck">woningcheck</a>.</p>
       </form>
     </div>
   </div>
@@ -2591,6 +2616,7 @@ img, svg { display: block; max-width: 100%; }
         <a href="#plannen">Plannen</a>
         <a href="#proces">Proces</a>
         <a href="#bodemcheck">Bodemcheck</a>
+        <a href="/woningcheck">Woningcheck</a>
         <a href="#configurator">Configurator</a>
       </div>
       <div class="footer-col">
@@ -2744,7 +2770,8 @@ const state = {
   lightBuiten: 0,
   m2Prijs: 4500,
   contact: { name: '', email: '', phone: '', message: '', consent: false,
-             startMonth: '', listingUrl: '', photos: [] },
+             startMonth: '', listingUrl: '', photos: [],
+             adres: '', gemeente: '', tekeningen: '' },
   submitted: false,
 };
 
@@ -3576,6 +3603,7 @@ function renderStep() {
         <div class="form-field"><label>Voor- en achternaam</label><input type="text" id="cname" value="${state.contact.name}" placeholder="Jan Jansen"></div>
         <div class="form-field"><label>Telefoon</label><input type="tel" id="cphone" value="${state.contact.phone}" placeholder="06-12345678"></div>
         <div class="form-field full"><label>E-mailadres</label><input type="email" id="cemail" value="${state.contact.email}" placeholder="naam@voorbeeld.nl"></div>
+        <div class="form-field full"><label>Adres van de woning</label><input type="text" id="cadres" value="${escAttr(state.contact.adres)}" placeholder="Poststraat 5, 1401 EX Bussum"><div class="adres-status" id="adresStatus"></div></div>
         <div class="form-field full"><label>Bericht (optioneel)</label><textarea id="cmsg" placeholder="Bijzonderheden over uw woning, gewenste planning, etc.">${state.contact.message}</textarea></div>
       </div>
 
@@ -3583,6 +3611,12 @@ function renderStep() {
         <div class="c-extra-kop">Wanneer wilt u starten?</div>
         <p class="c-extra-uitleg">Onze actuele beschikbaarheid staat hieronder. Kies de maand die u het beste past — bij een volle maand zetten we u op de wachtlijst.</p>
         ${renderStartMaanden()}
+      </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Heeft u bouwtekeningen van de woning?</div>
+        <p class="c-extra-uitleg">Bij een uitbouw moet een constructeur het staal berekenen voor de doorbraak in de achtergevel. Met de bestaande tekeningen erbij gaat dat sneller en scherper — zonder tekeningen is een opname ter plaatse nodig.</p>
+        ${renderTekeningKeuze()}
       </div>
 
       <div class="c-extra">
@@ -3612,6 +3646,11 @@ function renderStep() {
     document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
     document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
     document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
+    const adresVeld = document.getElementById('cadres');
+    if (adresVeld) {
+      adresVeld.addEventListener('input', e => { state.contact.adres = e.target.value; });
+      adresVeld.addEventListener('blur', zoekGemeenteBijAdres);
+    }
     const listing = document.getElementById('clisting');
     if (listing) listing.addEventListener('input', e => state.contact.listingUrl = e.target.value.trim());
     const fotoInput = document.getElementById('cfotos');
@@ -4187,6 +4226,90 @@ function prevStep() {
 // initialization". Dat is eerder gebeurd en het kost onnodig veel zoektijd.
 let _publicPlanning = null;
 
+/**
+ * Keuze over de bouwtekeningen. Drie antwoorden, elk met een ander gevolg voor
+ * ons: bij "heb ik" kan de constructeur ze meteen inzien, bij "opvragen" krijgt
+ * de klant de juiste link naar zijn gemeente, en bij "geen" weten we dat er een
+ * opname ter plaatse nodig is en kunnen we dat in de offerte meenemen.
+ */
+const TEKENING_KEUZES = [
+  { waarde: 'heb-ik',    titel: 'Ja, die heb ik',        uitleg: 'U kunt ze later per e-mail meesturen.' },
+  { waarde: 'opvragen',  titel: 'Nee, wil ik opvragen',  uitleg: 'Wij laten zien waar dat bij uw gemeente kan.' },
+  { waarde: 'geen',      titel: 'Nee, en dat lukt niet', uitleg: 'Dan nemen we de bestaande situatie ter plaatse op.' },
+];
+
+function renderTekeningKeuze() {
+  const gekozen = state.contact.tekeningen;
+  const knoppen = TEKENING_KEUZES.map(k => `<button type="button"
+      class="tk-keuze ${gekozen === k.waarde ? 'gekozen' : ''}"
+      onclick="kiesTekeningen('${k.waarde}')">
+      <span class="tk-titel">${k.titel}</span>
+      <span class="tk-uitleg">${k.uitleg}</span>
+    </button>`).join('');
+
+  let extra = '';
+  if (gekozen === 'opvragen') {
+    extra = state.contact.gemeente
+      ? `<div class="tk-archief" id="tkArchief">Bezig met opzoeken voor gemeente ${escAttr(state.contact.gemeente)}…</div>`
+      : `<div class="tk-archief">Vul hierboven het adres van de woning in, dan zoeken wij op waar u bij uw gemeente het bouwdossier kunt inzien.</div>`;
+  }
+
+  return `<div class="tk-keuzes">${knoppen}</div>${extra}`;
+}
+
+function kiesTekeningen(waarde) {
+  state.contact.tekeningen = state.contact.tekeningen === waarde ? '' : waarde;
+  render();
+  if (state.contact.tekeningen === 'opvragen') vulArchiefBlok();
+}
+
+/**
+ * Zoekt bij het ingevulde adres de gemeente op via de woningcheck. Dat endpoint
+ * doet alleen een adresopzoeking en de archieflijst — geen volledige analyse.
+ */
+async function zoekGemeenteBijAdres() {
+  const adres = (state.contact.adres || '').trim();
+  const status = document.getElementById('adresStatus');
+  if (adres.length < 5) { if (status) status.textContent = ''; return; }
+  if (status) status.textContent = 'Adres controleren…';
+  try {
+    const res = await fetch('/woningcheck/api/gemeente?q=' + encodeURIComponent(adres));
+    if (!res.ok) throw new Error('niet gevonden');
+    const d = await res.json();
+    state.contact.gemeente = d.gemeente || '';
+    _archiefCache = d.archief || null;
+    if (status) {
+      status.textContent = d.gemeente
+        ? 'Gevonden: ' + d.adres + ' (gemeente ' + d.gemeente + ')'
+        : 'Adres gevonden.';
+      status.className = 'adres-status ok';
+    }
+    if (state.contact.tekeningen === 'opvragen') vulArchiefBlok();
+  } catch (e) {
+    state.contact.gemeente = '';
+    _archiefCache = null;
+    if (status) {
+      status.textContent = 'Dit adres kon niet worden gevonden. Vul postcode en huisnummer in.';
+      status.className = 'adres-status fout';
+    }
+  }
+}
+
+let _archiefCache = null;
+
+function vulArchiefBlok() {
+  const blok = document.getElementById('tkArchief');
+  if (!blok) return;
+  if (!_archiefCache) {
+    blok.textContent = 'Vul hierboven het adres in, dan zoeken wij het bouwarchief van uw gemeente op.';
+    return;
+  }
+  const a = _archiefCache;
+  blok.innerHTML = a.url
+    ? `${a.tekst}${a.let_op ? ' ' + a.let_op : ''}<br><a href="${a.url}" target="_blank" rel="noopener noreferrer">Naar het bouwarchief van ${a.gemeente} →</a>`
+    : `${a.tekst}`;
+}
+
 function startMaandStatus(ym) {
   if (!ym || ym === 'flexibel') return '';
   const planning = (_publicPlanning && _publicPlanning.months) || null;
@@ -4344,6 +4467,9 @@ async function submitConfig() {
       rows: buildSummaryRows(),
       total: fmt(calc.total),
     },
+    adres: c.adres || '',
+    gemeente: c.gemeente || '',
+    tekeningen: c.tekeningen || '',
     startMonth: c.startMonth || '',
     startMonthStatus: startMaandStatus(c.startMonth),
     listingUrl: c.listingUrl || '',
@@ -4381,7 +4507,8 @@ function resetConfig() {
     electra: 0, light: 0,
     electraBuiten: 0, lightBuiten: 0,
     contact: { name: '', email: '', phone: '', message: '', consent: false,
-             startMonth: '', listingUrl: '', photos: [] },
+             startMonth: '', listingUrl: '', photos: [],
+             adres: '', gemeente: '', tekeningen: '' },
     submitted: false,
   });
   _viewPreset = '3d';

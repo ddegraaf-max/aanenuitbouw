@@ -1,5 +1,5 @@
 --- server.js.origineel	2026-08-06 21:52:28.761925348 +0000
-+++ server.js	2026-08-07 13:10:09.530387201 +0000
++++ server.js	2026-08-07 13:53:17.583749503 +0000
 @@ -56,14 +56,14 @@
    return mismatch === 0;
  }
@@ -17,7 +17,7 @@
          aborted = true;
          reject(new Error('Body te groot'));
        }
-@@ -138,14 +138,145 @@
+@@ -138,14 +138,151 @@
    entry.count++;
    return entry.count <= MAX;
  }
@@ -152,6 +152,12 @@
 +  return /^\d{4}-(0[1-9]|1[0-2])$/.test(tekst) ? tekst : '';
 +}
 +
++const TEKENING_LABEL = {
++  'heb-ik': 'Klant heeft de bouwtekeningen',
++  opvragen: 'Klant vraagt de tekeningen op bij de gemeente',
++  geen: 'Geen tekeningen beschikbaar — opname ter plaatse nodig',
++};
++
 +function startmaandLabel(waarde) {
 +  if (waarde === 'flexibel') return 'Flexibel / zo snel mogelijk';
 +  if (!waarde) return '';
@@ -164,13 +170,15 @@
  // HTML-escape om injectie in de e-mail te voorkomen
  function esc(str) {
    return String(str == null ? '' : str)
-@@ -186,6 +317,13 @@
+@@ -186,6 +323,15 @@
            <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">E-mail</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.email)}</td></tr>
            <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Telefoon</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.phone) || '—'}</td></tr>
          </table>
 +        ${(data.startMonth || data.listingUrl || (data.photos && data.photos.length)) ? `
 +        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Woning en planning</h2>
 +        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
++          ${data.adres ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Adres woning</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.adres)}${data.gemeente ? ' (gemeente ' + esc(data.gemeente) + ')' : ''}</td></tr>` : ''}
++          ${data.tekeningen ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Bouwtekeningen</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(TEKENING_LABEL[data.tekeningen] || data.tekeningen)}</td></tr>` : ''}
 +          ${data.startMonth ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Gewenste start</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(startmaandLabel(data.startMonth))}${data.startMonthStatus ? ' — ' + esc(data.startMonthStatus) : ''}</td></tr>` : ''}
 +          ${data.listingUrl ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Woning online</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;"><a href="${esc(data.listingUrl)}" style="color:#1E4FC7;">${esc(data.listingUrl)}</a></td></tr>` : ''}
 +          ${(data.photos && data.photos.length) ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Foto's achterzijde</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${data.photos.length} bijgevoegd als bijlage</td></tr>` : ''}
@@ -178,10 +186,12 @@
          ${data.message ? `<h2 style="font-size:15px;color:#1A2540;margin:0 0 8px;">Bericht</h2><p style="font-size:14px;color:#333;line-height:1.6;background:#f7f9fb;padding:12px 16px;border-radius:8px;margin:0 0 24px;">${esc(data.message)}</p>` : ''}
          <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Configuratie</h2>
          <table style="width:100%;border-collapse:collapse;font-size:14px;">
-@@ -202,6 +340,10 @@
+@@ -202,6 +348,12 @@
    const lines = rows.map(r => `${r.label}: ${r.value}`).join('\n');
    const text = `Nieuwe offerte-aanvraag via AanEnUitbouw.nl\n\n` +
      `Naam: ${data.name}\nE-mail: ${data.email}\nTelefoon: ${data.phone || '—'}\n\n` +
++    (data.adres ? `Adres woning: ${data.adres}${data.gemeente ? ' (gemeente ' + data.gemeente + ')' : ''}\n` : '') +
++    (data.tekeningen ? `Bouwtekeningen: ${TEKENING_LABEL[data.tekeningen] || data.tekeningen}\n` : '') +
 +    (data.startMonth ? `Gewenste start: ${startmaandLabel(data.startMonth)}${data.startMonthStatus ? ' (' + data.startMonthStatus + ')' : ''}\n` : '') +
 +    (data.listingUrl ? `Woning online: ${data.listingUrl}\n` : '') +
 +    ((data.photos && data.photos.length) ? `Foto's achterzijde: ${data.photos.length} als bijlage\n` : '') +
@@ -189,7 +199,7 @@
      (data.message ? `Bericht:\n${data.message}\n\n` : '') +
      `Configuratie:\n${lines}\nIndicatieve totaalprijs: ${cfg.total}\n`;
  
-@@ -229,6 +371,7 @@
+@@ -229,6 +381,7 @@
          <p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;">
            Hieronder vindt u een overzicht van de configuratie die u heeft samengesteld. De genoemde prijs is een richtprijs — na een vrijblijvend gesprek en eventueel een opname ter plaatse stellen we een definitieve offerte op.
          </p>
@@ -197,7 +207,7 @@
          <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Uw configuratie</h2>
          <table style="width:100%;border-collapse:collapse;font-size:14px;">
            ${rowsHtml}
-@@ -249,6 +392,7 @@
+@@ -249,6 +402,7 @@
    const lines = rows.map(r => `${r.label}: ${r.value}`).join('\n');
    const text = `Bedankt voor uw aanvraag${firstName ? ', ' + firstName : ''}!\n\n` +
      `We hebben uw configuratie ontvangen en nemen zo snel mogelijk contact met u op.\n\n` +
@@ -205,7 +215,7 @@
      `Uw configuratie:\n${lines}\nIndicatieve totaalprijs: ${cfg.total}\n\n` +
      `De genoemde prijs is een richtprijs. Na een vrijblijvend gesprek stellen we een definitieve offerte op.\n\n` +
      `Vragen? Bel ons op +31 646 150 160.\n\n` +
-@@ -266,7 +410,8 @@
+@@ -266,7 +420,8 @@
    const controller = new AbortController();
    const timer = setTimeout(() => controller.abort(), timeoutMs);
    try {
@@ -215,7 +225,7 @@
        method: 'POST',
        headers: {
          'Authorization': `Bearer ${RESEND_API_KEY}`,
-@@ -306,13 +451,22 @@
+@@ -306,13 +461,22 @@
  async function sendQuoteEmails(data) {
    // 1. Interne notificatie naar het bedrijf (kritiek — fout hierop laat de hele aanvraag falen)
    const internal = buildQuoteEmail(data);
@@ -232,14 +242,14 @@
      to: [QUOTE_TO],
      reply_to: data.email,
 -    subject: `Offerte-aanvraag van ${oneLine(data.name)}`,
-+    subject: `Offerte-aanvraag van ${oneLine(data.name)}${data.startMonth ? ' — start ' + startmaandLabel(data.startMonth) : ''}`,
++    subject: `Offerte-aanvraag ${oneLine(data.name)}${data.adres ? ' — ' + oneLine(data.adres) : ''}${data.startMonth ? ' — start ' + startmaandLabel(data.startMonth) : ''}`,
      html: internal.html,
      text: internal.text,
 +    ...(bijlagen.length ? { attachments: bijlagen } : {}),
    });
  
    // 2. Bevestiging naar de klant (best-effort — als dit faalt is de aanvraag alsnog binnen)
-@@ -334,6 +488,16 @@
+@@ -334,6 +498,16 @@
  function serveStatic(req, res, urlPath) {
    if (urlPath === '/' || urlPath === '') urlPath = '/configurator.html';
    if (urlPath === '/project' || urlPath === '/project/') urlPath = '/project.html';
@@ -256,7 +266,7 @@
    const filePath = path.normalize(path.join(ROOT, urlPath));
    if (!filePath.startsWith(ROOT)) {
      res.writeHead(403, { 'Content-Type': 'text/plain' });
-@@ -372,7 +536,7 @@
+@@ -372,7 +546,7 @@
    }
  
    if (pathname === '/api/prices' && req.method === 'POST') {
@@ -265,7 +275,7 @@
      try {
        const body = await readJsonBody(req);
        if (!body || typeof body !== 'object' || Array.isArray(body)) {
-@@ -392,7 +556,18 @@
+@@ -392,7 +566,18 @@
    }
  
    if (pathname === '/api/auth/check' && req.method === 'POST') {
@@ -285,7 +295,7 @@
    }
  
    if (pathname === '/api/quote' && req.method === 'POST') {
-@@ -400,8 +575,12 @@
+@@ -400,8 +585,12 @@
        console.error('Quote endpoint aangeroepen maar RESEND_API_KEY ontbreekt');
        return jsonResponse(res, 503, { error: 'E-mailverzending is niet geconfigureerd' });
      }
@@ -299,11 +309,14 @@
        const name = oneLine(body.name).slice(0, 120);
        const email = oneLine(body.email).slice(0, 254);
        const phone = oneLine(body.phone).slice(0, 40);
-@@ -419,7 +598,20 @@
+@@ -419,7 +608,24 @@
          : [];
        const config = { rows, total: oneLine(cfgIn.total).slice(0, 40) };
  
 -      await sendQuoteEmails({ name, email, phone, message, config });
++      const adresWoning = oneLine(body.adres).slice(0, 200);
++      const gemeente = oneLine(body.gemeente).slice(0, 80);
++      const tekeningen = ['heb-ik', 'opvragen', 'geen'].includes(String(body.tekeningen)) ? String(body.tekeningen) : '';
 +      const startMonth = schoonStartmaand(body.startMonth);
 +      const listingUrl = schoonWebadres(body.listingUrl);
 +      const photos = schoonFotos(body.photos);
@@ -317,11 +330,12 @@
 +      await sendQuoteEmails({
 +        name, email, phone, message, config,
 +        startMonth, startMonthStatus, listingUrl, photos,
++        adres: adresWoning, gemeente, tekeningen,
 +      });
        return jsonResponse(res, 200, { success: true });
      } catch (e) {
        console.error('Quote send error:', e.message);
-@@ -440,7 +632,7 @@
+@@ -440,7 +646,7 @@
    }
  
    if (pathname === '/api/planning' && req.method === 'POST') {
@@ -330,7 +344,7 @@
      try {
        const body = await readJsonBody(req);
        const months = (body && typeof body.months === 'object' && !Array.isArray(body.months)) ? body.months : null;
-@@ -463,7 +655,7 @@
+@@ -463,7 +669,7 @@
  
    // ---- Projectmonitor: publieke code-check (rate limited) ----
    if (pathname === '/api/project' && req.method === 'GET') {
@@ -339,7 +353,7 @@
      if (!projectLookupAllowed(ip)) return jsonResponse(res, 429, { error: 'Te veel pogingen — probeer het over 10 minuten opnieuw' });
      const code = String(url.searchParams.get('code') || '').toUpperCase().trim();
      if (!/^AEB-[A-Z2-9]{5}$/.test(code)) {
-@@ -489,7 +681,7 @@
+@@ -489,7 +695,7 @@
  
    // ---- Projectmonitor: beheer (admin) ----
    if (pathname === '/api/projects' && req.method === 'GET') {
@@ -348,7 +362,7 @@
      try {
        const projects = (await readDataFile(PROJECTS_FILE)) || {};
        return jsonResponse(res, 200, projects);
-@@ -500,7 +692,7 @@
+@@ -500,7 +706,7 @@
    }
  
    if (pathname === '/api/projects' && req.method === 'POST') {
@@ -357,10 +371,15 @@
      try {
        const body = await readJsonBody(req);
        const action = String(body.action || '');
-@@ -575,6 +767,12 @@
+@@ -575,6 +781,17 @@
      });
    }
  
++  // ===== Woningcheck (BAG, BRK, 3D BAG, luchtfoto) =====
++  // Adres in, gebouwgegevens uit. Geeft false terug voor alles buiten
++  // /woningcheck, dus de routes hieronder blijven ongemoeid.
++  if (await require('./src/woningcheck').handle(req, res, url)) return;
++
 +  // ===== Bodemcheck / sondeertool (BRO) =====
 +  // Openbare sondeergegevens uit de Basisregistratie Ondergrond met een
 +  // funderingsindicatie. Geeft false terug voor elk verzoek dat niet onder
@@ -370,7 +389,7 @@
    serveStatic(req, res, pathname);
  });
  
-@@ -585,3 +783,58 @@
+@@ -585,3 +802,58 @@
    console.log(`Resend API key: ${RESEND_API_KEY ? 'ingesteld' : 'NIET INGESTELD — formulier-verzending uit'}`);
    console.log(`Offertes worden gemaild naar: ${QUOTE_TO}`);
  });

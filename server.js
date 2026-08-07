@@ -268,6 +268,12 @@ function schoonStartmaand(ruw) {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(tekst) ? tekst : '';
 }
 
+const TEKENING_LABEL = {
+  'heb-ik': 'Klant heeft de bouwtekeningen',
+  opvragen: 'Klant vraagt de tekeningen op bij de gemeente',
+  geen: 'Geen tekeningen beschikbaar — opname ter plaatse nodig',
+};
+
 function startmaandLabel(waarde) {
   if (waarde === 'flexibel') return 'Flexibel / zo snel mogelijk';
   if (!waarde) return '';
@@ -320,6 +326,8 @@ function buildQuoteEmail(data) {
         ${(data.startMonth || data.listingUrl || (data.photos && data.photos.length)) ? `
         <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Woning en planning</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+          ${data.adres ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Adres woning</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.adres)}${data.gemeente ? ' (gemeente ' + esc(data.gemeente) + ')' : ''}</td></tr>` : ''}
+          ${data.tekeningen ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Bouwtekeningen</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(TEKENING_LABEL[data.tekeningen] || data.tekeningen)}</td></tr>` : ''}
           ${data.startMonth ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Gewenste start</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(startmaandLabel(data.startMonth))}${data.startMonthStatus ? ' — ' + esc(data.startMonthStatus) : ''}</td></tr>` : ''}
           ${data.listingUrl ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Woning online</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;"><a href="${esc(data.listingUrl)}" style="color:#1E4FC7;">${esc(data.listingUrl)}</a></td></tr>` : ''}
           ${(data.photos && data.photos.length) ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Foto's achterzijde</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${data.photos.length} bijgevoegd als bijlage</td></tr>` : ''}
@@ -340,6 +348,8 @@ function buildQuoteEmail(data) {
   const lines = rows.map(r => `${r.label}: ${r.value}`).join('\n');
   const text = `Nieuwe offerte-aanvraag via AanEnUitbouw.nl\n\n` +
     `Naam: ${data.name}\nE-mail: ${data.email}\nTelefoon: ${data.phone || '—'}\n\n` +
+    (data.adres ? `Adres woning: ${data.adres}${data.gemeente ? ' (gemeente ' + data.gemeente + ')' : ''}\n` : '') +
+    (data.tekeningen ? `Bouwtekeningen: ${TEKENING_LABEL[data.tekeningen] || data.tekeningen}\n` : '') +
     (data.startMonth ? `Gewenste start: ${startmaandLabel(data.startMonth)}${data.startMonthStatus ? ' (' + data.startMonthStatus + ')' : ''}\n` : '') +
     (data.listingUrl ? `Woning online: ${data.listingUrl}\n` : '') +
     ((data.photos && data.photos.length) ? `Foto's achterzijde: ${data.photos.length} als bijlage\n` : '') +
@@ -463,7 +473,7 @@ async function sendQuoteEmails(data) {
     from: QUOTE_FROM,
     to: [QUOTE_TO],
     reply_to: data.email,
-    subject: `Offerte-aanvraag van ${oneLine(data.name)}${data.startMonth ? ' — start ' + startmaandLabel(data.startMonth) : ''}`,
+    subject: `Offerte-aanvraag ${oneLine(data.name)}${data.adres ? ' — ' + oneLine(data.adres) : ''}${data.startMonth ? ' — start ' + startmaandLabel(data.startMonth) : ''}`,
     html: internal.html,
     text: internal.text,
     ...(bijlagen.length ? { attachments: bijlagen } : {}),
@@ -598,6 +608,9 @@ const server = http.createServer(async (req, res) => {
         : [];
       const config = { rows, total: oneLine(cfgIn.total).slice(0, 40) };
 
+      const adresWoning = oneLine(body.adres).slice(0, 200);
+      const gemeente = oneLine(body.gemeente).slice(0, 80);
+      const tekeningen = ['heb-ik', 'opvragen', 'geen'].includes(String(body.tekeningen)) ? String(body.tekeningen) : '';
       const startMonth = schoonStartmaand(body.startMonth);
       const listingUrl = schoonWebadres(body.listingUrl);
       const photos = schoonFotos(body.photos);
@@ -611,6 +624,7 @@ const server = http.createServer(async (req, res) => {
       await sendQuoteEmails({
         name, email, phone, message, config,
         startMonth, startMonthStatus, listingUrl, photos,
+        adres: adresWoning, gemeente, tekeningen,
       });
       return jsonResponse(res, 200, { success: true });
     } catch (e) {
@@ -766,6 +780,11 @@ const server = http.createServer(async (req, res) => {
       dataDirExists: fs.existsSync(DATA_DIR),
     });
   }
+
+  // ===== Woningcheck (BAG, BRK, 3D BAG, luchtfoto) =====
+  // Adres in, gebouwgegevens uit. Geeft false terug voor alles buiten
+  // /woningcheck, dus de routes hieronder blijven ongemoeid.
+  if (await require('./src/woningcheck').handle(req, res, url)) return;
 
   // ===== Bodemcheck / sondeertool (BRO) =====
   // Openbare sondeergegevens uit de Basisregistratie Ondergrond met een

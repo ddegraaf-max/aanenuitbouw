@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITEL}}</title>
+<meta name="description" content="{{BESCHRIJVING}}">
+<meta name="robots" content="index, follow">
+{{CANONICAL}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ASSETS}}/woningcheck.css?v={{VERSIE}}">
+</head>
+<body style="margin:0">
+
+{{KOP}}
+
+<div class="woningcheck-app">
+
+<a class="wc-overslaan" href="#wc-invoer">Naar het invoerveld</a>
+
+{{MOCKBALK}}
+
+<section class="wc-kop">
+  <div class="wc-binnen">
+    <p class="wc-stempel">Woningcheck &middot; Openbare registraties</p>
+    <h1>Wat is er van uw woning bekend<br>voordat wij gaan rekenen?</h1>
+    <p class="wc-intro">
+      Bouwjaar, woonoppervlak, perceeloppervlak, de maten van uw pand en de goot- en nokhoogte staan
+      allemaal in openbare registraties. Wij halen ze op, zetten er een luchtfoto van uw achterzijde bij
+      en laten zien waar u de bouwtekeningen opvraagt. Dat scheelt bij een aanbouw een paar telefoonrondjes
+      &mdash; en het maakt de constructieberekening voor het staal een stuk voorspelbaarder.
+    </p>
+
+    <form class="wc-invoer" id="wc-invoer" autocomplete="off">
+      <div class="wc-veld">
+        <label for="wc-adres">Adres van de woning</label>
+        <input type="text" id="wc-adres" value="{{VOORINGEVULD}}" placeholder="bijv. 1401 EX 5" spellcheck="false"
+               aria-describedby="wc-hint">
+        <ul class="wc-suggesties" id="wc-suggesties" role="listbox" hidden></ul>
+        <p class="wc-hint" id="wc-hint">Een postcode met huisnummer geeft het nauwkeurigste resultaat.</p>
+      </div>
+      <button type="submit" class="wc-knop" id="wc-zoekknop">
+        <span class="wc-knop-tekst">Woning opzoeken</span>
+        <span class="wc-spinner" hidden aria-hidden="true"></span>
+      </button>
+    </form>
+    <p class="wc-melding" id="wc-melding" role="alert" hidden></p>
+  </div>
+</section>
+
+<main class="wc-uitkomst" id="wc-uitkomst" hidden>
+
+  <section class="wc-kaart wc-kaart-kern">
+    <div class="wc-kaart-kop">
+      <p class="wc-stempel">Gegevens</p>
+      <h2 id="wc-adrestitel">&mdash;</h2>
+      <p class="wc-subtiel" id="wc-adressub"></p>
+    </div>
+    <dl class="wc-cijfers" id="wc-cijfers"></dl>
+    <p class="wc-gemist" id="wc-gemist" hidden></p>
+  </section>
+
+  <section class="wc-kaart">
+    <div class="wc-kaart-kop">
+      <p class="wc-stempel">Van bovenaf</p>
+      <h2>De achterzijde die u van de straat niet ziet</h2>
+      <p class="wc-subtiel">Luchtfoto van PDOK, ongeveer 8 cm per pixel. Bij elke uitsnede staat hoeveel meter het beeld breed is, zodat u er ruwweg op kunt meten.</p>
+    </div>
+    <div class="wc-fotos" id="wc-fotos"></div>
+  </section>
+
+  <section class="wc-kaart">
+    <div class="wc-kaart-kop">
+      <p class="wc-stempel">Wat dit betekent</p>
+      <h2>Voor uw aanbouw en het staal</h2>
+    </div>
+    <ul class="wc-conclusies" id="wc-conclusies"></ul>
+  </section>
+
+  <section class="wc-kaart wc-kaart-archief">
+    <div class="wc-kaart-kop">
+      <p class="wc-stempel">Bouwtekeningen</p>
+      <h2 id="wc-archieftitel">Waar u de tekeningen opvraagt</h2>
+    </div>
+    <p class="wc-archieftekst" id="wc-archieftekst"></p>
+    <p id="wc-archieflink"></p>
+    <p class="wc-subtiel">
+      Op bouwtekeningen zit auteursrecht van de architect en plattegronden zijn privacygevoelig, dus ze zijn
+      nergens landelijk te downloaden. Als eigenaar van de woning heeft u wel recht op inzage in uw eigen
+      dossier &mdash; dat is bij vrijwel elke gemeente gratis.
+    </p>
+  </section>
+
+  <section class="wc-kaart wc-kaart-cta">
+    <p class="wc-stempel wc-stempel-licht">Volgende stap</p>
+    <h2>Laat ons hiermee rekenen</h2>
+    <p>
+      Met deze gegevens plus een foto van uw achtergevel kunnen wij een gerichte offerte maken en de
+      constructeur direct aan het werk zetten. Stel uw aanbouw samen in de configurator; de gegevens van
+      deze pagina neemt u gewoon mee in het bericht.
+    </p>
+    <p><a class="wc-knop wc-knop-licht" id="wc-naarconfig" href="/#configurator">Naar de configurator &rarr;</a></p>
+  </section>
+
+</main>
+
+<section class="wc-uitleg">
+  <div class="wc-binnen">
+    <h2>Waar deze gegevens vandaan komen</h2>
+    <div class="wc-uitleg-grid">
+      <article>
+        <p class="wc-stempel">01</p>
+        <h3>BAG</h3>
+        <p>De Basisregistratie Adressen en Gebouwen. Gemeenten houden hierin per woning het bouwjaar, het gebruiksoppervlak volgens NEN 2580 en de contour van het pand bij. Dat oppervlak is de woning zoals ingeschreven, niet inclusief een aanbouw die nooit is gemeld.</p>
+      </article>
+      <article>
+        <p class="wc-stempel">02</p>
+        <h3>Kadastrale kaart</h3>
+        <p>De perceelgrenzen en de kadastrale grootte uit de Basisregistratie Kadaster. De oppervlakte is de officiële waarde; de grenzen op de kaart zijn ter referentie en hebben geen exacte ligging. Voor een erfgrens die op de centimeter moet kloppen is een meting van het Kadaster nodig.</p>
+      </article>
+      <article>
+        <p class="wc-stempel">03</p>
+        <h3>3D BAG</h3>
+        <p>De TU Delft combineert de pandcontouren met de hoogtemetingen van het AHN en leidt daaruit goot- en nokhoogte af. Daarmee is te zien of er boven een doorbraak een verdieping zit of alleen een dak &mdash; en dat bepaalt de zwaarte van het staal sterker dan de overspanning zelf.</p>
+      </article>
+      <article>
+        <p class="wc-stempel">04</p>
+        <h3>Waar het ophoudt</h3>
+        <p>Registraties beschrijven de woning op papier. De werkelijke overspanning, het vloertype en de fundering staan er niet in, en niet-gemelde verbouwingen al helemaal niet. Voor de constructieberekening blijft een opname op locatie nodig. Deze pagina zorgt dat die opname korter duurt.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wc-voet">
+  <div class="wc-binnen">
+    <p class="wc-stempel">Verantwoording</p>
+    <p>
+      Adresgegevens: PDOK Locatieserver. Gebouwgegevens: Basisregistratie Adressen en Gebouwen (BAG),
+      Kadaster, via PDOK. Perceelgegevens: Kadastrale kaart (BRK), CC-BY Kadaster NL, via PDOK.
+      Hoogtes: 3D BAG, 3D Geoinformation, TU Delft. Luchtfoto: Luchtfoto Nederland, via PDOK.
+    </p>
+    <p class="wc-disclaimer">
+      Deze pagina geeft een <strong>weergave van openbare registraties</strong> en is geen constructieberekening,
+      geen ontwerp en geen toets aan het omgevingsplan. Aan de weergegeven maten kunnen geen rechten worden
+      verleend.
+    </p>
+    <p class="wc-versie" id="wc-versie"></p>
+  </div>
+</section>
+
+</div><!-- /.woningcheck-app -->
+
+{{VOET}}
+
+<script>
+  window.WONINGCHECK = { basisPad: "{{BASISPAD}}", assetVersie: "{{VERSIE}}" };
+</script>
+<script src="{{ASSETS}}/woningcheck.js?v={{VERSIE}}" defer></script>
+</body>
+</html>

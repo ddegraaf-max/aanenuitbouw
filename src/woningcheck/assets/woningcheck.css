@@ -1,0 +1,575 @@
+/* ==========================================================================
+   Woningcheck — aanenuitbouw.nl
+
+   Sluit aan bij de huisstijl van de site: Manrope voor koppen, DM Sans voor
+   tekst, IBM Plex Mono voor meetwaarden, en het blauw van de configurator.
+   Deze pagina is een onderdeel van de site, geen los product.
+
+   Alles is gescoped onder .woningcheck-app en elke klasse begint met wc-, zodat
+   deze stylesheet en de site-CSS elkaar niet kunnen raken. Uitzondering:
+   .wc-terugbalk staat BUITEN de wrapper, want dat is paginachrome — die regels
+   staan daarom onderaan zonder scope.
+   ========================================================================== */
+
+.woningcheck-app {
+  --wc-ink: #1a2540;
+  --wc-ink-zacht: #4a5670;
+  --wc-mute: #7c879d;
+  --wc-primair: #1e4fc7;
+  --wc-primair-donker: #163c99;
+  --wc-papier: #f7f9fb;
+  --wc-wit: #ffffff;
+  --wc-lijn: #e2e8f0;
+  --wc-lijn-sterk: #cbd5e3;
+  --wc-groen: #1f8a4c;
+  --wc-oranje: #a96a0f;
+  --wc-rood: #b4232a;
+  --wc-radius: 14px;
+  --wc-display: 'Manrope', system-ui, sans-serif;
+  --wc-body: 'DM Sans', system-ui, sans-serif;
+  --wc-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  font-family: var(--wc-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--wc-ink);
+  background: var(--wc-papier);
+  overflow-wrap: break-word;
+}
+
+.woningcheck-app *,
+.woningcheck-app *::before,
+.woningcheck-app *::after {
+  box-sizing: border-box;
+}
+
+/* Het hidden-attribuut moet altijd winnen van onze eigen display-regels. */
+.woningcheck-app [hidden] {
+  display: none !important;
+}
+
+/* Defensieve reset: de site-CSS mag hier niet in lekken. */
+.woningcheck-app button,
+.woningcheck-app input,
+.woningcheck-app select {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.woningcheck-app ul,
+.woningcheck-app ol,
+.woningcheck-app dl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.woningcheck-app li::marker {
+  content: none;
+}
+.woningcheck-app img {
+  max-width: 100%;
+  display: block;
+}
+.woningcheck-app h1,
+.woningcheck-app h2,
+.woningcheck-app h3 {
+  font-family: var(--wc-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+.woningcheck-app p {
+  margin: 0 0 0.9em;
+}
+.woningcheck-app a {
+  color: var(--wc-primair);
+}
+
+.woningcheck-app .wc-overslaan {
+  position: absolute;
+  left: -9999px;
+}
+.woningcheck-app .wc-overslaan:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 99;
+  background: var(--wc-ink);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+}
+
+.woningcheck-app .wc-binnen {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.woningcheck-app .wc-stempel {
+  font-family: var(--wc-mono);
+  font-size: 0.688rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wc-primair);
+  margin: 0 0 0.75rem;
+}
+.woningcheck-app .wc-stempel-licht {
+  color: #a9c0f5;
+}
+.woningcheck-app .wc-subtiel {
+  font-size: 0.875rem;
+  color: var(--wc-mute);
+  line-height: 1.6;
+}
+
+.woningcheck-app .wc-mockbalk {
+  background: repeating-linear-gradient(45deg, #2b2118 0 12px, #3a2c1e 12px 24px);
+  color: #f3e6d2;
+  font-family: var(--wc-mono);
+  font-size: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  text-align: center;
+}
+
+/* --- Kop en invoer -------------------------------------------------------- */
+
+.woningcheck-app .wc-kop {
+  background: var(--wc-wit);
+  border-bottom: 1px solid var(--wc-lijn);
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.5rem clamp(2rem, 4vw, 3rem);
+}
+.woningcheck-app .wc-kop h1 {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  max-width: 24ch;
+  margin-bottom: 1.25rem;
+}
+.woningcheck-app .wc-intro {
+  max-width: 66ch;
+  color: var(--wc-ink-zacht);
+  font-size: 1.031rem;
+}
+
+.woningcheck-app .wc-invoer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-top: 2rem;
+  max-width: 680px;
+}
+.woningcheck-app .wc-veld {
+  flex: 1 1 300px;
+  position: relative;
+}
+.woningcheck-app .wc-veld label {
+  display: block;
+  font-family: var(--wc-mono);
+  font-size: 0.688rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wc-ink-zacht);
+  margin-bottom: 0.5rem;
+}
+.woningcheck-app .wc-veld input {
+  width: 100%;
+  font-size: 1.063rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--wc-lijn-sterk);
+  border-radius: 10px;
+  background: var(--wc-papier);
+}
+.woningcheck-app .wc-veld input:focus-visible {
+  outline: 2px solid var(--wc-primair);
+  outline-offset: 1px;
+}
+.woningcheck-app .wc-hint {
+  font-size: 0.813rem;
+  color: var(--wc-mute);
+  margin: 0.5rem 0 0;
+}
+
+.woningcheck-app .wc-knop {
+  font-family: var(--wc-display);
+  font-weight: 700;
+  font-size: 0.938rem;
+  padding: 0.95rem 1.5rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--wc-primair);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  transition: background-color 0.14s ease;
+}
+.woningcheck-app .wc-knop:hover:not(:disabled) {
+  background: var(--wc-primair-donker);
+}
+.woningcheck-app .wc-knop:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.woningcheck-app .wc-knop-licht {
+  background: #fff;
+  color: var(--wc-primair);
+  margin-top: 0.5rem;
+}
+.woningcheck-app .wc-knop-licht:hover {
+  background: #e8eefb;
+}
+.woningcheck-app .wc-spinner {
+  width: 0.85em;
+  height: 0.85em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: wc-tol 0.7s linear infinite;
+}
+@keyframes wc-tol {
+  to { transform: rotate(360deg); }
+}
+
+.woningcheck-app .wc-suggesties {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% - 1.4rem);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--wc-lijn-sterk);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px -24px rgba(26, 37, 64, 0.4);
+  max-height: 17rem;
+  overflow-y: auto;
+}
+.woningcheck-app .wc-suggesties li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.938rem;
+  border-bottom: 1px solid var(--wc-lijn);
+}
+.woningcheck-app .wc-suggesties li:last-child { border-bottom: 0; }
+.woningcheck-app .wc-suggesties li:hover { background: var(--wc-papier); }
+.woningcheck-app .wc-suggesties small {
+  display: block;
+  font-family: var(--wc-mono);
+  font-size: 0.688rem;
+  color: var(--wc-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.woningcheck-app .wc-melding {
+  font-size: 0.9rem;
+  border-left: 3px solid var(--wc-rood);
+  background: #fdf1f2;
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1.25rem 0 0;
+  max-width: 680px;
+}
+.woningcheck-app .wc-melding-ok {
+  border-left-color: var(--wc-groen);
+  background: #f0f9f3;
+}
+
+/* --- Kaarten -------------------------------------------------------------- */
+
+.woningcheck-app .wc-uitkomst {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem) 1.5rem 1rem;
+  display: grid;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+.woningcheck-app .wc-kaart {
+  background: var(--wc-wit);
+  border: 1px solid var(--wc-lijn);
+  border-radius: var(--wc-radius);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+.woningcheck-app .wc-kaart-kop h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.625rem);
+  margin-bottom: 0.4rem;
+}
+.woningcheck-app .wc-kaart-kop .wc-subtiel {
+  max-width: 68ch;
+  margin-bottom: 0;
+}
+
+/* --- Kerncijfers --------------------------------------------------------- */
+
+.woningcheck-app .wc-cijfers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--wc-lijn);
+  border: 1px solid var(--wc-lijn);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+.woningcheck-app .wc-cijfer {
+  background: var(--wc-wit);
+  padding: 1.1rem 1.15rem 1.2rem;
+}
+.woningcheck-app .wc-cijfer dt {
+  font-family: var(--wc-mono);
+  font-size: 0.656rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--wc-mute);
+  margin-bottom: 0.45rem;
+}
+.woningcheck-app .wc-cijfer dd {
+  margin: 0;
+  font-family: var(--wc-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--wc-ink);
+}
+.woningcheck-app .wc-cijfer .wc-eenheid {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--wc-mute);
+  margin-left: 0.15em;
+}
+.woningcheck-app .wc-cijfer .wc-toelichting {
+  font-family: var(--wc-body);
+  font-size: 0.781rem;
+  color: var(--wc-mute);
+  margin-top: 0.4rem;
+  line-height: 1.5;
+}
+.woningcheck-app .wc-cijfer-leeg dd {
+  color: var(--wc-mute);
+  font-size: 1rem;
+}
+
+.woningcheck-app .wc-gemist {
+  font-size: 0.813rem;
+  color: var(--wc-oranje);
+  background: #fef8ec;
+  border: 1px solid #f3e2bd;
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin: 1.25rem 0 0;
+}
+
+/* --- Luchtfoto's --------------------------------------------------------- */
+
+.woningcheck-app .wc-fotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.woningcheck-app .wc-foto {
+  border: 1px solid var(--wc-lijn);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--wc-papier);
+}
+.woningcheck-app .wc-foto img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--wc-lijn);
+}
+.woningcheck-app .wc-foto figcaption {
+  padding: 0.6rem 0.75rem 0.7rem;
+  font-size: 0.813rem;
+  font-weight: 600;
+  color: var(--wc-ink);
+}
+.woningcheck-app .wc-foto figcaption span {
+  display: block;
+  font-family: var(--wc-mono);
+  font-size: 0.656rem;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  color: var(--wc-mute);
+  margin-top: 0.15rem;
+}
+
+/* --- Conclusies ---------------------------------------------------------- */
+
+.woningcheck-app .wc-conclusies {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.woningcheck-app .wc-conclusies li {
+  position: relative;
+  padding: 0.95rem 1rem 0.95rem 3rem;
+  background: var(--wc-papier);
+  border: 1px solid var(--wc-lijn);
+  border-radius: 10px;
+  font-size: 0.938rem;
+  line-height: 1.6;
+}
+.woningcheck-app .wc-conclusies li::before {
+  position: absolute;
+  left: 0.9rem;
+  top: 0.95rem;
+  font-family: var(--wc-mono);
+  font-size: 0.688rem;
+  font-weight: 600;
+  width: 1.4rem;
+  text-align: center;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0.1rem 0;
+}
+.woningcheck-app .wc-conclusies li[data-soort='feit']::before {
+  content: 'm';
+  color: var(--wc-primair);
+}
+.woningcheck-app .wc-conclusies li[data-soort='let-op']::before {
+  content: '!';
+  color: var(--wc-oranje);
+}
+.woningcheck-app .wc-conclusies li[data-soort='info']::before {
+  content: 'i';
+  color: var(--wc-mute);
+}
+
+/* --- Archief en CTA ------------------------------------------------------ */
+
+.woningcheck-app .wc-kaart-archief .wc-archieftekst {
+  font-size: 1rem;
+  color: var(--wc-ink-zacht);
+  margin-top: 1.25rem;
+  max-width: 68ch;
+}
+.woningcheck-app .wc-kaart-cta {
+  background: var(--wc-ink);
+  border-color: var(--wc-ink);
+  color: #dfe6f3;
+}
+.woningcheck-app .wc-kaart-cta h2 {
+  color: #fff;
+  font-size: clamp(1.375rem, 3vw, 1.875rem);
+  margin-bottom: 0.75rem;
+}
+.woningcheck-app .wc-kaart-cta p {
+  max-width: 64ch;
+}
+
+/* --- Uitleg en voet ------------------------------------------------------ */
+
+.woningcheck-app .wc-uitleg {
+  border-top: 1px solid var(--wc-lijn);
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  padding: clamp(2.5rem, 5vw, 4rem) 1.5rem;
+  background: var(--wc-wit);
+}
+.woningcheck-app .wc-uitleg h2 {
+  font-size: clamp(1.375rem, 3vw, 2rem);
+  margin-bottom: 2.25rem;
+}
+.woningcheck-app .wc-uitleg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.woningcheck-app .wc-uitleg-grid h3 {
+  font-size: 1.063rem;
+  margin-bottom: 0.5rem;
+}
+.woningcheck-app .wc-uitleg-grid p:last-child {
+  font-size: 0.9rem;
+  color: var(--wc-ink-zacht);
+  margin: 0;
+}
+.woningcheck-app .wc-uitleg .wc-stempel {
+  color: var(--wc-mute);
+}
+
+.woningcheck-app .wc-voet {
+  background: var(--wc-papier);
+  border-top: 1px solid var(--wc-lijn);
+  padding: clamp(2rem, 4vw, 3rem) 1.5rem;
+}
+.woningcheck-app .wc-voet p {
+  font-size: 0.813rem;
+  color: var(--wc-ink-zacht);
+}
+.woningcheck-app .wc-disclaimer {
+  border-left: 3px solid var(--wc-primair);
+  padding-left: 1rem;
+}
+.woningcheck-app .wc-versie {
+  font-family: var(--wc-mono);
+  font-size: 0.688rem;
+  letter-spacing: 0.06em;
+  color: var(--wc-mute);
+  margin: 1.25rem 0 0;
+}
+
+/* --- Telefoons ----------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .woningcheck-app .wc-kop {
+    padding-left: 1.125rem;
+    padding-right: 1.125rem;
+  }
+  .woningcheck-app .wc-kop h1 br { display: none; }
+  .woningcheck-app .wc-uitkomst {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+  .woningcheck-app .wc-kaart { padding: 1.15rem; }
+  .woningcheck-app .wc-cijfers { grid-template-columns: 1fr; }
+  .woningcheck-app .wc-fotos { grid-template-columns: 1fr; }
+  .woningcheck-app .wc-knop {
+    margin-top: 0;
+    width: 100%;
+    justify-content: center;
+  }
+  .woningcheck-app .wc-conclusies li {
+    padding: 0.85rem 0.85rem 0.85rem 2.6rem;
+  }
+  .woningcheck-app .wc-conclusies li::before { left: 0.7rem; }
+  .woningcheck-app .wc-uitleg,
+  .woningcheck-app .wc-voet {
+    padding-left: 1.125rem;
+    padding-right: 1.125rem;
+  }
+}
+
+/* ==========================================================================
+   Terugbalk — staat BUITEN .woningcheck-app, want het is paginachrome.
+   Deze regels mogen dus niet gescoped worden; dan matchen ze nooit en krijgt
+   de bezoeker een standaard browserlink. Botsen kan niet: wc-geprefixt.
+   ========================================================================== */
+
+.wc-terugbalk {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #1a2540;
+  padding: 0.85rem 1.5rem;
+}
+.wc-terugbalk a {
+  color: #dfe6f3;
+  text-decoration: none;
+}
+.wc-terugbalk a:hover {
+  color: #fff;
+}
+@media (max-width: 480px) {
+  .wc-terugbalk {
+    padding: 0.7rem 1.125rem;
+    font-size: 0.813rem;
+  }
+}
