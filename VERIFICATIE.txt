@@ -1,74 +1,60 @@
-VERIFICATIERAPPORT — ronde 14
+VERIFICATIERAPPORT — ronde 15
 =============================
 
-DE OORZAAK VAN DE ROMMELIGE MOBIELE PAGINA
-==========================================
-Jouw schermafdruk liet horizontale overloop zien: links viel inhoud weg, rechts
-stond een tweede kolom. En één detail wees de weg -- de lagentabel toonde ZES
-kolommen, terwijl "Dikte" en "Draagkracht" op mobiel verborgen horen te zijn.
+WAT ER OP JE SCHERMAFDRUK MIS WAS
+=================================
+De pagina zelf staat nu goed: kop op drie regels, tekst binnen de marges, één
+kolom, geen horizontale schuifbalk meer. Eén ding viel eruit:
 
-De mobiele opmaak deed dus helemaal niets. Reden:
+  "← Terug naar de website" stond als standaard blauwpaarse browserlink op wit,
+  in het verkeerde lettertype, in plaats van als donkere balk.
 
-  @media (max-width: 640px) {
-    .sondeertool-app .staat { ... }        <- moet .sd-staat zijn
-    .sondeertool-app .lagentabel { ... }   <- moet .sd-lagentabel zijn
-  }
+OORZAAK
+=======
+De terugbalk wordt BOVEN div.sondeertool-app geplaatst. Dat is opzet: het is
+paginachrome, geen onderdeel van de tool, en zo kun je er later je eigen
+navigatie in zetten zonder dat mijn resets daarop van toepassing zijn.
 
-In de ronde waarin ik alle klassen een sd-prefix gaf om botsingen met jouw
-site-CSS te voorkomen, liep mijn script alleen door de regels op het BUITENSTE
-niveau. Selectors binnen een @media-blok staan een niveau dieper en zijn
-overgeslagen. Beide breekpunten -- 860 px en 640 px -- verwezen daardoor naar
-klassen die niet bestaan.
+Maar de opmaak ervoor stond wél onder de wrapper:
 
-Gevolg op een telefoon:
-  - .sd-situatie bleef tweekoloms (schets 320 px naast de metinglijst), waardoor
-    de pagina breder werd dan het scherm
-  - de lagentabel hield zes kolommen
-  - de sondeerstaat hield de brede kolomindeling
-  - --staat-hoogte bleef 520 px in plaats van 420
-  - ook prefers-reduced-motion deed niets
+  .sondeertool-app .sd-terugbalk { ... }
 
-Alles opgelost: de klassen binnen alle vier de @media-blokken zijn nu geprefixt.
-Gecontroleerd: nul ongeprefixte klassen in de hele stylesheet.
+Die selector matcht dus nooit. Het element staat buiten de wrapper.
 
-TWEE NIEUWE TESTS DIE DIT HADDEN MOETEN VINDEN
-==============================================
-  49  elke klasse in elke selector is geprefixt, ook binnen @media
-      Loopt de accolades na op elk niveau, niet alleen het buitenste.
-  50  elke klasse in de stylesheet komt ook echt voor in de markup, de client-JS
-      of index.js -- vangt het omgekeerde: dode CSS door een typefout of een
-      herbenoeming.
+Hoe dat erin kwam: ik heb de scope-script over de stylesheet gehaald nadat ik de
+terugbalk had toegevoegd, en dat script zet .sondeertool-app voor élke selector
+op het buitenste niveau -- inclusief deze, die daar juist niet hoort.
 
-Proef op de som: haal ik de prefix in het 640-blok weer weg, dan valt test 49 om.
-50 tests, alle geslaagd.
+Dat is dezelfde soort fout als vorige ronde, en de derde die uit die
+scope-en-prefix-bewerkingen komt. Mechanische wijzigingen over een hele
+stylesheet zijn precies zo betrouwbaar als de controle die erna komt, en die
+controle schreef ik telkens pas nadat jij de schade zag.
 
-WAT ER NU BIJ 360 PX GEBEURT
-============================
-  pagina-marge   2 x 0,875rem  =  28 px
-  paneelmarge    2 x 1rem      =  32 px
-  inhoud                        = 300 px
-    lineaal 2,25rem + grondslagkolom 2,5rem + marge = 88 px
-    grafiek                                          = 212 px
-  lagentabel: kolommen 3 en 6 verborgen -> 4 kolommen in 300 px
-  situatieschets: één kolom, met de metinglijst eronder
-  kerncijfers: één kolom
+OPGELOST
+========
+De regels voor .sd-terugbalk staan nu op het buitenste niveau, met een
+commentaar erboven dat uitlegt waarom ze daar moeten blijven. Botsen kan niet:
+de klasse is sd-geprefixt. Tegelijk iets netter gemaakt voor smalle schermen
+(padding 0,7rem / 1,125rem en 13 px tekst onder 420 px).
 
-Niets breder dan de 300 px die er is, dus geen horizontale schuifbalk meer.
+Live gecontroleerd op de uitgeleverde pagina:
+  terugbalk op positie 939, wrapper op 1010  -> staat buiten de wrapper
+  ongescopede CSS-regel aanwezig             -> 1
+  gescopede CSS-regel                        -> 0
 
-SAMENGEVAT: DIT WAS DE VIJFDE FOUT UIT DEZELFDE PREFIXRONDE
-===========================================================
-Die ene zoek-en-vervangactie om klassenbotsingen te voorkomen heeft twee dingen
-gebroken:
+NIEUWE TEST
+===========
+  51  alles wat buiten de wrapper wordt gezet, is ook buiten de wrapper opgemaakt
 
-  el('melding') -> el('sd-melding')     de zoekactie viel stil (ronde 11)
-  selectors binnen @media niet geprefixt  alle mobiele opmaak deed niets (nu)
+Die controleert drie dingen: dat de KOP-plaatshouder inderdaad boven de wrapper
+staat, dat .sd-terugbalk geen regel onder .sondeertool-app heeft, en dat hij wel
+een eigen regel op het buitenste niveau heeft.
 
-Beide zijn nu door een test gedekt, en beide waren te vinden geweest met een
-controle die ik direct na die ronde had moeten schrijven in plaats van erop te
-vertrouwen dat een mechanische wijziging wel goed zou zijn.
+Proef op de som: zet ik .sondeertool-app er weer voor, dan valt test 51 om.
+51 tests, alle geslaagd.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
   configurator.html  ONGEWIJZIGD sinds v13
-  src/sondeertool/   assets/sondeertool.css gecorrigeerd
+  src/sondeertool/   assets/sondeertool.css aangepast

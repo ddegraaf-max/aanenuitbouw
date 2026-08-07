@@ -1049,18 +1049,31 @@
 /* Terugbalk boven de tool. Staat buiten .sondeertool-app en heeft daarom een
    eigen, even specifieke naam. Wordt alleen getoond als je geen eigen
    navigatie via de optie `kop` meegeeft. */
-.sondeertool-app .sd-terugbalk {
+/* LET OP: deze regels staan met opzet NIET onder .sondeertool-app.
+   De terugbalk hoort bij de paginachrome en wordt daarom buiten die wrapper
+   gezet, boven de tool. Stond hij hier wel onder, dan matcht de regel nooit en
+   krijgt de bezoeker een standaard blauwe browserlink op wit -- wat precies is
+   gebeurd. Botsen kan niet: de klasse is sd-geprefixt. */
+.sd-terugbalk {
   font-family: 'Archivo', system-ui, sans-serif;
   font-size: 0.875rem;
+  line-height: 1.4;
   background: #16191c;
   padding: 0.85rem 1.5rem;
 }
-.sondeertool-app .sd-terugbalk a {
+.sd-terugbalk a {
   color: #f1ede3;
   text-decoration: none;
+  font-weight: 500;
 }
-.sondeertool-app .sd-terugbalk a:hover {
+.sd-terugbalk a:hover {
   color: #e07338;
+}
+@media (max-width: 420px) {
+  .sd-terugbalk {
+    padding: 0.7rem 1.125rem;
+    font-size: 0.813rem;
+  }
 }
 
 /* Versiestempel onderaan de pagina. Klein en grijs: bedoeld om te kunnen

@@ -648,3 +648,32 @@ test('css: elke klasse in de stylesheet komt ook in de markup of de client-JS vo
   const dood = [...inCss].filter((k) => !bronnen.includes(k));
   assert.deepEqual(dood, [], `deze CSS-klassen bestaan nergens in de markup: ${dood.join(', ')}`);
 });
+
+test('css: alles wat buiten de wrapper wordt gezet is ook buiten de wrapper opgemaakt', () => {
+  // De terugbalk en een eigen kop/voet worden BOVEN en ONDER
+  // div.sondeertool-app geplaatst, want dat is paginachrome en geen onderdeel
+  // van de tool. Regels daarvoor mogen dus niet onder .sondeertool-app staan,
+  // anders matchen ze nooit -- dan krijgt de bezoeker een standaard blauwe
+  // browserlink op wit, wat precies is gebeurd.
+  const serverJs = fs.readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8');
+
+  // Klassen die de server in de KOP-plaatshouder zet.
+  const buitenWrapper = [...new Set(
+    [...serverJs.matchAll(/standaardKop|sd-terugbalk/g)].length
+      ? ['sd-terugbalk'] : [],
+  )];
+  assert.deepEqual(buitenWrapper, ['sd-terugbalk'], 'verwachte de terugbalk als chrome-element');
+
+  // De plaatshouder moet inderdaad buiten de wrapper staan.
+  const posKop = paginaHtml.indexOf('{{KOP}}');
+  const posWrapper = paginaHtml.indexOf('<div class="sondeertool-app">');
+  assert.ok(posKop >= 0 && posWrapper >= 0);
+  assert.ok(posKop < posWrapper, 'KOP staat boven de wrapper');
+
+  for (const klasse of buitenWrapper) {
+    const gescoped = new RegExp(`\\.sondeertool-app\\s+\\.${klasse}\\b`).test(css);
+    const ongescoped = new RegExp(`(^|[},]\\s*)\\.${klasse}\\b`, 'm').test(css);
+    assert.equal(gescoped, false, `.${klasse} mag niet onder .sondeertool-app staan`);
+    assert.equal(ongescoped, true, `.${klasse} moet een eigen regel buiten de wrapper hebben`);
+  }
+});
