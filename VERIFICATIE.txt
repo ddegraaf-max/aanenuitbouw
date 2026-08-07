@@ -1,88 +1,74 @@
-VERIFICATIERAPPORT — ronde 13
+VERIFICATIERAPPORT — ronde 14
 =============================
 
-WAT IK HEB GEVONDEN
-===================
-Ik kan geen browser draaien, dus ik heb de stylesheet systematisch nagelopen op
-wat bij 360 px breed misgaat. Twee echte fouten en één gat.
+DE OORZAAK VAN DE ROMMELIGE MOBIELE PAGINA
+==========================================
+Jouw schermafdruk liet horizontale overloop zien: links viel inhoud weg, rechts
+stond een tweede kolom. En één detail wees de weg -- de lagentabel toonde ZES
+kolommen, terwijl "Dikte" en "Draagkracht" op mobiel verborgen horen te zijn.
 
-1. HET RESULTAATPANEEL STOND ER AL VOORDAT JE IETS ZOCHT
+De mobiele opmaak deed dus helemaal niets. Reden:
 
-   .sondeertool-app .sd-uitkomst { display: flex }
+  @media (max-width: 640px) {
+    .sondeertool-app .staat { ... }        <- moet .sd-staat zijn
+    .sondeertool-app .lagentabel { ... }   <- moet .sd-lagentabel zijn
+  }
 
-   Dat element heeft `hidden` in de markup, maar het standaardgedrag van
-   [hidden] heeft lagere specificiteit dan een klasseregel. Mijn display:flex
-   won dus, en daarmee stond de hele lege resultaatstructuur op de pagina:
-   "Uitkomst —", vier kerncijfers met streepjes, het donkere meetpaneel met een
-   leeg canvas, een lege situatieschets, een leeg formulier. Op een telefoon een
-   lap leegte onder het zoekveld, en dat is vermoedelijk precies wat je zag.
+In de ronde waarin ik alle klassen een sd-prefix gaf om botsingen met jouw
+site-CSS te voorkomen, liep mijn script alleen door de regels op het BUITENSTE
+niveau. Selectors binnen een @media-blok staan een niveau dieper en zijn
+overgeslagen. Beide breekpunten -- 860 px en 640 px -- verwezen daardoor naar
+klassen die niet bestaan.
 
-   Opgelost met één regel die het voor alle elementen afdwingt:
+Gevolg op een telefoon:
+  - .sd-situatie bleef tweekoloms (schets 320 px naast de metinglijst), waardoor
+    de pagina breder werd dan het scherm
+  - de lagentabel hield zes kolommen
+  - de sondeerstaat hield de brede kolomindeling
+  - --staat-hoogte bleef 520 px in plaats van 420
+  - ook prefers-reduced-motion deed niets
 
-     .sondeertool-app [hidden] { display: none !important; }
+Alles opgelost: de klassen binnen alle vier de @media-blokken zijn nu geprefixt.
+Gecontroleerd: nul ongeprefixte klassen in de hele stylesheet.
 
-   Dat dekt ook de suggestielijst, de meldingsbalk, de kaart en de leesbalk.
+TWEE NIEUWE TESTS DIE DIT HADDEN MOETEN VINDEN
+==============================================
+  49  elke klasse in elke selector is geprefixt, ook binnen @media
+      Loopt de accolades na op elk niveau, niet alleen het buitenste.
+  50  elke klasse in de stylesheet komt ook echt voor in de markup, de client-JS
+      of index.js -- vangt het omgekeerde: dode CSS door een typefout of een
+      herbenoeming.
 
-2. DE KOP PASTE NIET
+Proef op de som: haal ik de prefix in het 640-blok weer weg, dan valt test 49 om.
+50 tests, alle geslaagd.
 
-   <h1>Hoe diep zit de<br>draagkrachtige laag<br>onder uw aanbouw?</h1>
+WAT ER NU BIJ 360 PX GEBEURT
+============================
+  pagina-marge   2 x 0,875rem  =  28 px
+  paneelmarge    2 x 1rem      =  32 px
+  inhoud                        = 300 px
+    lineaal 2,25rem + grondslagkolom 2,5rem + marge = 88 px
+    grafiek                                          = 212 px
+  lagentabel: kolommen 3 en 6 verborgen -> 4 kolommen in 300 px
+  situatieschets: één kolom, met de metinglijst eronder
+  kerncijfers: één kolom
 
-   Met font-size clamp(2.25rem, 7vw, 4.25rem) valt de ondergrens van 36 px aan
-   op een smal scherm. "draagkrachtige laag" is dan ongeveer 340 px breed,
-   terwijl er 312 px is. Met twee harde regelafbrekingen erbij werd dat rommelig.
-   Onder 420 px is de kop nu 30 px en zijn die <br>'s uitgeschakeld, zodat de
-   tekst zelf breekt waar het past.
+Niets breder dan de 300 px die er is, dus geen horizontale schuifbalk meer.
 
-3. ER WAS GEEN BREEKPUNT VOOR TELEFOONS
+SAMENGEVAT: DIT WAS DE VIJFDE FOUT UIT DEZELFDE PREFIXRONDE
+===========================================================
+Die ene zoek-en-vervangactie om klassenbotsingen te voorkomen heeft twee dingen
+gebroken:
 
-   De stylesheet hield op bij 640 px. Een toestel van 360 px kreeg dus dezelfde
-   opmaak als een tablet van 639 px. Nieuw blok voor 420 px en smaller:
+  el('melding') -> el('sd-melding')     de zoekactie viel stil (ronde 11)
+  selectors binnen @media niet geprefixt  alle mobiele opmaak deed niets (nu)
 
-     kerncijfers        vier kolommen -> één kolom (in 150 px waren cijfer en
-                        toelichting samen onleesbaar)
-     grondslagkolom     5,5rem -> 2,5rem, en de laagnamen erin verborgen; die
-                        werden midden in een woord afgekapt. De kleuren blijven,
-                        de namen staan in de tabel eronder
-     tabs               volle breedte per sondering in plaats van halve blokjes
-     advies             pictogram dichter op de tekst, 2,5rem in plaats van 3,25
-     lagentabel         kleiner lettertype en krappere celmarges
-     paneelmarges       1,25rem -> 1rem, en de pagina 1,5rem -> 0,875rem
-
-   Ook toegevoegd: overflow-wrap: break-word op de hele module, zodat lange
-   woorden als "Zeer vast zand / grind" nooit buiten hun kader kunnen vallen.
-
-   En op de hoofdsite een klein breekpunt voor het bodemcheck-blok: de binnenmarge
-   van de postcodekaart van 26/24 px naar 20/16 px.
-
-TESTS
-=====
-48 tests, alle geslaagd (was 43). Vijf nieuwe, want dit zijn precies de dingen
-die je niet aan een schermafdruk ziet:
-
-  44  het hidden-attribuut wordt niet overschreven
-  45  er is een breekpunt op 480 px of smaller
-  46  geen vaste breedtes boven 320 px die kunnen overlopen
-  47  lange woorden kunnen afbreken
-  48  elke @keyframes wordt ook echt aangeroepen
-
-Proef op de som: haal ik de [hidden]-regel weg, dan valt test 44 om.
-
-Verder gecontroleerd na de wijziging: 4 scriptblokken in configurator.html
-geldig, JSON-LD geldig, 371 div's open en dicht, alle CSS-selectors nog gescoped
-onder .sondeertool-app (157 regels, 0 ongeprefixt).
-
-WAT IK NIET KAN CONTROLEREN
-===========================
-Hoe het er werkelijk uitziet. Ik heb hier geen browser en geen scherm. Wat ik
-heb gedaan is een fout wegnemen die met zekerheid verkeerd stond, en het gat in
-de breekpunten dichten.
-
-Ziet het er na deze deploy nog niet goed uit, stuur dan een schermafdruk van je
-telefoon. Dan zie ik in één blik wat er staat in plaats van te moeten afleiden
-wat er zou kunnen staan -- en dat heeft vanavond al te vaak rondjes gekost.
+Beide zijn nu door een test gedekt, en beide waren te vinden geweest met een
+controle die ik direct na die ronde had moeten schrijven in plaats van erop te
+vertrouwen dat een mechanische wijziging wel goed zou zijn.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
-  configurator.html  klein breekpunt voor het bodemcheck-blok toegevoegd
-  src/sondeertool/   assets/sondeertool.css aangepast
+  configurator.html  ONGEWIJZIGD sinds v13
+  src/sondeertool/   assets/sondeertool.css gecorrigeerd

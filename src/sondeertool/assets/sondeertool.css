@@ -433,8 +433,8 @@
 
 
 
-  .sondeertool-app .paneel,
-.sondeertool-app .kop__nadruk::after {
+  .sondeertool-app .sd-paneel,
+.sondeertool-app .sd-kop__nadruk::after {
     animation-duration: 0.01ms;
     animation-delay: 0ms;
   }
@@ -1002,7 +1002,7 @@
 
 
 
-  .sondeertool-app .situatie {
+  .sondeertool-app .sd-situatie {
     grid-template-columns: 1fr;
   }
 
@@ -1014,29 +1014,29 @@
 
 
 
-  .sondeertool-app .staat {
+  .sondeertool-app .sd-staat {
     grid-template-columns: 2.5rem 3.75rem minmax(0, 1fr);
   }
-  .sondeertool-app .lagenbalk,
-.sondeertool-app .grafiek {
+  .sondeertool-app .sd-lagenbalk,
+.sondeertool-app .sd-grafiek {
     --staat-hoogte: 420px;
   }
-  .sondeertool-app .laag__naam {
+  .sondeertool-app .sd-laag__naam {
     font-size: 0.531rem;
   }
-  .sondeertool-app .paneel {
+  .sondeertool-app .sd-paneel {
     padding: 1.25rem;
   }
-  .sondeertool-app .lagentabel {
+  .sondeertool-app .sd-lagentabel {
     font-size: 0.813rem;
   }
-  .sondeertool-app .lagentabel th:nth-child(3),
-.sondeertool-app .lagentabel td:nth-child(3),
-.sondeertool-app .lagentabel th:nth-child(6),
-.sondeertool-app .lagentabel td:nth-child(6) {
+  .sondeertool-app .sd-lagentabel th:nth-child(3),
+.sondeertool-app .sd-lagentabel td:nth-child(3),
+.sondeertool-app .sd-lagentabel th:nth-child(6),
+.sondeertool-app .sd-lagentabel td:nth-child(6) {
     display: none;
   }
-  .sondeertool-app .invoer .knop {
+  .sondeertool-app .sd-invoer .sd-knop {
     margin-top: 0;
     width: 100%;
     justify-content: center;

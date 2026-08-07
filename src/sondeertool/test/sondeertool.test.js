@@ -598,3 +598,53 @@ test('css: alle @keyframes worden ook aangeroepen, en omgekeerd', () => {
   const ongebruikt = [...gedefinieerd].filter((n) => !gebruikt.has(n));
   assert.deepEqual(ongebruikt, [], `deze keyframes worden nergens gebruikt: ${ongebruikt.join(', ')}`);
 });
+
+test('css: elke klasse in elke selector is geprefixt, ook binnen @media', () => {
+  // Bij het prefixen van alle klassen liep mijn script alleen door de regels op
+  // het buitenste niveau. Selectors binnen een @media-blok staan een niveau
+  // dieper en werden overgeslagen. Gevolg: beide mobiele breekpunten verwezen
+  // naar klassen die niet bestaan en deden helemaal niets -- de pagina werd op
+  // een telefoon breder dan het scherm.
+  const ongeprefixt = new Set();
+  let diepte = 0;
+  let start = 0;
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] === '{') {
+      const sel = css.slice(start, i).replace(/\/\*[\s\S]*?\*\//g, '').trim();
+      if (!sel.startsWith('@')) {
+        for (const m of sel.matchAll(/\.([a-zA-Z][\w-]*)/g)) {
+          if (m[1] !== 'sondeertool-app' && !m[1].startsWith('sd-')) ongeprefixt.add(m[1]);
+        }
+      }
+      diepte++;
+      start = i + 1;
+    } else if (css[i] === '}') {
+      diepte--;
+      start = i + 1;
+    }
+  }
+  assert.deepEqual([...ongeprefixt], [],
+    `deze klassen zijn niet geprefixt en matchen dus niets: ${[...ongeprefixt].join(', ')}`);
+});
+
+test('css: elke klasse in de stylesheet komt ook in de markup of de client-JS voor', () => {
+  // Vangt het omgekeerde: een selector voor een klasse die nergens bestaat is
+  // dode CSS, meestal door een typefout of een herbenoeming.
+  // Ook index.js meenemen: de terugbalk en de testmodusbalk worden server-side
+  // opgebouwd en staan dus niet in pagina.html.
+  const serverJs = fs.readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8');
+  const bronnen = paginaHtml + clientJs + serverJs;
+  const inCss = new Set();
+  let start = 0;
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] === '{') {
+      const sel = css.slice(start, i).replace(/\/\*[\s\S]*?\*\//g, '').trim();
+      if (!sel.startsWith('@')) for (const m of sel.matchAll(/\.(sd-[\w-]*)/g)) inCss.add(m[1]);
+      start = i + 1;
+    } else if (css[i] === '}') {
+      start = i + 1;
+    }
+  }
+  const dood = [...inCss].filter((k) => !bronnen.includes(k));
+  assert.deepEqual(dood, [], `deze CSS-klassen bestaan nergens in de markup: ${dood.join(', ')}`);
+});
