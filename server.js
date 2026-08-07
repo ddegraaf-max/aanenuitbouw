@@ -672,3 +672,58 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Resend API key: ${RESEND_API_KEY ? 'ingesteld' : 'NIET INGESTELD — formulier-verzending uit'}`);
   console.log(`Offertes worden gemaild naar: ${QUOTE_TO}`);
 });
+
+// ---------------------------------------------------------------------------
+// Nette afsluiting
+// ---------------------------------------------------------------------------
+// Bij elke deploy sluit Railway de oude container af met SIGTERM. Zonder een
+// eigen afhandeling doodt Node zichzelf met exitcode 143, en npm -- dat
+// `node server.js` verpakt -- rekent een signaal als een mislukking en sluit
+// zelf met een foutcode. Railway ziet dan een niet-nul exitcode en stuurt een
+// "Deployment crashed"-mail voor wat in werkelijkheid een normale herstart was.
+//
+// Met deze afhandeling sluiten we af met code 0: lopende verzoeken worden nog
+// afgemaakt, daarna stopt het proces netjes. Een crashmail betekent vanaf nu dus
+// dat er echt iets stuk is.
+
+let afsluitenBezig = false;
+
+function sluitNetjes(signaal) {
+  if (afsluitenBezig) return;
+  afsluitenBezig = true;
+  console.log(`${signaal} ontvangen — server sluit af, lopende verzoeken worden afgemaakt`);
+
+  server.close(() => {
+    console.log('Alle verbindingen afgehandeld, afgesloten');
+    process.exit(0);
+  });
+
+  // Keep-alive-verbindingen kunnen server.close() laten wachten. Vanaf Node 18.2
+  // kunnen inactieve verbindingen direct dicht.
+  if (typeof server.closeIdleConnections === 'function') server.closeIdleConnections();
+
+  // Noodrem: hangt er toch iets, dan na acht seconden alsnog met code 0 stoppen.
+  // Railway wacht standaard niet veel langer voordat het proces alsnog wordt
+  // gedood, en dat zou opnieuw als crash worden gerapporteerd.
+  setTimeout(() => {
+    console.log('Afsluiten duurde te lang — nu forceren');
+    process.exit(0);
+  }, 8000).unref();
+}
+
+process.on('SIGTERM', () => sluitNetjes('SIGTERM'));
+process.on('SIGINT', () => sluitNetjes('SIGINT'));
+
+// Een echte fout moet juist WEL als crash zichtbaar zijn, maar dan met de
+// volledige stack in de log zodat er iets aan te doen is. Zonder deze
+// afhandeling verdwijnt de oorzaak soms in de opstartruis.
+process.on('uncaughtException', (fout) => {
+  console.error('ONVERWACHTE FOUT — server stopt:', fout && fout.stack ? fout.stack : fout);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reden) => {
+  console.error('ONAFGEHANDELDE BELOFTE — server stopt:',
+    reden && reden.stack ? reden.stack : reden);
+  process.exit(1);
+});

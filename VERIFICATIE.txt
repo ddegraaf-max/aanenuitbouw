@@ -1,127 +1,84 @@
-BEVEILIGINGSCONTROLE — ronde 16
-===============================
+DEPLOY CRASHED — OORZAAK EN OPLOSSING (ronde 17)
+================================================
 
-Je vroeg of je data veilig is en of er niets openstaat. Het antwoord was NEE, en
-alle drie de bevindingen waren van mij.
+DE OORZAAK
+==========
+Uit je eerdere log:
 
-BEVINDING 1 — ERNSTIG: /bodemcheck/api/klantlog STOND PUBLIEK OPEN
-==================================================================
-Dat endpoint gaf aan IEDEREEN de laatste zestig meldingen uit browsers, met:
+  npm error command failed
+  npm error signal SIGTERM
 
-  - het opgezochte adres van elke bezoeker ("q=1401EX 5")
-  - de eerste 200 tekens van het antwoord, waarin de volledige adresomschrijving
-    stond ("Poststraat 5, 1401EX Bussum")
-  - het IP-adres van elke bezoeker
-  - de user-agent
+Bij elke deploy sluit Railway de oude container af met SIGTERM. Dat is normaal.
+Maar jouw startcommando is `npm start`, en npm verpakt `node server.js`. Als npm
+een signaal krijgt, sluit hij af met een foutcode. Railway ziet een niet-nul
+exitcode en stuurt een "Deployment crashed"-mail voor wat in werkelijkheid een
+nette herstart was. Elke deploy = één crashmail.
 
-Ik heb dat gebouwd om vanavond te kunnen debuggen en er geen slot op gezet. Dat
-is een privacylek: adres plus IP is een persoonsgegeven onder de AVG, en het was
-met één URL op te vragen door wie dan ook.
+GEMETEN
+=======
+  oude server.js, rechtstreeks gestart, SIGTERM   -> exitcode 143
+  nieuwe server.js, rechtstreeks gestart, SIGTERM -> exitcode 0
+  oude server.js via npm start, SIGTERM           -> exitcode 143
+  nieuwe server.js via npm start, SIGTERM         -> exitcode 143
 
-Opgelost: alleen op te vragen met een sleutel. Zonder geldige sleutel een 404 --
-niet een 403, want daarmee verklap je dat het endpoint bestaat.
+Die laatste regel is belangrijk, en hij weerlegt wat ik eerst dacht. Ik zei dat
+ik het in de code zou oplossen zodat het niet van een Railway-instelling
+afhangt. Dat is niet waar: met npm ertussen krijgt Node het signaal NIET eens.
+In de log staat de regel "SIGTERM ontvangen" dan helemaal niet -- npm vangt het
+signaal zelf op, sluit af met 143, en het Node-proces eronder wordt gedood.
 
-BEVINDING 2 — MATIG: RATE LIMITERS TE OMZEILEN
-==============================================
-Op drie plekken werd het IP bepaald met
+Er zijn dus TWEE dingen nodig, en de eerste is de belangrijkste.
 
-  (req.headers['x-forwarded-for'] || '').split(',')[0]
+STAP 1 — VERPLICHT: NPM UIT DE KETEN HALEN
+==========================================
+Railway → je service → Settings → Deploy → Custom Start Command:
 
-Die header mag een bezoeker zelf meesturen; Cloudflare zet de echte waarde
-erachter. Wie dus [0] leest, leest wat de bezoeker heeft OPGEGEVEN. Door bij elk
-verzoek een ander verzonnen IP te sturen was elke limiet te omzeilen, inclusief
-de tien inlogpogingen op /api/auth/check die ik eerder juist had toegevoegd om
-het raden van ADMIN_PASSWORD te stoppen.
+    node server.js
 
-Opgelost op alle drie de plekken -- twee in server.js (adminlogin en de publieke
-projectcode-check) en één in de module. Nu cf-connecting-ip, die door Cloudflare
-altijd wordt overschreven en dus niet te vervalsen is.
+Daarmee draait Node als hoofdproces en krijgt het het stopsignaal direct.
+Je package.json hoeft niet te veranderen; het start-script blijft bruikbaar voor
+lokaal gebruik. Bijkomend: de verwarrende "npm warn config production" in je log
+verdwijnt ook.
 
-BEVINDING 3 — LICHT: TE VEEL PRIJSGEVEN
-=======================================
-/api/versie gaf publiek de Node-versie en een lijst van bestandshashes. De
-Node-versie vertelt een aanvaller welke bekende kwetsbaarheden kunnen gelden.
-/api/diagnose gaf de BRO-basis-URL, de registratiedatum en het tijdsbudget.
+STAP 2 — DE CODE: NETJES AFSLUITEN
+==================================
+In server.js staat nu een afhandeling voor SIGTERM en SIGINT:
 
-Opgelost: publiek nog alleen versie, starttijd en assetversie -- precies wat de
-footer nodig heeft. Node-versie, bestandslijst en de diagnose-endpoints zitten
-achter de sleutel.
+  - lopende verzoeken worden afgemaakt (server.close)
+  - inactieve keep-alive-verbindingen gaan direct dicht
+  - daarna exitcode 0
+  - noodrem: hangt er toch iets, dan na acht seconden alsnog met code 0, want
+    Railway wacht niet veel langer voordat het proces alsnog wordt gedood
 
-TOEGEVOEGD: VALSTRIK OP HET AANVRAAGFORMULIER
-=============================================
-Het aanvraagformulier was het enige punt waar een bezoeker iets kon insturen, en
-het had geen enkele bescherming tegen bots -- terwijl je contactformulier die wel
-heeft. Nu een honeypot: een veld dat buiten beeld staat (niet met display:none,
-daar kijken de betere bots op) en dat een mens nooit invult. Is het gevuld, dan
-krijgt de bot een normaal uitziende bevestiging en wordt er niets verwerkt.
+Zonder stap 1 doet dit niets, want dan bereikt het signaal Node niet. Met stap 1
+erbij is de afsluiting nette én snel.
 
-DE SLEUTEL GEBRUIKEN
-====================
-Zonder instelling wordt er bij het opstarten een willekeurige sleutel gemaakt en
-in de Railway-log gezet:
+Ook toegevoegd: afhandeling van uncaughtException en unhandledRejection. Die
+laten het proces WEL stoppen met code 1 -- een echte fout moet als crash
+zichtbaar blijven -- maar schrijven eerst de volledige stack naar de log. Anders
+verdwijnt de oorzaak in de opstartruis en heb je aan de crashmail niets.
 
-  [sondeertool] diagnosesleutel voor deze deploy: 27e6eff14676bb24850c24b1
-  [sondeertool] gebruik: /bodemcheck/api/klantlog?sleutel=27e6eff14676bb24850c24b1
+WAT JE HIERNA ZIET
+==================
+  normale deploy  ->  "SIGTERM ontvangen — server sluit af, lopende verzoeken
+                      worden afgemaakt" en "Alle verbindingen afgehandeld",
+                      GEEN crashmail
+  echte fout      ->  crashmail, en in de log "ONVERWACHTE FOUT — server stopt"
+                      met de volledige stack
 
-LET OP: die regel verschijnt pas bij het EERSTE bezoek aan /bodemcheck na een
-deploy, omdat jouw server.js de module met require() binnen de request-handler
-laadt. Open dus eerst de pagina, kijk dan in de log.
+Daarmee is het verschil tussen een herstart en een storing weer uit je
+monitoring te lezen. Dat was het punt: een melding die altijd afgaat, negeer je
+op een dag precies wanneer het wel echt is.
 
-Handiger is een vaste sleutel. Zet in Railway onder Variables:
-
-  SONDEER_SLEUTEL = <iets lang en willekeurigs>
-
-Dan blijft hij gelijk over deploys. Kan ook via een header in plaats van de
-URL: x-sondeer-sleutel.
-
-WAT AL GOED WAS
-===============
-  broncode           /server.js, /package.json, /src/, /.env, /.git -> 404
-                     ook via de omweg /bodemcheck/assets/../../../server.js
-  jouw data          prices.json, planning.json en projects.json staan in /data,
-                     buiten ROOT, dus niet via de webserver te bereiken
-  adminwachtwoord    vergelijking zonder tijdverschil, 10 pogingen per 15 min,
-                     300 ms vertraging bij een misser
-  admin-endpoints    vereisen een Bearer-header; een formulier op een andere
-                     site kan die niet zetten, dus geen CSRF-risico
-  e-mail             geen headerinjectie mogelijk: CR/LF wordt gestript en het
-                     antwoordadres wordt op formaat gevalideerd
-  geen database      de module gebruikt geen SQL, dus geen injectiepad
-  BRO-gegevens       openbare overheidsdata, geen persoonsgegevens
-
-GEMETEN NA DE WIJZIGING
-=======================
-  zonder sleutel   /api/klantlog            404
-                   /api/diagnose            404
-                   /api/diagnose-sondering  404
-  met sleutel      /api/klantlog            200
-                   via header               200
-                   foute sleutel            404
-  /api/versie      publiek     versie, gestart, assetVersie
-                   met sleutel + node, bestanden
-  valstrik         gevuld -> geweigerd en gelogd, echte aanvraag komt door
-  broncode         /server.js /package.json /src/... /.env /.git/config -> 404
-
-Vijf nieuwe tests (56 totaal, alle geslaagd): sleutelcontrole op alle drie de
-endpoints, vergelijking zonder tijdverschil, geen Node-versie in het publieke
-antwoord, geen IP uit een vervalsbare header, en de valstrik.
-
-EEN AANRADER DIE IK NIET VOOR JE KAN DOEN
-=========================================
-Je ADMIN_PASSWORD is één gedeeld wachtwoord in een Bearer-header. Met de
-rate limiting erbij is dat redelijk, maar als het ooit uitlekt heeft iemand
-volledige toegang tot je prijzen, planning en projectcodes. Overweeg er een lang
-willekeurig wachtwoord van te maken als dat nog niet zo is.
-
-EN IETS DAT IK ONDERWEG ZELF FOUT DEED
-======================================
-Ik haalde bij dit werk het scope-script opnieuw over de stylesheet, waardoor de
-terugbalk weer verkeerd gescoped raakte. Test 51 -- die ik vorige ronde had
-toegevoegd -- betrapte dat meteen, voordat het bij jou terechtkwam. Dat is
-precies waarvoor die test bestaat.
+MOCHT HET NA STAP 1 TOCH TERUGKOMEN
+===================================
+Dan is het geen rollover maar een echte crash. Kijk in Railway bij Deployments
+naar het tijdstip en vergelijk dat met de deploy-log. Staat er
+"ONVERWACHTE FOUT — server stopt" met een stack, stuur die dan; daar staat dan
+precies in welk bestand en op welke regel het misgaat.
 
 BESTANDEN
 =========
-  server.js          IP-bepaling gecorrigeerd op twee plekken
+  server.js          nette afsluiting + foutafhandeling toegevoegd
   configurator.html  ONGEWIJZIGD sinds v13
-  src/sondeertool/   index.js, pagina.html en sondeertool.css aangepast
+  src/sondeertool/   ONGEWIJZIGD sinds v16
