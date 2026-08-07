@@ -549,3 +549,52 @@ test('client: een afgebroken verzoek geeft de juiste melding', async () => {
   assert.equal(c.log.intervals.size, 0);
   assert.match(c.el('sd-melding').textContent, /duurde te lang/i);
 });
+
+// ---------------------------------------------------------------------------
+// Opmaak: regels die je niet aan een schermafdruk kunt zien.
+// ---------------------------------------------------------------------------
+
+const css = fs.readFileSync(path.join(__dirname, '..', 'assets', 'sondeertool.css'), 'utf8');
+
+test('css: het hidden-attribuut wordt niet overschreven', () => {
+  // Mijn eigen regel .sd-uitkomst { display: flex } overschreef het
+  // standaardgedrag van [hidden], waardoor de lege resultaatstructuur al vóór
+  // het zoeken op de pagina stond.
+  assert.match(css, /\.sondeertool-app \[hidden\][^{]*\{[^}]*display:\s*none\s*!important/,
+    'er moet een regel zijn die [hidden] afdwingt');
+
+  // Elk element dat in de markup met hidden begint, moet ook echt verborgen
+  // blijven. Deze lijst haalt ze uit het template.
+  const metHidden = [...paginaHtml.matchAll(/id="(sd-[\w-]+)"[^>]*\shidden(?:\s|>)/g)].map((m) => m[1]);
+  assert.ok(metHidden.length >= 5, `verwacht meerdere verborgen elementen, vond ${metHidden.length}`);
+});
+
+test('css: er is een breekpunt voor telefoons', () => {
+  const breekpunten = [...css.matchAll(/@media \(max-width: (\d+)px\)/g)].map((m) => Number(m[1]));
+  assert.ok(breekpunten.some((b) => b <= 480),
+    `alleen breekpunten op ${breekpunten.join(', ')} px — een telefoon van 360 px krijgt dan de tabletopmaak`);
+});
+
+test('css: geen vaste breedtes die op een smal scherm overlopen', () => {
+  // width of min-width in px op meer dan 320 zou horizontaal schuiven geven.
+  const verdacht = [];
+  for (const m of css.matchAll(/(?:^|[;{])\s*(min-width|width)\s*:\s*(\d+)px/g)) {
+    if (Number(m[2]) > 320) verdacht.push(`${m[1]}: ${m[2]}px`);
+  }
+  assert.deepEqual(verdacht, [], `deze vaste breedtes kunnen overlopen: ${verdacht.join(', ')}`);
+});
+
+test('css: lange woorden kunnen afbreken', () => {
+  assert.match(css, /overflow-wrap:\s*break-word/,
+    '"draagkrachtige laag" en "Zeer vast zand / grind" moeten kunnen afbreken');
+});
+
+test('css: alle @keyframes worden ook aangeroepen, en omgekeerd', () => {
+  const gedefinieerd = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  const gebruikt = new Set();
+  for (const m of css.matchAll(/animation(?:-name)?\s*:\s*([^;]+)/g)) {
+    for (const naam of gedefinieerd) if (m[1].includes(naam)) gebruikt.add(naam);
+  }
+  const ongebruikt = [...gedefinieerd].filter((n) => !gebruikt.has(n));
+  assert.deepEqual(ongebruikt, [], `deze keyframes worden nergens gebruikt: ${ongebruikt.join(', ')}`);
+});

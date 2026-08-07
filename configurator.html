@@ -1876,6 +1876,16 @@ img, svg { display: block; max-width: 100%; }
     gap: 28px;
   }
 }
+@media (max-width: 420px) {
+  /* Op een telefoon is er binnen de container nog circa 300 px over; met de
+     oorspronkelijke binnenmarge bleef er te weinig ruimte voor het invoerveld. */
+  .bodemcheck-kaart {
+    padding: 20px 16px;
+  }
+  .bodemcheck-punten li {
+    padding-left: 24px;
+  }
+}
 
 /* ---------- Versiestempel ---------- */
 /* Laat zien welke versie er daadwerkelijk live staat. Na een upload moet dit

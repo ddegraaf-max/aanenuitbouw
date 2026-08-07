@@ -1,6 +1,6 @@
 --- configurator.html.origineel	2026-08-06 22:07:52.179232683 +0000
-+++ configurator.html	2026-08-06 22:40:49.022153084 +0000
-@@ -1771,6 +1771,137 @@
++++ configurator.html	2026-08-07 00:12:01.367585524 +0000
+@@ -1771,6 +1771,147 @@
    /* Bel-knop in hero stat-rij voorkomt overlopen */
    .hero-stat-num { font-size: 23px; }
  }
@@ -109,6 +109,16 @@
 +    gap: 28px;
 +  }
 +}
++@media (max-width: 420px) {
++  /* Op een telefoon is er binnen de container nog circa 300 px over; met de
++     oorspronkelijke binnenmarge bleef er te weinig ruimte voor het invoerveld. */
++  .bodemcheck-kaart {
++    padding: 20px 16px;
++  }
++  .bodemcheck-punten li {
++    padding-left: 24px;
++  }
++}
 +
 +/* ---------- Versiestempel ---------- */
 +/* Laat zien welke versie er daadwerkelijk live staat. Na een upload moet dit
@@ -138,7 +148,7 @@
  </style>
  </head>
  <body>
-@@ -1795,6 +1926,7 @@
+@@ -1795,6 +1936,7 @@
        <a href="#diensten">Diensten</a>
        <a href="#plannen">Plannen</a>
        <a href="#proces">Proces</a>
@@ -146,7 +156,7 @@
        <a href="#configurator">Configurator</a>
        <a href="#over-ons">Over ons</a>
        <a href="#werk" data-nav="werk">Werk</a>
-@@ -2127,6 +2259,38 @@
+@@ -2127,6 +2269,38 @@
  </section>
  
  <!-- ═══════════════════════════════════════════════════
@@ -185,7 +195,7 @@
       CONFIGURATOR
       ═══════════════════════════════════════════════════ -->
  <section id="configurator" class="section section-light configurator-section">
-@@ -2367,6 +2531,7 @@
+@@ -2367,6 +2541,7 @@
          <a href="#diensten">Diensten</a>
          <a href="#plannen">Plannen</a>
          <a href="#proces">Proces</a>
@@ -193,7 +203,7 @@
          <a href="#configurator">Configurator</a>
        </div>
        <div class="footer-col">
-@@ -2386,6 +2551,7 @@
+@@ -2386,6 +2561,7 @@
      <div class="footer-bottom">
        <div>© 2026 Creditline BV. Alle rechten voorbehouden.</div>
        <div>KvK 59683198 · BTW NL853603108B01</div>
@@ -201,7 +211,7 @@
        <a href="#" class="beheer-link" onclick="event.preventDefault(); openAdminLogin();" title="Beheerder-toegang">
          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.6"/>
-@@ -4592,6 +4758,33 @@
+@@ -4592,6 +4768,33 @@
  </script>
  
  <!-- 100% privacy-first analytics (Simple Analytics, geen cookies) -->

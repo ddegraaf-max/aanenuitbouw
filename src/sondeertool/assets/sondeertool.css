@@ -39,6 +39,12 @@
   box-sizing: border-box;
 }
 
+/* "draagkrachtige laag" en "Zeer vast zand / grind" zijn lang; op een smal
+   scherm mogen die niet buiten hun kader vallen. */
+.sondeertool-app {
+  overflow-wrap: break-word;
+}
+
 .sondeertool-app /* Defensieve reset binnen de module. Jouw site-CSS mag hier niet in lekken:
    een globale `button { border-radius: 99px }.sondeertool-app ` of `li::before { content: "•" }.sondeertool-app `
    zou het meetpaneel slopen. Alleen eigenschappen die ik verderop niet zelf
@@ -56,6 +62,16 @@
   appearance: none;
   -webkit-appearance: none;
 }
+.sondeertool-app /* Het hidden-attribuut moet altijd winnen. Mijn eigen regel
+   `.sd-uitkomst { display: flex }.sondeertool-app ` overschreed het standaardgedrag van
+   [hidden],
+.sondeertool-app waardoor de hele lege resultaatstructuur al op de pagina stond
+   voordat er iets was gezocht -- op een telefoon een lap leegte onder het
+   zoekveld. Deze regel maakt dat voor alle elementen onmogelijk. */
+.sondeertool-app [hidden] {
+  display: none !important;
+}
+
 .sondeertool-app ul,
 .sondeertool-app ol {
   list-style: none;
@@ -195,9 +211,9 @@
   border: 2px solid currentColor;
   border-top-color: transparent;
   border-radius: 50%;
-  animation: sd-sd-tol 0.7s linear infinite;
+  animation: sd-sd-sd-tol 0.7s linear infinite;
 }
-@keyframes sd-sd-tol {
+@keyframes sd-sd-sd-tol {
   to {
     transform: rotate(360deg);
   }
@@ -273,9 +289,9 @@
   background: var(--signaal);
   transform: scaleX(0);
   transform-origin: left;
-  animation: sd-sd-streep 0.7s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: sd-sd-sd-streep 0.7s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-@keyframes sd-sd-streep {
+@keyframes sd-sd-sd-streep {
   to {
     transform: scaleX(1);
   }
@@ -396,7 +412,7 @@
   box-shadow: var(--schaduw);
   opacity: 0;
   transform: translateY(14px);
-  animation: sd-sd-opkomen 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: sd-sd-sd-opkomen 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 .sondeertool-app .sd-paneel:nth-of-type(2) {
   animation-delay: 0.09s;
@@ -407,7 +423,7 @@
 .sondeertool-app .sd-paneel:nth-of-type(4) {
   animation-delay: 0.27s;
 }
-@keyframes sd-sd-opkomen {
+@keyframes sd-sd-sd-opkomen {
   to {
     opacity: 1;
     transform: none;
@@ -416,11 +432,13 @@
 @media (prefers-reduced-motion: reduce) {
 
 
+
   .sondeertool-app .paneel,
 .sondeertool-app .kop__nadruk::after {
     animation-duration: 0.01ms;
     animation-delay: 0ms;
   }
+
 
 
 }
@@ -645,9 +663,9 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.35);
   transform: scaleY(0);
   transform-origin: top;
-  animation: sd-sd-laagIn 0.45s cubic-bezier(0.3, 0.9, 0.2, 1) forwards;
+  animation: sd-sd-sd-laagIn 0.45s cubic-bezier(0.3, 0.9, 0.2, 1) forwards;
 }
-@keyframes sd-sd-laagIn {
+@keyframes sd-sd-sd-laagIn {
   to {
     transform: scaleY(1);
   }
@@ -983,14 +1001,17 @@
 @media (max-width: 860px) {
 
 
+
   .sondeertool-app .situatie {
     grid-template-columns: 1fr;
   }
 
 
+
 }
 
 @media (max-width: 640px) {
+
 
 
   .sondeertool-app .staat {
@@ -1022,22 +1043,23 @@
   }
 
 
+
 }
 
 /* Terugbalk boven de tool. Staat buiten .sondeertool-app en heeft daarom een
    eigen, even specifieke naam. Wordt alleen getoond als je geen eigen
    navigatie via de optie `kop` meegeeft. */
-.sd-terugbalk {
+.sondeertool-app .sd-terugbalk {
   font-family: 'Archivo', system-ui, sans-serif;
   font-size: 0.875rem;
   background: #16191c;
   padding: 0.85rem 1.5rem;
 }
-.sd-terugbalk a {
+.sondeertool-app .sd-terugbalk a {
   color: #f1ede3;
   text-decoration: none;
 }
-.sd-terugbalk a:hover {
+.sondeertool-app .sd-terugbalk a:hover {
   color: #e07338;
 }
 
@@ -1049,4 +1071,87 @@
   letter-spacing: 0.06em;
   color: var(--inkt-flauw);
   margin: 1.25rem 0 0;
+}
+
+/* --- Telefoons (tot 420 px) ------------------------------------------------ */
+/* De vorige stylesheet hield op bij 640 px. Alles hieronder is afgestemd op een
+   scherm van 360 tot 400 px breed, waar de ruimte binnen een paneel nog maar
+   ongeveer 300 px is. */
+
+@media (max-width: 420px) {
+
+  /* De kop had twee harde regelafbrekingen. Met een minimum van 36 px paste
+     "draagkrachtige laag" niet meer op één regel, waardoor de indeling
+     rommelig werd. Nu breekt de tekst zelf waar het past. */
+  .sondeertool-app .sd-kop h1 {
+    font-size: 1.875rem;
+    letter-spacing: -0.02em;
+  }
+  .sondeertool-app .sd-kop h1 br {
+    display: none;
+  }
+  .sondeertool-app .sd-kop {
+    padding-left: 1.125rem;
+    padding-right: 1.125rem;
+  }
+  .sondeertool-app .sd-kop__intro {
+    font-size: 1rem;
+  }
+
+  .sondeertool-app .sd-uitkomst {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+  .sondeertool-app .sd-paneel {
+    padding: 1rem;
+  }
+
+  /* Vier kerncijfers naast elkaar in 150 px werden onleesbaar; onder elkaar
+     is er ruimte voor het cijfer én de toelichting. */
+  .sondeertool-app .sd-kerncijfers {
+    grid-template-columns: 1fr;
+  }
+
+  /* De grondslagkolom is hier te smal voor de labels; die werden midden in een
+     woord afgekapt. De kleuren blijven, de namen staan in de tabel eronder. */
+  .sondeertool-app .sd-staat {
+    grid-template-columns: 2.25rem 2.5rem minmax(0, 1fr);
+  }
+  .sondeertool-app .sd-laag__naam {
+    display: none;
+  }
+
+  /* Toelichtingen bij het advies: het pictogram kleiner en dichter op de tekst. */
+  .sondeertool-app .sd-advies li {
+    padding: 0.85rem 0.85rem 0.85rem 2.5rem;
+    font-size: 0.938rem;
+  }
+  .sondeertool-app .sd-advies li::before {
+    left: 0.6rem;
+    width: 1.35rem;
+  }
+
+  .sondeertool-app .sd-lagentabel {
+    font-size: 0.75rem;
+  }
+  .sondeertool-app .sd-lagentabel th,
+.sondeertool-app .sd-lagentabel td {
+    padding: 0.4rem 0.35rem;
+  }
+
+  /* De tabs met BRO-nummers vullen de volle breedte, dat leest rustiger dan
+     twee halve blokjes naast elkaar. */
+  .sondeertool-app .sd-tabs {
+    width: 100%;
+  }
+  .sondeertool-app .sd-tabs button {
+    flex: 1 1 100%;
+  }
+
+  .sondeertool-app .sd-uitleg,
+.sondeertool-app .sd-voet {
+    padding-left: 1.125rem;
+    padding-right: 1.125rem;
+  }
+
 }

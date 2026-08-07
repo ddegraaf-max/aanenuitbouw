@@ -1,80 +1,88 @@
-VERIFICATIERAPPORT — ronde 12
+VERIFICATIERAPPORT — ronde 13
 =============================
 
-DE FOUT VAN DE VORIGE ZIP WAS DE MIJNE, EN NIEUW
-================================================
-Uit jouw klantlog, zeven keer achter elkaar:
+WAT IK HEB GEVONDEN
+===================
+Ik kan geen browser draaien, dus ik heb de stylesheet systematisch nagelopen op
+wat bij 360 px breed misgaat. Twee echte fouten en één gat.
 
-  "Uncaught ReferenceError: Cannot access 'VERPLICHTE_IDS' before
-   initialization @ .../sondeertool.js?v=fd16d01668:58:22"
+1. HET RESULTAATPANEEL STOND ER AL VOORDAT JE IETS ZOCHT
 
-De zelfcontrole die ik vorige ronde toevoegde om ontbrekende elementen te
-betrappen, gebruikte een const die verderop in het bestand werd gedeclareerd.
-Dat is een temporal dead zone: de hele JS valt om bij het laden. Ik heb dus een
-controle ingebouwd die zelf de storing werd.
+   .sondeertool-app .sd-uitkomst { display: flex }
 
-Opgelost door de lijst direct boven het gebruik te zetten.
+   Dat element heeft `hidden` in de markup, maar het standaardgedrag van
+   [hidden] heeft lagere specificiteit dan een klasseregel. Mijn display:flex
+   won dus, en daarmee stond de hele lege resultaatstructuur op de pagina:
+   "Uitkomst —", vier kerncijfers met streepjes, het donkere meetpaneel met een
+   leeg canvas, een lege situatieschets, een leeg formulier. Op een telefoon een
+   lap leegte onder het zoekveld, en dat is vermoedelijk precies wat je zag.
 
-DE ECHTE MAATREGEL: DE BROWSERCODE WORDT NU UITGEVOERD IN DE TESTS
-==================================================================
-Drie fouten op rij zaten in de browserkant en geen enkele test raakte die. Al
-mijn 36 tests draaiden op de serverkant. Dat is nu opgelost met een minimale
-nabootsing van een browser (test/dom-shim.js, geen dependencies): document,
-getElementById, querySelector, canvas-context, timers, fetch. De echte
-assets/sondeertool.js wordt daarin uitgevoerd.
+   Opgelost met één regel die het voor alle elementen afdwingt:
 
-Zeven nieuwe tests, waarvan vier een volledige zoekactie doorlopen:
+     .sondeertool-app [hidden] { display: none !important; }
 
-  37  het bestand wordt zonder fout uitgevoerd
-  38  de zelfcontrole vindt alle benodigde elementen
-  39  volledige zoekactie: resultaatpaneel zichtbaar, tabs en lagentabel gevuld,
-      voortgangstimer gestopt, knop weer bruikbaar
-  40  serverfout (502): melding zichtbaar, knop niet blijvend uitgeschakeld
-  41  onverwacht antwoord (HTML in plaats van JSON): nette melding
-  42  netwerkfout: komt in de catch, melding "verbinding is mislukt"
-  43  afgebroken verzoek: melding "duurde te lang"
+   Dat dekt ook de suggestielijst, de meldingsbalk, de kaart en de leesbalk.
 
-DE PROEF OP DE SOM
-==================
-Ik heb alle drie de fouten van vanavond opnieuw ingebracht en gekeken of de
-tests ze betrappen:
+2. DE KOP PASTE NIET
 
-  el('melding') -> el('sd-melding')                4 tests falen
-  VERPLICHTE_IDS na het gebruik gedeclareerd       5 tests falen
-  starttijd als const binnen de try                2 tests falen
+   <h1>Hoe diep zit de<br>draagkrachtige laag<br>onder uw aanbouw?</h1>
 
-Na herstel: 43 tests, alle geslaagd. Die derde glipte er eerst nog door, omdat
-geen enkele test de catch-tak raakte; test 42 en 43 dekken die nu.
+   Met font-size clamp(2.25rem, 7vw, 4.25rem) valt de ondergrens van 36 px aan
+   op een smal scherm. "draagkrachtige laag" is dan ongeveer 340 px breed,
+   terwijl er 312 px is. Met twee harde regelafbrekingen erbij werd dat rommelig.
+   Onder 420 px is de kop nu 30 px en zijn die <br>'s uitgeschakeld, zodat de
+   tekst zelf breekt waar het past.
 
-WAT ER VANAVOND IS MISGEGAAN, EERLIJK OPGESCHREVEN
-==================================================
-Vier oorzaken, in de volgorde waarin ze zich voordeden:
+3. ER WAS GEEN BREEKPUNT VOOR TELEFOONS
 
-  1. het zoekantwoord van de BRO is XML, geen JSON
-  2. de meetreeks staat in 25 vaste kolommen zonder veldnamen, niet in het
-     formaat uit de specificatie
-  3. el('sd-melding') zocht een niet-bestaand id, waardoor elke zoekactie
-     stilviel met een eeuwig doorlopende voortgangstimer
-  4. mijn eigen zelfcontrole gebruikte een const voor de declaratie
+   De stylesheet hield op bij 640 px. Een toestel van 360 px kreeg dus dezelfde
+   opmaak als een tablet van 639 px. Nieuw blok voor 420 px en smaller:
 
-Nummer 1 en 2 kon ik niet weten zonder de echte BRO te zien; daarvoor was het
-diagnose-endpoint nodig en dat had ik meteen moeten bouwen in plaats van na drie
-rondes. Nummer 3 en 4 zijn fouten die een test had moeten vinden, en die tests
-bestonden niet omdat ik de browserkant ongedekt liet. Mijn tussentijdse
-verklaringen -- traagheid, Cloudflare, dubbele verzoeken -- waren plausibel en
-alle drie fout, en ik heb ze te lang als vermoeden behandeld in plaats van eerst
-meetbaar te maken wat er gebeurde.
+     kerncijfers        vier kolommen -> één kolom (in 150 px waren cijfer en
+                        toelichting samen onleesbaar)
+     grondslagkolom     5,5rem -> 2,5rem, en de laagnamen erin verborgen; die
+                        werden midden in een woord afgekapt. De kleuren blijven,
+                        de namen staan in de tabel eronder
+     tabs               volle breedte per sondering in plaats van halve blokjes
+     advies             pictogram dichter op de tekst, 2,5rem in plaats van 3,25
+     lagentabel         kleiner lettertype en krappere celmarges
+     paneelmarges       1,25rem -> 1rem, en de pagina 1,5rem -> 0,875rem
 
-NA DE DEPLOY
-============
-/bodemcheck, adres invullen, zoeken. De grondlagen in kleur naast de qc-curve.
+   Ook toegevoegd: overflow-wrap: break-word op de hele module, zodat lange
+   woorden als "Zeer vast zand / grind" nooit buiten hun kader kunnen vallen.
 
-Blijft er iets hangen: /bodemcheck/api/klantlog. Daar staat nu ook een regel
-"elementen-ontbreken" als er markup mist, en elke JS-fout met bestand en
-regelnummer.
+   En op de hoofdsite een klein breekpunt voor het bodemcheck-blok: de binnenmarge
+   van de postcodekaart van 26/24 px naar 20/16 px.
+
+TESTS
+=====
+48 tests, alle geslaagd (was 43). Vijf nieuwe, want dit zijn precies de dingen
+die je niet aan een schermafdruk ziet:
+
+  44  het hidden-attribuut wordt niet overschreven
+  45  er is een breekpunt op 480 px of smaller
+  46  geen vaste breedtes boven 320 px die kunnen overlopen
+  47  lange woorden kunnen afbreken
+  48  elke @keyframes wordt ook echt aangeroepen
+
+Proef op de som: haal ik de [hidden]-regel weg, dan valt test 44 om.
+
+Verder gecontroleerd na de wijziging: 4 scriptblokken in configurator.html
+geldig, JSON-LD geldig, 371 div's open en dicht, alle CSS-selectors nog gescoped
+onder .sondeertool-app (157 regels, 0 ongeprefixt).
+
+WAT IK NIET KAN CONTROLEREN
+===========================
+Hoe het er werkelijk uitziet. Ik heb hier geen browser en geen scherm. Wat ik
+heb gedaan is een fout wegnemen die met zekerheid verkeerd stond, en het gat in
+de breekpunten dichten.
+
+Ziet het er na deze deploy nog niet goed uit, stuur dan een schermafdruk van je
+telefoon. Dan zie ik in één blik wat er staat in plaats van te moeten afleiden
+wat er zou kunnen staan -- en dat heeft vanavond al te vaak rondjes gekost.
 
 BESTANDEN
 =========
   server.js          ONGEWIJZIGD sinds de eerste ZIP
-  configurator.html  ONGEWIJZIGD sinds v5
-  src/sondeertool/   assets/sondeertool.js gecorrigeerd, test/dom-shim.js nieuw
+  configurator.html  klein breekpunt voor het bodemcheck-blok toegevoegd
+  src/sondeertool/   assets/sondeertool.css aangepast
