@@ -1,60 +1,127 @@
-VERIFICATIERAPPORT — ronde 15
-=============================
+BEVEILIGINGSCONTROLE — ronde 16
+===============================
 
-WAT ER OP JE SCHERMAFDRUK MIS WAS
-=================================
-De pagina zelf staat nu goed: kop op drie regels, tekst binnen de marges, één
-kolom, geen horizontale schuifbalk meer. Eén ding viel eruit:
+Je vroeg of je data veilig is en of er niets openstaat. Het antwoord was NEE, en
+alle drie de bevindingen waren van mij.
 
-  "← Terug naar de website" stond als standaard blauwpaarse browserlink op wit,
-  in het verkeerde lettertype, in plaats van als donkere balk.
+BEVINDING 1 — ERNSTIG: /bodemcheck/api/klantlog STOND PUBLIEK OPEN
+==================================================================
+Dat endpoint gaf aan IEDEREEN de laatste zestig meldingen uit browsers, met:
 
-OORZAAK
-=======
-De terugbalk wordt BOVEN div.sondeertool-app geplaatst. Dat is opzet: het is
-paginachrome, geen onderdeel van de tool, en zo kun je er later je eigen
-navigatie in zetten zonder dat mijn resets daarop van toepassing zijn.
+  - het opgezochte adres van elke bezoeker ("q=1401EX 5")
+  - de eerste 200 tekens van het antwoord, waarin de volledige adresomschrijving
+    stond ("Poststraat 5, 1401EX Bussum")
+  - het IP-adres van elke bezoeker
+  - de user-agent
 
-Maar de opmaak ervoor stond wél onder de wrapper:
+Ik heb dat gebouwd om vanavond te kunnen debuggen en er geen slot op gezet. Dat
+is een privacylek: adres plus IP is een persoonsgegeven onder de AVG, en het was
+met één URL op te vragen door wie dan ook.
 
-  .sondeertool-app .sd-terugbalk { ... }
+Opgelost: alleen op te vragen met een sleutel. Zonder geldige sleutel een 404 --
+niet een 403, want daarmee verklap je dat het endpoint bestaat.
 
-Die selector matcht dus nooit. Het element staat buiten de wrapper.
+BEVINDING 2 — MATIG: RATE LIMITERS TE OMZEILEN
+==============================================
+Op drie plekken werd het IP bepaald met
 
-Hoe dat erin kwam: ik heb de scope-script over de stylesheet gehaald nadat ik de
-terugbalk had toegevoegd, en dat script zet .sondeertool-app voor élke selector
-op het buitenste niveau -- inclusief deze, die daar juist niet hoort.
+  (req.headers['x-forwarded-for'] || '').split(',')[0]
 
-Dat is dezelfde soort fout als vorige ronde, en de derde die uit die
-scope-en-prefix-bewerkingen komt. Mechanische wijzigingen over een hele
-stylesheet zijn precies zo betrouwbaar als de controle die erna komt, en die
-controle schreef ik telkens pas nadat jij de schade zag.
+Die header mag een bezoeker zelf meesturen; Cloudflare zet de echte waarde
+erachter. Wie dus [0] leest, leest wat de bezoeker heeft OPGEGEVEN. Door bij elk
+verzoek een ander verzonnen IP te sturen was elke limiet te omzeilen, inclusief
+de tien inlogpogingen op /api/auth/check die ik eerder juist had toegevoegd om
+het raden van ADMIN_PASSWORD te stoppen.
 
-OPGELOST
-========
-De regels voor .sd-terugbalk staan nu op het buitenste niveau, met een
-commentaar erboven dat uitlegt waarom ze daar moeten blijven. Botsen kan niet:
-de klasse is sd-geprefixt. Tegelijk iets netter gemaakt voor smalle schermen
-(padding 0,7rem / 1,125rem en 13 px tekst onder 420 px).
+Opgelost op alle drie de plekken -- twee in server.js (adminlogin en de publieke
+projectcode-check) en één in de module. Nu cf-connecting-ip, die door Cloudflare
+altijd wordt overschreven en dus niet te vervalsen is.
 
-Live gecontroleerd op de uitgeleverde pagina:
-  terugbalk op positie 939, wrapper op 1010  -> staat buiten de wrapper
-  ongescopede CSS-regel aanwezig             -> 1
-  gescopede CSS-regel                        -> 0
+BEVINDING 3 — LICHT: TE VEEL PRIJSGEVEN
+=======================================
+/api/versie gaf publiek de Node-versie en een lijst van bestandshashes. De
+Node-versie vertelt een aanvaller welke bekende kwetsbaarheden kunnen gelden.
+/api/diagnose gaf de BRO-basis-URL, de registratiedatum en het tijdsbudget.
 
-NIEUWE TEST
-===========
-  51  alles wat buiten de wrapper wordt gezet, is ook buiten de wrapper opgemaakt
+Opgelost: publiek nog alleen versie, starttijd en assetversie -- precies wat de
+footer nodig heeft. Node-versie, bestandslijst en de diagnose-endpoints zitten
+achter de sleutel.
 
-Die controleert drie dingen: dat de KOP-plaatshouder inderdaad boven de wrapper
-staat, dat .sd-terugbalk geen regel onder .sondeertool-app heeft, en dat hij wel
-een eigen regel op het buitenste niveau heeft.
+TOEGEVOEGD: VALSTRIK OP HET AANVRAAGFORMULIER
+=============================================
+Het aanvraagformulier was het enige punt waar een bezoeker iets kon insturen, en
+het had geen enkele bescherming tegen bots -- terwijl je contactformulier die wel
+heeft. Nu een honeypot: een veld dat buiten beeld staat (niet met display:none,
+daar kijken de betere bots op) en dat een mens nooit invult. Is het gevuld, dan
+krijgt de bot een normaal uitziende bevestiging en wordt er niets verwerkt.
 
-Proef op de som: zet ik .sondeertool-app er weer voor, dan valt test 51 om.
-51 tests, alle geslaagd.
+DE SLEUTEL GEBRUIKEN
+====================
+Zonder instelling wordt er bij het opstarten een willekeurige sleutel gemaakt en
+in de Railway-log gezet:
+
+  [sondeertool] diagnosesleutel voor deze deploy: 27e6eff14676bb24850c24b1
+  [sondeertool] gebruik: /bodemcheck/api/klantlog?sleutel=27e6eff14676bb24850c24b1
+
+LET OP: die regel verschijnt pas bij het EERSTE bezoek aan /bodemcheck na een
+deploy, omdat jouw server.js de module met require() binnen de request-handler
+laadt. Open dus eerst de pagina, kijk dan in de log.
+
+Handiger is een vaste sleutel. Zet in Railway onder Variables:
+
+  SONDEER_SLEUTEL = <iets lang en willekeurigs>
+
+Dan blijft hij gelijk over deploys. Kan ook via een header in plaats van de
+URL: x-sondeer-sleutel.
+
+WAT AL GOED WAS
+===============
+  broncode           /server.js, /package.json, /src/, /.env, /.git -> 404
+                     ook via de omweg /bodemcheck/assets/../../../server.js
+  jouw data          prices.json, planning.json en projects.json staan in /data,
+                     buiten ROOT, dus niet via de webserver te bereiken
+  adminwachtwoord    vergelijking zonder tijdverschil, 10 pogingen per 15 min,
+                     300 ms vertraging bij een misser
+  admin-endpoints    vereisen een Bearer-header; een formulier op een andere
+                     site kan die niet zetten, dus geen CSRF-risico
+  e-mail             geen headerinjectie mogelijk: CR/LF wordt gestript en het
+                     antwoordadres wordt op formaat gevalideerd
+  geen database      de module gebruikt geen SQL, dus geen injectiepad
+  BRO-gegevens       openbare overheidsdata, geen persoonsgegevens
+
+GEMETEN NA DE WIJZIGING
+=======================
+  zonder sleutel   /api/klantlog            404
+                   /api/diagnose            404
+                   /api/diagnose-sondering  404
+  met sleutel      /api/klantlog            200
+                   via header               200
+                   foute sleutel            404
+  /api/versie      publiek     versie, gestart, assetVersie
+                   met sleutel + node, bestanden
+  valstrik         gevuld -> geweigerd en gelogd, echte aanvraag komt door
+  broncode         /server.js /package.json /src/... /.env /.git/config -> 404
+
+Vijf nieuwe tests (56 totaal, alle geslaagd): sleutelcontrole op alle drie de
+endpoints, vergelijking zonder tijdverschil, geen Node-versie in het publieke
+antwoord, geen IP uit een vervalsbare header, en de valstrik.
+
+EEN AANRADER DIE IK NIET VOOR JE KAN DOEN
+=========================================
+Je ADMIN_PASSWORD is één gedeeld wachtwoord in een Bearer-header. Met de
+rate limiting erbij is dat redelijk, maar als het ooit uitlekt heeft iemand
+volledige toegang tot je prijzen, planning en projectcodes. Overweeg er een lang
+willekeurig wachtwoord van te maken als dat nog niet zo is.
+
+EN IETS DAT IK ONDERWEG ZELF FOUT DEED
+======================================
+Ik haalde bij dit werk het scope-script opnieuw over de stylesheet, waardoor de
+terugbalk weer verkeerd gescoped raakte. Test 51 -- die ik vorige ronde had
+toegevoegd -- betrapte dat meteen, voordat het bij jou terechtkwam. Dat is
+precies waarvoor die test bestaat.
 
 BESTANDEN
 =========
-  server.js          ONGEWIJZIGD sinds de eerste ZIP
+  server.js          IP-bepaling gecorrigeerd op twee plekken
   configurator.html  ONGEWIJZIGD sinds v13
-  src/sondeertool/   assets/sondeertool.css aangepast
+  src/sondeertool/   index.js, pagina.html en sondeertool.css aangepast

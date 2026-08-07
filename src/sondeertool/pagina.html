@@ -173,6 +173,13 @@
       <label>Waar gaat het om?
         <textarea name="toelichting" rows="3" placeholder="Bijvoorbeeld: aanbouw 4 x 6 m aan de achterzijde, jaren-30 woning."></textarea>
       </label>
+      <!-- Honeypot: onzichtbaar voor bezoekers en voor schermlezers, maar een
+           formulierbot vult hem doorgaans wel. Zelfde aanpak als op je
+           contactformulier. Staat er iets in, dan wordt de aanvraag stil
+           genegeerd met een normaal uitziende bevestiging. -->
+      <div class="sd-valstrik" aria-hidden="true">
+        <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      </div>
       <div class="sd-vraagform__voet">
         <button type="submit" class="sd-knop sd-knop--primair">Sondering aanvragen</button>
         <p class="sd-hint">Wij gebruiken uw gegevens alleen om op deze aanvraag te reageren.</p>

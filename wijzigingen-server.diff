@@ -1,6 +1,6 @@
 --- server.js.origineel	2026-08-06 21:52:28.761925348 +0000
-+++ server.js	2026-08-06 21:53:27.527410607 +0000
-@@ -138,12 +138,67 @@
++++ server.js	2026-08-07 00:49:47.166883130 +0000
+@@ -138,12 +138,72 @@
    entry.count++;
    return entry.count <= MAX;
  }
@@ -14,9 +14,14 @@
 +const ADMIN_MAX_FAILS = 10;
 +
 +function clientIp(req) {
-+  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
-+    || req.socket.remoteAddress
-+    || 'onbekend';
++  // NIET x-forwarded-for[0]: die header mag de bezoeker zelf meesturen en
++  // Cloudflare zet de echte waarde erachter. Wie [0] leest, leest dus wat de
++  // bezoeker heeft opgegeven en kan elke rate limiter omzeilen door bij elk
++  // verzoek een ander verzonnen IP te sturen. cf-connecting-ip wordt door
++  // Cloudflare altijd overschreven en is niet te vervalsen.
++  const cf = req.headers['cf-connecting-ip'];
++  if (typeof cf === 'string' && cf.trim()) return cf.trim();
++  return req.socket.remoteAddress || 'onbekend';
 +}
 +
 +function adminTooManyFails(ip) {
@@ -69,7 +74,7 @@
  }, 10 * 60 * 1000).unref();
  
  // HTML-escape om injectie in de e-mail te voorkomen
-@@ -334,6 +389,16 @@
+@@ -334,6 +394,16 @@
  function serveStatic(req, res, urlPath) {
    if (urlPath === '/' || urlPath === '') urlPath = '/configurator.html';
    if (urlPath === '/project' || urlPath === '/project/') urlPath = '/project.html';
@@ -86,7 +91,7 @@
    const filePath = path.normalize(path.join(ROOT, urlPath));
    if (!filePath.startsWith(ROOT)) {
      res.writeHead(403, { 'Content-Type': 'text/plain' });
-@@ -372,7 +437,7 @@
+@@ -372,7 +442,7 @@
    }
  
    if (pathname === '/api/prices' && req.method === 'POST') {
@@ -95,7 +100,7 @@
      try {
        const body = await readJsonBody(req);
        if (!body || typeof body !== 'object' || Array.isArray(body)) {
-@@ -392,7 +457,18 @@
+@@ -392,7 +462,18 @@
    }
  
    if (pathname === '/api/auth/check' && req.method === 'POST') {
@@ -115,7 +120,7 @@
    }
  
    if (pathname === '/api/quote' && req.method === 'POST') {
-@@ -440,7 +516,7 @@
+@@ -440,7 +521,7 @@
    }
  
    if (pathname === '/api/planning' && req.method === 'POST') {
@@ -124,7 +129,16 @@
      try {
        const body = await readJsonBody(req);
        const months = (body && typeof body.months === 'object' && !Array.isArray(body.months)) ? body.months : null;
-@@ -489,7 +565,7 @@
+@@ -463,7 +544,7 @@
+ 
+   // ---- Projectmonitor: publieke code-check (rate limited) ----
+   if (pathname === '/api/project' && req.method === 'GET') {
+-    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'onbekend';
++    const ip = clientIp(req);
+     if (!projectLookupAllowed(ip)) return jsonResponse(res, 429, { error: 'Te veel pogingen — probeer het over 10 minuten opnieuw' });
+     const code = String(url.searchParams.get('code') || '').toUpperCase().trim();
+     if (!/^AEB-[A-Z2-9]{5}$/.test(code)) {
+@@ -489,7 +570,7 @@
  
    // ---- Projectmonitor: beheer (admin) ----
    if (pathname === '/api/projects' && req.method === 'GET') {
@@ -133,7 +147,7 @@
      try {
        const projects = (await readDataFile(PROJECTS_FILE)) || {};
        return jsonResponse(res, 200, projects);
-@@ -500,7 +576,7 @@
+@@ -500,7 +581,7 @@
    }
  
    if (pathname === '/api/projects' && req.method === 'POST') {
@@ -142,7 +156,7 @@
      try {
        const body = await readJsonBody(req);
        const action = String(body.action || '');
-@@ -575,6 +651,12 @@
+@@ -575,6 +656,12 @@
      });
    }
  

@@ -147,9 +147,14 @@ const ADMIN_WINDOW = 15 * 60 * 1000; // 15 minuten
 const ADMIN_MAX_FAILS = 10;
 
 function clientIp(req) {
-  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
-    || req.socket.remoteAddress
-    || 'onbekend';
+  // NIET x-forwarded-for[0]: die header mag de bezoeker zelf meesturen en
+  // Cloudflare zet de echte waarde erachter. Wie [0] leest, leest dus wat de
+  // bezoeker heeft opgegeven en kan elke rate limiter omzeilen door bij elk
+  // verzoek een ander verzonnen IP te sturen. cf-connecting-ip wordt door
+  // Cloudflare altijd overschreven en is niet te vervalsen.
+  const cf = req.headers['cf-connecting-ip'];
+  if (typeof cf === 'string' && cf.trim()) return cf.trim();
+  return req.socket.remoteAddress || 'onbekend';
 }
 
 function adminTooManyFails(ip) {
@@ -539,7 +544,7 @@ const server = http.createServer(async (req, res) => {
 
   // ---- Projectmonitor: publieke code-check (rate limited) ----
   if (pathname === '/api/project' && req.method === 'GET') {
-    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'onbekend';
+    const ip = clientIp(req);
     if (!projectLookupAllowed(ip)) return jsonResponse(res, 429, { error: 'Te veel pogingen — probeer het over 10 minuten opnieuw' });
     const code = String(url.searchParams.get('code') || '').toUpperCase().trim();
     if (!/^AEB-[A-Z2-9]{5}$/.test(code)) {

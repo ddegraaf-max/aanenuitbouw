@@ -166,12 +166,22 @@ function leesJsonBody(req, maxBytes = 32000) {
   });
 }
 
+/**
+ * Het IP van de bezoeker.
+ *
+ * NIET uit x-forwarded-for[0]: die header mag de bezoeker zelf meesturen, en
+ * Cloudflare zet de echte waarde er dan ACHTER. Wie [0] gebruikt, leest dus wat
+ * de bezoeker heeft opgegeven -- en kan daarmee elke rate limiter omzeilen door
+ * bij elk verzoek een ander verzonnen IP te sturen.
+ *
+ * cf-connecting-ip wordt door Cloudflare altijd overschreven en is dus niet te
+ * vervalsen. Staat die er niet (rechtstreekse toegang, lokaal), dan pas terug
+ * naar de socket.
+ */
 function ipVan(req) {
-  return (
-    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
-    (req.socket && req.socket.remoteAddress) ||
-    'onbekend'
-  );
+  const cf = req.headers['cf-connecting-ip'];
+  if (typeof cf === 'string' && cf.trim()) return cf.trim();
+  return (req.socket && req.socket.remoteAddress) || 'onbekend';
 }
 
 // ---------------------------------------------------------------------------
@@ -220,6 +230,48 @@ function limietBereikt(req) {
 
 const KLANTLOG_MAX = 60;
 const klantlog = [];
+
+/**
+ * Sleutel voor de diagnostische endpoints.
+ *
+ * Waarom dit nodig is: /api/klantlog gaf aan IEDEREEN de laatste zestig
+ * meldingen, inclusief de opgezochte adressen en de IP-adressen van bezoekers.
+ * Dat is een privacylek dat ik zelf heb gebouwd om te kunnen debuggen. Ook
+ * /api/diagnose en /api/versie gaven onnodig veel over de server weg
+ * (Node-versie, bestandshashes).
+ *
+ * Zonder SONDEER_SLEUTEL wordt er bij het opstarten een willekeurige gegenereerd
+ * en in de log gezet. Die verandert dus bij elke deploy, wat prima is voor
+ * incidenteel gebruik. Wil je een vaste, zet dan SONDEER_SLEUTEL in Railway.
+ */
+const DIAGNOSE_SLEUTEL = (() => {
+  const uitOmgeving = process.env.SONDEER_SLEUTEL;
+  if (uitOmgeving && uitOmgeving.length >= 8) return uitOmgeving;
+  const nieuw = require('crypto').randomBytes(12).toString('hex');
+  console.log(`[sondeertool] diagnosesleutel voor deze deploy: ${nieuw}`);
+  console.log('[sondeertool] gebruik: /bodemcheck/api/klantlog?sleutel=' + nieuw);
+  return nieuw;
+})();
+
+/** Vergelijking zonder tijdverschil, zodat de sleutel niet te raden is. */
+function sleutelKlopt(req, url) {
+  const gegeven =
+    (url && url.searchParams.get('sleutel')) ||
+    req.headers['x-sondeer-sleutel'] ||
+    '';
+  if (typeof gegeven !== 'string' || gegeven.length !== DIAGNOSE_SLEUTEL.length) return false;
+  let verschil = 0;
+  for (let i = 0; i < gegeven.length; i++) {
+    verschil |= gegeven.charCodeAt(i) ^ DIAGNOSE_SLEUTEL.charCodeAt(i);
+  }
+  return verschil === 0;
+}
+
+function weigerZonderSleutel(res) {
+  // 404 en niet 403: een bestaand-maar-verboden endpoint verklapt dat het er is.
+  res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end('Niet gevonden');
+}
 
 function klantlogToevoegen(melding, req) {
   klantlog.push({
@@ -581,7 +633,15 @@ async function doeAanvraag(req, res) {
     return stuurJson(res, 400, { fout: fout.message });
   }
 
-  const { naam, email, telefoon, adres, toelichting, lat, lon, broId } = body || {};
+  const { naam, email, telefoon, adres, toelichting, lat, lon, broId, website } = body || {};
+
+  // Honeypot. Een bezoeker ziet dit veld niet en vult het dus nooit in. Is het
+  // gevuld, dan is het een bot: we doen alsof het gelukt is en verwerken niets.
+  // Een foutmelding zou de bot alleen leren hoe hij het volgende keer beter doet.
+  if (website) {
+    console.log('[sondeertool] aanvraag geweigerd door de valstrik');
+    return stuurJson(res, 200, { ok: true, bericht: 'Bedankt, we nemen binnen een werkdag contact met u op.' });
+  }
 
   if (!naam || !email || !adres) {
     return stuurJson(res, 400, { fout: 'Naam, e-mailadres en adres zijn verplicht.' });
@@ -931,17 +991,28 @@ async function handle(req, res, url) {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
         'Access-Control-Allow-Origin': '*',
       });
+      // Publiek alleen wat de footer nodig heeft. De Node-versie en de
+      // bestandshashes zeggen een aanvaller welke kwetsbaarheden kunnen gelden
+      // en welke bestanden er zijn; die staan achter de sleutel.
+      const uitgebreid = sleutelKlopt(req, u);
       res.end(alleenKoppen ? undefined : JSON.stringify({
         versie: versie.versie,
         gestart: versie.gestart,
-        node: versie.node,
         assetVersie: ASSET_VERSIE,
-        bestanden: versie.bestanden,
+        ...(uitgebreid ? { node: versie.node, bestanden: versie.bestanden } : {}),
       }));
       return true;
     }
 
     if (rest === '/api/klantlog' && methode === 'POST') {
+      // Blijft open, want de browser moet hierbij kunnen zonder sleutel. Wel
+      // begrensd: anders kan iemand de ringbuffer volspammen en daarmee de
+      // echte meldingen eruit duwen.
+      if (limietBereikt(req)) {
+        res.writeHead(429, { 'Cache-Control': 'no-store' });
+        res.end();
+        return true;
+      }
       try {
         const body = await leesJsonBody(req, 8000);
         klantlogToevoegen(
@@ -962,6 +1033,7 @@ async function handle(req, res, url) {
     }
 
     if (rest === '/api/klantlog' && isLezen) {
+      if (!sleutelKlopt(req, u)) return weigerZonderSleutel(res), true;
       res.writeHead(200, {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -999,10 +1071,12 @@ async function handle(req, res, url) {
         return true;
       }
       if (rest === '/api/diagnose' && methode === 'GET') {
+        if (!sleutelKlopt(req, u)) return weigerZonderSleutel(res), true;
         await doeDiagnose(req, res, u.searchParams);
         return true;
       }
       if (rest === '/api/diagnose-sondering' && methode === 'GET') {
+        if (!sleutelKlopt(req, u)) return weigerZonderSleutel(res), true;
         await doeDiagnoseSondering(req, res, u.searchParams);
         return true;
       }

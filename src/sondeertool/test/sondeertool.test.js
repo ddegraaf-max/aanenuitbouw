@@ -677,3 +677,52 @@ test('css: alles wat buiten de wrapper wordt gezet is ook buiten de wrapper opge
     assert.equal(ongescoped, true, `.${klasse} moet een eigen regel buiten de wrapper hebben`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Beveiliging van de diagnostische endpoints.
+//
+// /api/klantlog gaf aan iedereen de laatste zestig meldingen, met de opgezochte
+// adressen en de IP-adressen van bezoekers erin. Dat had ik gebouwd om te kunnen
+// debuggen en het stond publiek open.
+// ---------------------------------------------------------------------------
+
+const moduleJs = fs.readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8');
+
+test('beveiliging: de diagnostische endpoints zitten achter een sleutel', () => {
+  for (const route of ['/api/klantlog', '/api/diagnose', '/api/diagnose-sondering']) {
+    const patroon = new RegExp(
+      `rest === '${route}'[\\s\\S]{0,200}?sleutelKlopt`,
+    );
+    assert.match(moduleJs, patroon, `${route} moet een sleutelcontrole hebben`);
+  }
+});
+
+test('beveiliging: de sleutel wordt zonder tijdverschil vergeleken', () => {
+  // Een gewone === op een geheim verklapt via de reactietijd hoeveel tekens
+  // kloppen. Vandaar de XOR-lus over de volle lengte.
+  const blok = moduleJs.slice(moduleJs.indexOf('function sleutelKlopt'));
+  assert.match(blok.slice(0, 600), /verschil \|=/, 'moet teken voor teken vergelijken');
+  assert.ok(!/gegeven === DIAGNOSE_SLEUTEL/.test(moduleJs), 'geen directe vergelijking');
+});
+
+test('beveiliging: publiek versie-antwoord bevat geen Node-versie of bestandslijst', () => {
+  const blok = moduleJs.slice(moduleJs.indexOf("rest === '/api/versie'"), moduleJs.indexOf("rest === '/api/versie'") + 1200);
+  assert.match(blok, /uitgebreid \? \{ node:/, 'node en bestanden moeten achter de sleutel');
+});
+
+test('beveiliging: het IP komt niet uit een header die de bezoeker kan zetten', () => {
+  // x-forwarded-for[0] is door de bezoeker zelf te vullen; Cloudflare zet de
+  // echte waarde erachter. Wie [0] leest kan elke rate limiter omzeilen.
+  assert.match(moduleJs, /cf-connecting-ip/, 'moet cf-connecting-ip gebruiken');
+  const ipBlok = moduleJs.slice(moduleJs.indexOf('function ipVan'), moduleJs.indexOf('function ipVan') + 500);
+  assert.ok(!/x-forwarded-for'\]\s*\|\|\s*''\)\.split/.test(ipBlok),
+    'x-forwarded-for[0] mag niet meer als bron dienen');
+});
+
+test('beveiliging: het aanvraagformulier heeft een valstrik tegen bots', () => {
+  assert.match(paginaHtml, /name="website"/, 'honeypot-veld in het formulier');
+  assert.match(css, /\.sd-valstrik/, 'het veld moet buiten beeld staan');
+  assert.ok(!/\.sd-valstrik[^}]*display:\s*none/.test(css),
+    'niet met display:none — daar kijken de betere bots op');
+  assert.match(moduleJs, /if \(website\)/, 'de server moet een gevulde valstrik weigeren');
+});
