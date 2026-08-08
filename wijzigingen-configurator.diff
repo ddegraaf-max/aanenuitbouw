@@ -1,9 +1,15 @@
 --- configurator.html.origineel	2026-08-06 22:07:52.179232683 +0000
-+++ configurator.html	2026-08-07 13:55:36.163750352 +0000
-@@ -1771,6 +1771,220 @@
++++ configurator.html	2026-08-08 13:28:19.115612235 +0000
+@@ -1771,6 +1771,226 @@
    /* Bel-knop in hero stat-rij voorkomt overlopen */
    .hero-stat-num { font-size: 23px; }
  }
++
++/* ─── Antispam ─── */
++/* Valstrik: volledig buiten beeld en onbereikbaar voor het toetsenbord. Niet met
++   display:none of visibility:hidden — daar kijken de betere bots op. */
++.valstrik { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
++.turnstile-doel { margin: 18px 0 4px; min-height: 0; }
 +
 +/* ─── Stap 8: bouwtekeningen en adrescontrole ─── */
 +.adres-status { font-size: 12.5px; color: var(--color-mute); margin-top: 6px; min-height: 1em; }
@@ -221,7 +227,7 @@
  </style>
  </head>
  <body>
-@@ -1795,6 +2009,8 @@
+@@ -1795,6 +2015,8 @@
        <a href="#diensten">Diensten</a>
        <a href="#plannen">Plannen</a>
        <a href="#proces">Proces</a>
@@ -230,7 +236,7 @@
        <a href="#configurator">Configurator</a>
        <a href="#over-ons">Over ons</a>
        <a href="#werk" data-nav="werk">Werk</a>
-@@ -2127,6 +2343,38 @@
+@@ -2127,6 +2349,38 @@
  </section>
  
  <!-- ═══════════════════════════════════════════════════
@@ -269,7 +275,7 @@
       CONFIGURATOR
       ═══════════════════════════════════════════════════ -->
  <section id="configurator" class="section section-light configurator-section">
-@@ -2367,6 +2615,8 @@
+@@ -2367,6 +2621,8 @@
          <a href="#diensten">Diensten</a>
          <a href="#plannen">Plannen</a>
          <a href="#proces">Proces</a>
@@ -278,7 +284,7 @@
          <a href="#configurator">Configurator</a>
        </div>
        <div class="footer-col">
-@@ -2386,6 +2636,7 @@
+@@ -2386,6 +2642,7 @@
      <div class="footer-bottom">
        <div>© 2026 Creditline BV. Alle rechten voorbehouden.</div>
        <div>KvK 59683198 · BTW NL853603108B01</div>
@@ -286,7 +292,7 @@
        <a href="#" class="beheer-link" onclick="event.preventDefault(); openAdminLogin();" title="Beheerder-toegang">
          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.6"/>
-@@ -2518,7 +2769,9 @@
+@@ -2518,7 +2775,9 @@
    electraBuiten: 0,
    lightBuiten: 0,
    m2Prijs: 4500,
@@ -297,7 +303,7 @@
    submitted: false,
  };
  
-@@ -3350,8 +3603,31 @@
+@@ -3350,8 +3609,36 @@
          <div class="form-field"><label>Voor- en achternaam</label><input type="text" id="cname" value="${state.contact.name}" placeholder="Jan Jansen"></div>
          <div class="form-field"><label>Telefoon</label><input type="tel" id="cphone" value="${state.contact.phone}" placeholder="06-12345678"></div>
          <div class="form-field full"><label>E-mailadres</label><input type="email" id="cemail" value="${state.contact.email}" placeholder="naam@voorbeeld.nl"></div>
@@ -326,13 +332,19 @@
 +          <input type="url" id="clisting" value="${escAttr(state.contact.listingUrl)}" placeholder="https://www.funda.nl/...">
 +        </div>
 +      </div>
++      <!-- Valstrik: staat buiten beeld en is voor het toetsenbord onbereikbaar.
++           Een bezoeker vult dit nooit in, een formulierbot doorgaans wel. Niet
++           met display:none, want daar kijken de betere bots op. -->
++      <div class="valstrik" aria-hidden="true"><label>Website<input type="text" id="cwebsite" name="website" tabindex="-1" autocomplete="off"></label></div>
++      <div id="turnstileDoel" class="turnstile-doel"></div>
        <label class="form-consent"><input type="checkbox" id="cconsent" ${state.contact.consent ? 'checked' : ''}><span>Ik ga akkoord met het privacybeleid en ontvang graag een offerte op basis van bovenstaande configuratie.</span></label>`;
    }
  
-@@ -3370,6 +3646,15 @@
+@@ -3370,6 +3657,16 @@
      document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
      document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
      document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
++    plaatsTurnstile();
 +    const adresVeld = document.getElementById('cadres');
 +    if (adresVeld) {
 +      adresVeld.addEventListener('input', e => { state.contact.adres = e.target.value; });
@@ -345,10 +357,59 @@
    }
  }
  
-@@ -3930,6 +4215,240 @@
+@@ -3930,6 +4227,289 @@
      document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
    }
  }
++// ─── Antispam ───
++
++// Wanneer de bezoeker de pagina opende. Het verschil met het moment van
++// versturen gaat mee in de aanvraag; de server weigert wat binnen drie seconden
++// terugkomt, want dat is geen mens dat naam, e-mail, adres en een configuratie
++// heeft ingevuld.
++const _geopendOp = Date.now();
++
++// Turnstile van Cloudflare, alleen als de server een sitekey teruggeeft. Staat
++// die er niet, dan gebeurt er niets en werkt het formulier zoals altijd.
++let _turnstileSitekey = '';
++let _turnstileToken = '';
++
++async function laadAntispam() {
++  try {
++    const res = await fetch('/api/publieke-config');
++    if (!res.ok) return;
++    const cfg = await res.json();
++    if (!cfg.turnstileSitekey) return;
++    _turnstileSitekey = cfg.turnstileSitekey;
++    await new Promise((klaar, mislukt) => {
++      const el = document.createElement('script');
++      el.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
++      el.async = true;
++      el.onload = klaar;
++      el.onerror = mislukt;
++      document.head.appendChild(el);
++    });
++    plaatsTurnstile();
++  } catch (e) {
++    // Geen Turnstile is geen ramp: de andere sloten staan nog overeind.
++    console.warn('Turnstile niet geladen:', e && e.message);
++  }
++}
++
++function plaatsTurnstile() {
++  if (!_turnstileSitekey || !window.turnstile) return;
++  const doel = document.getElementById('turnstileDoel');
++  if (!doel || doel.dataset.gezet === '1') return;
++  doel.dataset.gezet = '1';
++  window.turnstile.render(doel, {
++    sitekey: _turnstileSitekey,
++    action: 'offerte',
++    callback: (token) => { _turnstileToken = token; },
++    'expired-callback': () => { _turnstileToken = ''; },
++    'error-callback': () => { _turnstileToken = ''; },
++  });
++}
++
 +// ─── Stap 8: startvoorkeur, foto's en woninglink ───
 +
 +// De beschikbaarheid uit /api/planning, gedeeld met het blok op de homepage,
@@ -586,10 +647,13 @@
  async function submitConfig() {
    const c = state.contact;
    if (!c.name || !c.email) { alert('Vul a.u.b. uw naam en e-mailadres in.'); return; }
-@@ -3948,6 +4467,13 @@
+@@ -3948,6 +4528,16 @@
        rows: buildSummaryRows(),
        total: fmt(calc.total),
      },
++    invultijdMs: Date.now() - _geopendOp,
++    turnstileToken: _turnstileToken,
++    website: (document.getElementById('cwebsite') || {}).value || '',
 +    adres: c.adres || '',
 +    gemeente: c.gemeente || '',
 +    tekeningen: c.tekeningen || '',
@@ -600,7 +664,7 @@
    };
  
    try {
-@@ -3980,7 +4506,9 @@
+@@ -3980,7 +4570,9 @@
      extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
      electra: 0, light: 0,
      electraBuiten: 0, lightBuiten: 0,
@@ -611,7 +675,7 @@
      submitted: false,
    });
    _viewPreset = '3d';
-@@ -4457,7 +4985,10 @@
+@@ -4457,10 +5049,14 @@
    try {
      const res = await fetch('/api/planning');
      if (!res.ok) return; // geen planning ingesteld → blok blijft verborgen
@@ -623,7 +687,11 @@
    } catch (e) { /* stil falen — puur cosmetisch blok */ }
  }
  loadPublicAvailability();
-@@ -4592,6 +5123,33 @@
++laadAntispam();
+ 
+ async function _postPricesToServer(pricesObj) {
+   const pw = _getAdminPw();
+@@ -4592,6 +5188,33 @@
  </script>
  
  <!-- 100% privacy-first analytics (Simple Analytics, geen cookies) -->

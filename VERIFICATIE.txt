@@ -1,132 +1,119 @@
-WONINGCHECK + BOUWTEKENINGEN — ronde 19
-=======================================
+ANTISPAM EN OVERBELASTING — ronde 20
+====================================
 
-WAT ER IS GEBOUWD
-=================
-Twee dingen, zoals gevraagd.
+HET KERNPROBLEEM DAT IK VOND
+============================
+Alle begrenzingen in deze site werkten per IP-adres. Dat helpt tegen één
+vervelende bezoeker en niet tegen wat er bij echt misbruik gebeurt: verkeer van
+honderden adressen. Een botnet, een mobiel netwerk met wisselende IP's of een
+lijst open proxy's loopt langs elke per-IP-limiet heen zonder er één keer
+tegenaan te lopen.
 
-1. DE VRAAG OVER BOUWTEKENINGEN IN STAP 8
------------------------------------------
-Nieuw in de contactstap:
+Gemeten vóór deze ronde: acht offerteaanvragen vanaf acht verschillende IP's
+gingen alle acht door en verstuurden zestien e-mails.
 
-  - een veld "Adres van de woning". Dat ontbrak volledig in de configurator,
-    en zonder adres is er geen gemeente en dus geen archieflink. Voor een echte
-    offerte wilde je het toch al.
-  - bij het verlaten van dat veld wordt het adres gecontroleerd en de gemeente
-    opgezocht. De bezoeker ziet "Gevonden: Poststraat 5, 1401EX Bussum
-    (gemeente Gooise Meren)" of een nette melding dat het adres niet klopt.
-  - de vraag "Heeft u bouwtekeningen van de woning?" met drie antwoorden, elk
-    met een ander gevolg voor jullie:
-
-      Ja, die heb ik          -> klant stuurt ze per e-mail
-      Nee, wil ik opvragen    -> directe link naar het bouwarchief van ZIJN
-                                 gemeente verschijnt in het formulier
-      Nee, en dat lukt niet   -> jullie weten dat een opname nodig is en kunnen
-                                 dat in de offerte meenemen
-
-  Alles gaat mee in de mail. De onderwerpregel is nu:
-    "Offerte-aanvraag Jan Jansen — Poststraat 5, 1401 EX Bussum — start november 2026"
-
-2. DE WONINGCHECK, EIGEN PAGINA OP /woningcheck
------------------------------------------------
-Zelfde opzet als de bodemcheck: framework-vrij, geen dependencies, één regel in
-server.js. Vijf open bronnen zonder sleutel:
-
-  PDOK Locatieserver    adres -> coördinaten, gemeente, BAG-identificaties
-  BAG via PDOK          bouwjaar, woonoppervlak (NEN 2580), pandcontour
-  BRK Kadastrale kaart  perceeloppervlakte en -grens (CC-BY Kadaster NL)
-  3D BAG (TU Delft)     goot- en nokhoogte, aantal bouwlagen
-  PDOK luchtfoto        drie uitsnedes van bovenaf, tot 3,2 cm per pixel
-
-Elke bron is LOS optioneel. Valt er één weg, dan verschijnt de rest met een
-melding erbij welke bron ontbrak. Vijf bronnen die allemaal moeten werken is
-vijf keer zo veel kans op een lege pagina, en dat wilde ik niet.
-
-DE VERTALING NAAR JULLIE WERK
-=============================
-De pagina zegt niet alleen wat de cijfers zijn, maar wat ze betekenen:
-
-  - de kortste zijde van het pand is de vermoedelijke gevelbreedte, dus de
-    maximale doorbraak minus circa 30 cm per zijde voor de stalen kolommen
-  - uit de bouwlagen en de goothoogte volgt of er boven die doorbraak een
-    verdiepingsvloer zit of alleen een dak. Dat bepaalt de zwaarte van de ligger
-    sterker dan de overspanning zelf
-  - het bouwjaar zegt wat over vloertype en of de achtergevel dragend is
-  - de vrije ruimte tussen pand en perceelgrens begrenst de aanbouwdiepte
-  - het bebouwingspercentage, met een waarschuwing boven de 55%, omdat
-    omgevingsplannen daar vaak een maximum aan stellen
-
-En steeds erbij: registraties beschrijven de woning op papier. De werkelijke
-overspanning, het vloertype en de fundering staan er niet in, en niet-gemelde
-verbouwingen al helemaal niet. Een opname blijft nodig; deze pagina maakt hem
-korter.
-
-OVER DE BOUWTEKENINGEN, EERLIJK
+WAT ER IS BIJGEKOMEN IN DE CODE
 ===============================
-Er is geen landelijke bron en er komt er ook geen. Drie redenen die niet weggaan:
-auteursrecht van de architect, privacy van plattegronden, en het feit dat veel
-gemeenten volledige dossiers alleen aan de eigenaar verstrekken. Dat laatste
-werkt in jullie voordeel — de aanvrager IS de eigenaar.
+Nieuw bestand src/gedeeld/poort.js met drie soorten sloten die NIET naar het IP
+kijken, elk voor een ander soort schade:
 
-De lijst met archieven is met de hand samengesteld voor 25 gemeenten waar het
-meeste werk ligt. Staat een gemeente er niet in, dan krijgt de bezoeker een
-instructie met zijn eigen gemeentenaam erin in plaats van een dode link.
-Uitbreiden is één regel in services/gemeentearchief.js. Controleer die links een
-keer per jaar; gemeenten verbouwen hun sites.
+  globaleLimiet   totaal over alle bezoekers samen
+  poort           hoeveel verzoeken gelijktijdig een externe dienst mogen bellen
+  dagteller       per kalenderdag; gebruikt voor e-mail
 
-WAT IK NIET HEB KUNNEN TESTEN
-=============================
-De vijf echte API's. Mijn omgeving mag alleen naar npm en GitHub. Alles is
-getest tegen een mock en met defensieve veldnamen: de attribuutnamen van de BAG
-OGC API, de BRK-WFS en 3D BAG worden niet op vaste paden gelezen maar met een
-lijst kandidaten. Bij de bodemcheck bleek dat precies het verschil tussen werken
-en stil nul resultaten.
+Toegepast:
 
-Daarom zit het diagnose-endpoint er DEZE keer vanaf de eerste regel in:
+  OFFERTEAANVRAAG (/api/quote)
+    per IP            6 per uur          bestond al
+    globaal           40 per uur         NIEUW
+    per dag           120 e-mails        NIEUW
+    valstrik          onzichtbaar veld   NIEUW voor de configurator
+    tijdslot          minimaal 3 s       NIEUW
+    body              max 14 MB          bestond al
 
-  /woningcheck/api/diagnose?sleutel=<jouw sleutel>
+  BODEMCHECK                    WONINGCHECK
+    per IP 20/min, 120/uur        per IP 25/min, 150/uur
+    globaal 240 per uur  NIEUW    globaal 300 per uur  NIEUW
+    gelijktijdig 4       NIEUW    gelijktijdig 5       NIEUW
 
-Die loopt de vijf bronnen los na en toont per bron de tijd, of het lukte, en
-welke veldnamen er werkelijk in het antwoord zitten. Werkt iets niet, dan staat
-het antwoord daarin en niet in mijn vermoedens.
+Waarom die twee laatste er moesten komen: elke bodemcheck haalt twee
+sondeer-XML's van circa 300 kB bij de BRO, elke woningcheck bevraagt vier
+diensten. Verspreid misbruik zou ons daar de toegang kosten, en dan werkt de tool
+voor niemand meer. Dat is de echte schade, niet onze serverlast.
 
-De sleutel is dezelfde als die van de bodemcheck (SONDEER_SLEUTEL), of wordt bij
-het opstarten gegenereerd en in de Railway-log gezet.
+Het dagmaximum op e-mail is het slot dat je niet ziet maar dat het meest waard
+is. Een aanval op je formulier kost je geen server, maar verbrandt je
+Resend-quotum en beschadigt de reputatie van je verzenddomein bij de ontvangende
+mailservers. Die reputatie is niet terug te kopen.
 
-GEMETEN
-=======
-  bestaande routes:  /  /project  /api/health  /bodemcheck  -> alle 200
-  onbekende route:   404, jouw eigen pagina
-  /woningcheck                          200, 7,6 kB
-  asset-URL met versiestempel           woningcheck.js?v=8740b566b5
-  /woningcheck/assets/*.css en *.js     200
-  /woningcheck/api/analyse              200, alle velden gevuld, 3 luchtfotos,
-                                        8 conclusies, 0 gemiste bronnen
-  /woningcheck/api/gemeente             Gooise Meren -> archieflink
-  /woningcheck/api/diagnose             404 zonder sleutel, 200 met
-  volledige offerteaanvraag             adres, gemeente en tekeningkeuze staan
-                                        in beide e-mails en in de onderwerpregel
+Valstrik en tijdslot antwoorden bij afwijzing met HETZELFDE succesbericht als een
+echte aanvraag. Een bot mag niet leren waarop hij faalt.
 
-  30 nieuwe tests voor de woningcheck, alle geslaagd
-  56 bestaande tests voor de bodemcheck, alle geslaagd
-  configurator: 4 scriptblokken geldig, JSON-LD geldig, 388 divs open en dicht
+Alle waarden zijn met omgevingsvariabelen te wijzigen zonder de code aan te
+raken. Zie ANTISPAM.md.
 
-De client-JS wordt in de tests echt uitgevoerd in een nagemaakte DOM, inclusief
-een volledige opzoeking, een serverfout, een netwerkfout en het geval waarin
-twee van de vijf bronnen wegvallen. Die aanpak vond bij de bodemcheck drie
-fouten die geen enkele serverzijdige test zag.
+GEMETEN NA DE WIJZIGING
+=======================
+  valstrik gevuld                 200, 0 e-mails, "geweigerd door de valstrik"
+  formulier na 400 ms verstuurd   200, 0 e-mails, "formulier na 400 ms"
+  geen invultijd meegestuurd      200, e-mail verstuurd (bewust: kan een oude
+                                  gecachte pagina zijn)
+  echte aanvraag                  200, e-mail verstuurd
+  7 aanvragen, elk ander IP       200 200 429 429 429 429 429
+  bodemcheck, uurlimiet 4         200 200 200 200 429 429
+  woningcheck, uurlimiet 3        200 200 200 429 429
+  gelijktijdigheidspoort          los getest: bij max 2 wordt de derde na
+                                  301 ms geweigerd en komt de vierde direct
+                                  binnen zodra er één vrijkomt
+  site blijft werken              /, /bodemcheck, /woningcheck, /api/health
+                                  alle 200 terwijl de limieten actief zijn
 
-MENU
-====
-"Woningcheck" staat nu in het hoofdmenu en in de footer, naast Bodemcheck. In het
-bodemcheck-blok op de homepage staat een verwijzing naar de woningcheck en
-omgekeerd — ze horen bij elkaar: de een gaat over de grond, de ander over het
-gebouw.
+  86 tests, alle geslaagd (56 bodemcheld + 30 woningcheck)
+
+TURNSTILE, VOORBEREID MAAR UIT
+==============================
+De code is klaar voor Cloudflare Turnstile en doet niets zolang de sleutels niet
+gezet zijn. Zet in Railway TURNSTILE_SITEKEY en TURNSTILE_SECRET, en elke
+aanvraag wordt bij Cloudflare geverifieerd. De pagina haalt de publieke sleutel
+op bij /api/publieke-config en laadt de widget zelf; configurator.html blijft
+statisch.
+
+Is Cloudflare op dat moment onbereikbaar, dan laat de server de aanvraag DOOR in
+plaats van te weigeren. Liever een enkele spammail dan een echte klant kwijt; de
+andere sloten staan dan nog overeind.
+
+Controle achteraf: /api/health meldt "turnstile": "actief" of "niet ingesteld".
+
+WAT DE CODE NIET KAN, EN WAT CLOUDFLARE MOET DOEN
+=================================================
+De tellers staan in het geheugen: bij een herstart weg, en met twee instances per
+instance. Belangrijker: elk verzoek dat we weigeren, heeft de server al bereikt.
+Bij echte overbelasting sta je bandbreedte te verbranden aan het weigeren zelf.
+
+ANTISPAM.md beschrijft vier Cloudflare-instellingen, in volgorde van opbrengst:
+Turnstile, één rate limiting rule op /api/quote, cache rules (het meest
+onderschatte slot, want dat vangt gewone paginaverzoeken), en Bot Fight Mode.
+
+Bij die laatste staat een waarschuwing die uit ervaring komt: Bot Fight Mode kan
+fetch-verzoeken van je eigen pagina's een uitdaging voorschotelen die JavaScript
+niet kan oplossen. Dan blijft een tool hangen — precies het beeld dat vannacht
+uren heeft gekost. In ANTISPAM.md staat hoe je dat binnen een minuut controleert
+met de klantlog.
+
+EEN FOUT IN MIJN EIGEN GEREEDSCHAP
+==================================
+Mijn patchscript schreef het bestand weg VOORDAT het de foutcontrole deed. Een
+half mislukte patch schreef daardoor toch, en het antispam-blok stond twee keer
+in configurator.html — met "Identifier '_geopendOp' has already been declared"
+als gevolg. Gevonden door de scriptcontrole die na elke wijziging draait,
+opgeruimd, en de controle staat nu vóór het wegschrijven.
 
 BESTANDEN
 =========
-  server.js          één regel voor de woningcheck, plus adres/gemeente/
-                     tekeningen in de validatie en beide e-mails
-  configurator.html  adresveld, tekeningenvraag, menulinks, stijl
-  src/woningcheck/   nieuwe module: 17 bestanden
-  src/sondeertool/   ONGEWIJZIGD sinds v16
+  server.js               globale limiet, dagteller, tijdslot, valstrik,
+                          Turnstile, /api/publieke-config
+  configurator.html       valstrik, invultijd, Turnstile-plek, stijl
+  src/gedeeld/poort.js    NIEUW
+  src/gedeeld/ANTISPAM.md NIEUW — de Cloudflare-instellingen
+  src/sondeertool/        globale limiet en gelijktijdigheidspoort
+  src/woningcheck/        idem

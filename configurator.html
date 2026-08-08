@@ -1772,6 +1772,12 @@ img, svg { display: block; max-width: 100%; }
   .hero-stat-num { font-size: 23px; }
 }
 
+/* ─── Antispam ─── */
+/* Valstrik: volledig buiten beeld en onbereikbaar voor het toetsenbord. Niet met
+   display:none of visibility:hidden — daar kijken de betere bots op. */
+.valstrik { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.turnstile-doel { margin: 18px 0 4px; min-height: 0; }
+
 /* ─── Stap 8: bouwtekeningen en adrescontrole ─── */
 .adres-status { font-size: 12.5px; color: var(--color-mute); margin-top: 6px; min-height: 1em; }
 .adres-status.ok { color: var(--color-success); }
@@ -3628,6 +3634,11 @@ function renderStep() {
           <input type="url" id="clisting" value="${escAttr(state.contact.listingUrl)}" placeholder="https://www.funda.nl/...">
         </div>
       </div>
+      <!-- Valstrik: staat buiten beeld en is voor het toetsenbord onbereikbaar.
+           Een bezoeker vult dit nooit in, een formulierbot doorgaans wel. Niet
+           met display:none, want daar kijken de betere bots op. -->
+      <div class="valstrik" aria-hidden="true"><label>Website<input type="text" id="cwebsite" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div id="turnstileDoel" class="turnstile-doel"></div>
       <label class="form-consent"><input type="checkbox" id="cconsent" ${state.contact.consent ? 'checked' : ''}><span>Ik ga akkoord met het privacybeleid en ontvang graag een offerte op basis van bovenstaande configuratie.</span></label>`;
   }
 
@@ -3646,6 +3657,7 @@ function renderStep() {
     document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
     document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
     document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
+    plaatsTurnstile();
     const adresVeld = document.getElementById('cadres');
     if (adresVeld) {
       adresVeld.addEventListener('input', e => { state.contact.adres = e.target.value; });
@@ -4215,6 +4227,55 @@ function prevStep() {
     document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
+// ─── Antispam ───
+
+// Wanneer de bezoeker de pagina opende. Het verschil met het moment van
+// versturen gaat mee in de aanvraag; de server weigert wat binnen drie seconden
+// terugkomt, want dat is geen mens dat naam, e-mail, adres en een configuratie
+// heeft ingevuld.
+const _geopendOp = Date.now();
+
+// Turnstile van Cloudflare, alleen als de server een sitekey teruggeeft. Staat
+// die er niet, dan gebeurt er niets en werkt het formulier zoals altijd.
+let _turnstileSitekey = '';
+let _turnstileToken = '';
+
+async function laadAntispam() {
+  try {
+    const res = await fetch('/api/publieke-config');
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (!cfg.turnstileSitekey) return;
+    _turnstileSitekey = cfg.turnstileSitekey;
+    await new Promise((klaar, mislukt) => {
+      const el = document.createElement('script');
+      el.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      el.async = true;
+      el.onload = klaar;
+      el.onerror = mislukt;
+      document.head.appendChild(el);
+    });
+    plaatsTurnstile();
+  } catch (e) {
+    // Geen Turnstile is geen ramp: de andere sloten staan nog overeind.
+    console.warn('Turnstile niet geladen:', e && e.message);
+  }
+}
+
+function plaatsTurnstile() {
+  if (!_turnstileSitekey || !window.turnstile) return;
+  const doel = document.getElementById('turnstileDoel');
+  if (!doel || doel.dataset.gezet === '1') return;
+  doel.dataset.gezet = '1';
+  window.turnstile.render(doel, {
+    sitekey: _turnstileSitekey,
+    action: 'offerte',
+    callback: (token) => { _turnstileToken = token; },
+    'expired-callback': () => { _turnstileToken = ''; },
+    'error-callback': () => { _turnstileToken = ''; },
+  });
+}
+
 // ─── Stap 8: startvoorkeur, foto's en woninglink ───
 
 // De beschikbaarheid uit /api/planning, gedeeld met het blok op de homepage,
@@ -4467,6 +4528,9 @@ async function submitConfig() {
       rows: buildSummaryRows(),
       total: fmt(calc.total),
     },
+    invultijdMs: Date.now() - _geopendOp,
+    turnstileToken: _turnstileToken,
+    website: (document.getElementById('cwebsite') || {}).value || '',
     adres: c.adres || '',
     gemeente: c.gemeente || '',
     tekeningen: c.tekeningen || '',
@@ -4992,6 +5056,7 @@ async function loadPublicAvailability() {
   } catch (e) { /* stil falen — puur cosmetisch blok */ }
 }
 loadPublicAvailability();
+laadAntispam();
 
 async function _postPricesToServer(pricesObj) {
   const pw = _getAdminPw();

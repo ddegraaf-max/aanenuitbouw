@@ -148,6 +148,32 @@ function ipVan(req) {
 }
 
 // ---------------------------------------------------------------------------
+// Poortwachters die niet per IP werken
+// ---------------------------------------------------------------------------
+// De per-IP-limiet hieronder helpt tegen één vervelende bezoeker, niet tegen
+// verkeer van honderden adressen. Twee extra sloten:
+//
+//   globaal   maximaal 300 analyses per uur over ALLE bezoekers samen. Elke
+//             analyse haalt gegevens bij PDOK/BAG/BRK; verspreid misbruik zou ons
+//             daar de toegang kosten, en dan werkt de tool voor niemand meer.
+//   poort     maximaal 5 analyses gelijktijdig. Beschermt zowel onze eigen
+//             server als de dienst die we aanroepen.
+
+const { globaleLimiet, poort } = require('../gedeeld/poort');
+
+const globaalPerUur = globaleLimiet({
+  max: Number(process.env.WONINGCHECK_MAX_PER_UUR || 300),
+  vensterMs: 60 * 60 * 1000,
+  naam: 'woningcheck analyses per uur',
+});
+
+const analysePoort = poort({
+  max: Number(process.env.WONINGCHECK_GELIJKTIJDIG || 5),
+  wachtMs: 3500,
+  naam: 'woningcheck gelijktijdige analyses',
+});
+
+// ---------------------------------------------------------------------------
 // Rate limiting
 // ---------------------------------------------------------------------------
 
@@ -592,7 +618,23 @@ async function handle(req, res, url) {
       }
 
       if (rest === '/api/analyse' && isLezen) {
-        await doeAnalyse(req, res, u.searchParams);
+        if (globaalPerUur.bereikt()) {
+          stuurJson(res, 429, {
+            fout: 'Er zijn nu heel veel opvragingen. Probeer het over een uur opnieuw, of bel ons — dan kijken we direct met u mee.',
+          });
+          return true;
+        }
+        const vrijgeven = await analysePoort.binnen();
+        if (!vrijgeven) {
+          res.setHeader('Retry-After', '10');
+          stuurJson(res, 503, { fout: 'Het is nu even te druk. Probeer het over tien seconden opnieuw.' });
+          return true;
+        }
+        try {
+          await doeAnalyse(req, res, u.searchParams);
+        } finally {
+          vrijgeven();
+        }
         return true;
       }
 

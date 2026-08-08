@@ -206,6 +206,61 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000).unref();
 
+// ---- Poortwachters die niet per IP werken ----
+// De limiet per IP hieronder helpt tegen één vervelende bezoeker. Deze twee
+// helpen tegen wat er bij echt misbruik gebeurt: verkeer van honderden adressen.
+//
+//   globaalPerUur   totaal over alle bezoekers samen
+//   mailPerDag      begrenst de e-mail. Een overschrijding kost geen server maar
+//                   de reputatie van je verzenddomein bij Resend en bij de
+//                   ontvangende mailservers, en die is niet terug te kopen.
+const { globaleLimiet, dagteller } = require('./src/gedeeld/poort');
+
+const quoteGlobaal = globaleLimiet({
+  max: Number(process.env.QUOTE_MAX_PER_UUR || 40),
+  vensterMs: 60 * 60 * 1000,
+  naam: 'offerteaanvragen per uur',
+});
+
+const mailPerDag = dagteller({
+  max: Number(process.env.QUOTE_MAX_PER_DAG || 120),
+  naam: 'offerte-e-mails per dag',
+});
+
+// ---- Tijdslot: een formulier dat binnen drie seconden terugkomt is een bot ----
+// Een mens vult naam, e-mail, adres en een configuratie niet in drie seconden in.
+// Dit kost een bot niets om te omzeilen als hij het weet, maar het weert de
+// grote meerderheid die dat niet weet — en het is gratis, in tegenstelling tot
+// een captcha die elke bezoeker lastigvalt.
+const FORMULIER_MINIMUM_MS = Number(process.env.QUOTE_MIN_INVULTIJD_MS || 3000);
+
+// ---- Turnstile (Cloudflare), alleen actief als de sleutels zijn ingesteld ----
+// Onzichtbaar voor vrijwel elke bezoeker, geen cookiebanner nodig, gratis en
+// zonder limiet. Zonder TURNSTILE_SECRET gebeurt er niets en werkt alles zoals
+// voorheen; zet je beide sleutels, dan wordt elke aanvraag geverifieerd.
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET || '';
+const TURNSTILE_SITEKEY = process.env.TURNSTILE_SITEKEY || '';
+
+async function turnstileGeldig(token, ip) {
+  if (!TURNSTILE_SECRET) return true; // niet ingesteld: overslaan
+  if (!token || typeof token !== 'string') return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: TURNSTILE_SECRET, response: token, remoteip: ip }),
+    });
+    const uit = await res.json();
+    if (!uit.success) console.warn('Turnstile afgewezen:', JSON.stringify(uit['error-codes'] || []));
+    return uit.success === true;
+  } catch (e) {
+    // Is Cloudflare onbereikbaar, dan liever een aanvraag doorlaten dan een
+    // echte klant weigeren. De overige sloten staan nog overeind.
+    console.error('Turnstile niet bereikbaar, aanvraag toch doorgelaten:', e.message);
+    return true;
+  }
+}
+
 // ---- Rate limiting op offerteaanvragen ----
 // Stond er niet, en met fotobijlagen erbij is dat een groter probleem: elke
 // aanvraag verstuurt twee e-mails via Resend en kan enkele megabytes bevatten.
@@ -588,6 +643,11 @@ const server = http.createServer(async (req, res) => {
     if (!quoteAllowed(clientIp(req))) {
       return jsonResponse(res, 429, { error: 'Te veel aanvragen — probeer het later opnieuw of bel ons direct.' });
     }
+    if (quoteGlobaal.bereikt()) {
+      return jsonResponse(res, 429, {
+        error: 'Er komen nu ongewoon veel aanvragen binnen. Bel ons op +31 646 150 160, dan helpen we u direct.',
+      });
+    }
     try {
       // Ruimere limiet dan de rest: hier kunnen fotobijlagen in zitten.
       const body = await readJsonBody(req, QUOTE_BODY_MAX);
@@ -611,6 +671,34 @@ const server = http.createServer(async (req, res) => {
       const adresWoning = oneLine(body.adres).slice(0, 200);
       const gemeente = oneLine(body.gemeente).slice(0, 80);
       const tekeningen = ['heb-ik', 'opvragen', 'geen'].includes(String(body.tekeningen)) ? String(body.tekeningen) : '';
+      // Valstrik: een bezoeker ziet dit veld niet en vult het dus nooit in. Is
+      // het gevuld, dan doen we alsof het gelukt is en verwerken we niets. Een
+      // foutmelding zou de bot alleen leren hoe hij het volgende keer beter doet.
+      if (oneLine(body.website)) {
+        console.log('Aanvraag geweigerd door de valstrik');
+        return jsonResponse(res, 200, { success: true });
+      }
+
+      // Tijdslot: hoelang stond het formulier open voordat het werd verstuurd?
+      const invultijd = Number(body.invultijdMs);
+      if (Number.isFinite(invultijd) && invultijd >= 0 && invultijd < FORMULIER_MINIMUM_MS) {
+        console.log(`Aanvraag geweigerd: formulier na ${invultijd} ms verstuurd (minimum ${FORMULIER_MINIMUM_MS})`);
+        // Zelfde antwoord als bij succes: een bot mag niet leren waaróp hij faalt.
+        return jsonResponse(res, 200, { success: true });
+      }
+
+      if (!(await turnstileGeldig(body.turnstileToken, clientIp(req)))) {
+        return jsonResponse(res, 400, {
+          error: 'De controle of u een mens bent is niet gelukt. Vernieuw de pagina en probeer het opnieuw.',
+        });
+      }
+
+      if (mailPerDag.bereikt()) {
+        return jsonResponse(res, 503, {
+          error: 'We kunnen vandaag geen aanvragen meer verwerken. Bel ons op +31 646 150 160.',
+        });
+      }
+
       const startMonth = schoonStartmaand(body.startMonth);
       const listingUrl = schoonWebadres(body.listingUrl);
       const photos = schoonFotos(body.photos);
@@ -771,12 +859,19 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Wat de frontend van de server moet weten. Bewust minimaal: alleen de
+  // publieke Turnstile-sleutel, die per definitie in de pagina hoort te staan.
+  if (pathname === '/api/publieke-config' && req.method === 'GET') {
+    return jsonResponse(res, 200, { turnstileSitekey: TURNSTILE_SITEKEY });
+  }
+
   if (pathname === '/api/health' && req.method === 'GET') {
     return jsonResponse(res, 200, {
       ok: true,
       hasAdminPassword: ADMIN_PASSWORD.length > 0,
       hasResendKey: RESEND_API_KEY.length > 0,
       quoteTo: QUOTE_TO,
+      turnstile: TURNSTILE_SECRET ? 'actief' : 'niet ingesteld',
       dataDirExists: fs.existsSync(DATA_DIR),
     });
   }
