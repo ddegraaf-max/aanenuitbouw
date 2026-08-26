@@ -1023,6 +1023,8 @@ async function handle(req, res, url) {
       const uitgebreid = sleutelKlopt(req, u);
       res.end(alleenKoppen ? undefined : JSON.stringify({
         versie: versie.versie,
+        nummer: versie.nummer,
+        datum: versie.datum,
         gestart: versie.gestart,
         assetVersie: ASSET_VERSIE,
         ...(uitgebreid ? { node: versie.node, bestanden: versie.bestanden } : {}),

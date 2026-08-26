@@ -1639,6 +1639,8 @@ img, svg { display: block; max-width: 100%; }
 .proj-opties-row input { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); min-width: 200px; }
 .proj-opties-row input:focus { outline: none; border-color: var(--color-primary); }
 .proj-opties-row .btn-admin { margin-left: auto; }
+.proj-recode { border: 0; background: none; color: var(--color-primary); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
+.proj-recode:hover { text-decoration: underline; }
 .proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
 .proj-del:hover { text-decoration: underline; }
 .proj-meta { font-size: 12px; color: var(--color-mute); margin-top: 8px; }
@@ -5054,6 +5056,7 @@ async function renderProjectsTab(body) {
             <select onchange="updateProjectPhase('${code}', this.value)" title="Huidige fase">
               ${PROJECT_PHASES.map((ph, i) => `<option value="${i}" ${i === p.phase ? 'selected' : ''}>${i + 1}. ${ph}</option>`).join('')}
             </select>
+            <button class="proj-recode" onclick="recodeProjectAdmin('${code}')" title="Nieuwe projectcode; fase, notities, type en plan blijven bewaard">Nieuwe code</button>
             <button class="proj-del" onclick="deleteProjectAdmin('${code}')">Verwijderen</button>
           </div>
           <div class="proj-opties-row">
@@ -5148,6 +5151,18 @@ async function saveProjectNote(code) {
   const notes = { ...(p.notes || {}) };
   notes[p.phase] = val;
   await _projectsAction({ action: 'update', code, notes }, 'Notitie opgeslagen');
+}
+
+// Nieuwe code voor een bestaand project (bijv. voor een verse deel-preview in
+// WhatsApp of als een link is gelekt). Alle gegevens gaan mee; de oude code vervalt.
+async function recodeProjectAdmin(code) {
+  const p = _projectsCache[code];
+  if (!confirm('Nieuwe code maken voor "' + (p ? p.label : code) + '"?\n\nDe oude code ' + code + ' werkt daarna niet meer. Fase, notities, type en plan blijven bewaard.')) return;
+  const data = await _projectsAction({ action: 'recode', code }, null);
+  if (data && data.code) {
+    copyProjectLink(data.code);
+    renderProjectsTab(document.getElementById('adminPanelBody'));
+  }
 }
 
 async function deleteProjectAdmin(code) {
@@ -5346,12 +5361,12 @@ render();
   fetch('/bodemcheck/api/versie', { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
     .then(function (d) {
-      el.textContent = 'versie ' + d.versie;
-      el.title = 'Gestart ' + String(d.gestart).replace('T', ' ').slice(0, 16) + ' UTC · klik voor details';
+      el.textContent = 'versie ' + (d.nummer || d.versie);
+      el.title = (d.nummer ? 'Controlecode ' + d.versie + ' · ' : '') + 'Gestart ' + String(d.gestart).replace('T', ' ').slice(0, 16) + ' UTC · klik voor details';
       el.addEventListener('click', function () {
         if (el.querySelector('pre')) { el.querySelector('pre').remove(); return; }
         var pre = document.createElement('pre');
-        var regels = ['site      ' + d.versie, 'assets    ' + d.assetVersie, 'node      ' + d.node, 'gestart   ' + d.gestart];
+        var regels = ['versie    ' + (d.nummer || '—') + (d.datum ? ' (' + d.datum + ')' : ''), 'site      ' + d.versie, 'assets    ' + d.assetVersie, 'node      ' + d.node, 'gestart   ' + d.gestart];
         for (var k in d.bestanden) regels.push((k + '            ').slice(0, 20) + d.bestanden[k]);
         pre.textContent = regels.join('\n');
         el.appendChild(pre);

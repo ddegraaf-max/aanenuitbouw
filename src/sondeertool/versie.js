@@ -32,7 +32,21 @@ const WORTEL = path.resolve(__dirname, '..', '..');
 
 // Bestanden van de site zelf. Ontbreekt er een, dan wordt die stil
 // overgeslagen: niet elke installatie heeft dezelfde pagina's.
-const SITE_BESTANDEN = ['server.js', 'configurator.html', 'project.html', 'package.json'];
+const SITE_BESTANDEN = ['server.js', 'configurator.html', 'project.html', 'projectfasen.js', 'versie.json', 'package.json'];
+
+/**
+ * Leesbaar versienummer uit versie.json in de projectroot, bijv. "2026-001".
+ * Wordt bij elke wijziging met de hand opgehoogd (jaar-volgnummer); de hash
+ * hieronder blijft bestaan als technische controle of een deploy is aangekomen.
+ */
+function leesVersieNummer() {
+  try {
+    const v = JSON.parse(fs.readFileSync(path.join(WORTEL, 'versie.json'), 'utf8'));
+    return { nummer: String(v.nummer || ''), datum: String(v.datum || ''), omschrijving: String(v.omschrijving || '') };
+  } catch {
+    return { nummer: '', datum: '', omschrijving: '' };
+  }
+}
 
 function hashVanBestand(pad) {
   try {
@@ -89,6 +103,7 @@ function bepaalVersie() {
   totaal.update('module').update(moduleDigest);
 
   return {
+    ...leesVersieNummer(),
     versie: totaal.digest('hex').slice(0, 10),
     gestart: new Date().toISOString(),
     node: process.version,
@@ -100,7 +115,8 @@ const info = bepaalVersie();
 
 /** Korte, leesbare regel voor de footer. */
 function korteTekst() {
-  return `versie ${info.versie} · ${info.gestart.slice(0, 16).replace('T', ' ')} UTC`;
+  const nummer = info.nummer ? `versie ${info.nummer} (${info.versie})` : `versie ${info.versie}`;
+  return `${nummer} · ${info.gestart.slice(0, 16).replace('T', ' ')} UTC`;
 }
 
 module.exports = { ...info, korteTekst, _intern: { bepaalVersie, WORTEL } };

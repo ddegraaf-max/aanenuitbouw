@@ -886,6 +886,17 @@ const server = http.createServer(async (req, res) => {
         return jsonResponse(res, 200, { success: true });
       }
 
+      if (action === 'recode') {
+        // Nieuwe code voor een bestaand project, bijv. na een gelekte link of
+        // voor een verse deel-preview. Fase, notities, type, plan en palen
+        // blijven behouden; de oude code werkt daarna niet meer.
+        const nieuweCode = generateProjectCode(projects);
+        projects[nieuweCode] = { ...projects[code], updated: new Date().toISOString() };
+        delete projects[code];
+        await writeDataFile(PROJECTS_FILE, projects);
+        return jsonResponse(res, 200, { success: true, code: nieuweCode });
+      }
+
       if (action === 'delete') {
         delete projects[code];
         await writeDataFile(PROJECTS_FILE, projects);
