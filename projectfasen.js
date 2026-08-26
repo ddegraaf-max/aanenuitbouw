@@ -27,6 +27,7 @@
   const SOCIAL = {
     facebook:  'https://www.facebook.com/61558476812755',        // Creditline Montage Ramen & Deuren | Bussum
     instagram: 'https://www.instagram.com/creditlinemontage/',   // @creditlinemontage
+    whatsapp:  '31646150160',                                    // +31 6 46 150 160 — wordt een wa.me-link
   };
 
   // Per fase:
@@ -294,7 +295,13 @@
     const d = doc || (typeof document !== 'undefined' ? document : null);
     if (!d) return;
     d.querySelectorAll('[data-social]').forEach(a => {
-      const url = SOCIAL[a.getAttribute('data-social')] || '';
+      const soort = a.getAttribute('data-social');
+      let url = SOCIAL[soort] || '';
+      if (soort === 'whatsapp' && url) {
+        // wa.me-link; met data-social-tekst staat er alvast een bericht klaar
+        const tekst = a.getAttribute('data-social-tekst');
+        url = 'https://wa.me/' + String(url).replace(/\D/g, '') + (tekst ? '?text=' + encodeURIComponent(tekst) : '');
+      }
       if (url) { a.href = url; a.hidden = false; } else { a.hidden = true; }
     });
     d.querySelectorAll('[data-social-blok]').forEach(blok => {
