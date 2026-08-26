@@ -8,6 +8,9 @@ const DATA_DIR = process.env.DATA_DIR || '/data';
 const PRICES_FILE = path.join(DATA_DIR, 'prices.json');
 const PLANNING_FILE = path.join(DATA_DIR, 'planning.json');
 const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+// Fasen, migratie en toegestane waarden van de projectmonitor staan in één
+// gedeeld bestand, dat ook de klantpagina en het beheer gebruiken.
+const PROJECTFASEN = require('./projectfasen.js');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 // Resend e-mail configuratie
@@ -121,7 +124,25 @@ function generateProjectCode(existing) {
   throw new Error('Kon geen unieke projectcode genereren');
 }
 
-const PROJECT_PHASE_COUNT = 8; // 0 = Offerte akkoord ... 7 = Oplevering
+const PROJECT_PHASE_COUNT = PROJECTFASEN.FASEN.length;     // 0 = Huisbezoek ... laatste = Oplevering
+const PROJECT_TYPES = Object.keys(PROJECTFASEN.TYPES);     // aanbouw | uitbouw
+const PROJECT_PLANNEN = Object.keys(PROJECTFASEN.PLANNEN); // casco | cplus | cplus2
+
+// Leest projects.json en zet projecten met de oude fase-indeling eenmalig om
+// naar de huidige. Het resultaat wordt direct teruggeschreven, zodat de
+// migratie maar één keer draait.
+async function loadProjects() {
+  const projects = (await readDataFile(PROJECTS_FILE)) || {};
+  let gewijzigd = false;
+  for (const code in projects) {
+    if (PROJECTFASEN.migreerProject(projects[code])) gewijzigd = true;
+  }
+  if (gewijzigd) {
+    await writeDataFile(PROJECTS_FILE, projects);
+    console.log('Projectmonitor: projecten omgezet naar fase-indeling v' + PROJECTFASEN.SCHEMA);
+  }
+  return projects;
+}
 const PLANNING_STATUSES = ['green', 'orange', 'red'];
 
 // ---- Eenvoudige rate limiter voor de publieke projectcode-check ----
@@ -764,7 +785,7 @@ const server = http.createServer(async (req, res) => {
       return jsonResponse(res, 400, { error: 'Ongeldige projectcode' });
     }
     try {
-      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+      const projects = await loadProjects();
       const p = projects[code];
       // Kleine vertraging tegen brute force, ook bij treffers (timing-neutraal)
       await _sleep(400);
@@ -773,6 +794,8 @@ const server = http.createServer(async (req, res) => {
         label: p.label,
         phase: p.phase,
         notes: p.notes || {},
+        type: p.type || '',
+        plan: p.plan || '',
         updated: p.updated,
       });
     } catch (e) {
@@ -785,7 +808,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/projects' && req.method === 'GET') {
     if (await adminGeweigerd(req, res)) return;
     try {
-      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+      const projects = await loadProjects();
       return jsonResponse(res, 200, projects);
     } catch (e) {
       console.error('List projects error:', e.message);
@@ -798,7 +821,7 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await readJsonBody(req);
       const action = String(body.action || '');
-      const projects = (await readDataFile(PROJECTS_FILE)) || {};
+      const projects = await loadProjects();
 
       if (action === 'create') {
         const label = oneLine(body.label).slice(0, 120);
@@ -806,7 +829,7 @@ const server = http.createServer(async (req, res) => {
         if (Object.keys(projects).length >= 200) return jsonResponse(res, 400, { error: 'Maximaal 200 projecten' });
         const code = generateProjectCode(projects);
         const now = new Date().toISOString();
-        projects[code] = { label, phase: 0, notes: {}, created: now, updated: now };
+        projects[code] = { label, phase: 0, notes: {}, type: '', plan: '', schema: PROJECTFASEN.SCHEMA, created: now, updated: now };
         await writeDataFile(PROJECTS_FILE, projects);
         return jsonResponse(res, 200, { success: true, code });
       }
@@ -827,6 +850,16 @@ const server = http.createServer(async (req, res) => {
           const label = oneLine(body.label).slice(0, 120);
           if (!label) return jsonResponse(res, 400, { error: 'Label mag niet leeg zijn' });
           p.label = label;
+        }
+        if (body.type !== undefined) {
+          const type = String(body.type || '');
+          if (type && !PROJECT_TYPES.includes(type)) return jsonResponse(res, 400, { error: 'Ongeldig type' });
+          p.type = type;
+        }
+        if (body.plan !== undefined) {
+          const plan = String(body.plan || '');
+          if (plan && !PROJECT_PLANNEN.includes(plan)) return jsonResponse(res, 400, { error: 'Ongeldig plan' });
+          p.plan = plan;
         }
         if (body.notes !== undefined) {
           if (typeof body.notes !== 'object' || Array.isArray(body.notes)) {

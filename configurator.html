@@ -27,6 +27,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<script src="/projectfasen.js?v=2"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1606,6 +1607,10 @@ img, svg { display: block; max-width: 100%; }
 .proj-note-row { display: flex; gap: 10px; margin-top: 12px; }
 .proj-note-row textarea { flex: 1; border: 1.5px solid var(--color-line); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: var(--font-sans); resize: vertical; min-height: 40px; }
 .proj-note-row textarea:focus { outline: none; border-color: var(--color-primary); }
+.proj-opties-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
+.proj-opties-row label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--color-mute); }
+.proj-opties-row select { min-width: 170px; }
+.proj-opties-row .btn-admin { margin-left: auto; }
 .proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
 .proj-del:hover { text-decoration: underline; }
 .proj-meta { font-size: 12px; color: var(--color-mute); margin-top: 8px; }
@@ -4906,7 +4911,13 @@ async function savePlanningAdmin() {
 }
 
 // ─── Admin: projectmonitor ───
-const PROJECT_PHASES = ['Offerte akkoord', 'Inmeting', 'Vergunning & constructie', 'Productie kozijnen', 'Start bouw', 'Wind- en waterdicht', 'Afwerking', 'Oplevering'];
+// Fasen, typen en plannen staan in /projectfasen.js (gedeeld met server.js en
+// project.html). De fallback hieronder houdt het beheer werkend als dat
+// bestand onverhoopt niet geladen is.
+const _PF = window.PROJECTFASEN || null;
+const PROJECT_PHASES = _PF ? _PF.FASEN.map(f => f.titel) : ['Huisbezoek', 'Offerte', 'Vergunning & constructie', 'Start bouw: fundering', 'Draagbalken & gevel openen', 'Houten skelet', 'Buitenafwerking & element bestellen', 'Element plaatsen & binnenafwerking', 'Oplevering'];
+const PROJECT_TYPES = _PF ? _PF.TYPES : { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw' };
+const PROJECT_PLANNEN = _PF ? _PF.PLANNEN : { casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
 let _projectsCache = null;
 
 async function renderProjectsTab(body) {
@@ -4932,7 +4943,7 @@ async function renderProjectsTab(body) {
         <input id="projNewLabel" placeholder='Bijv. "Fam. Jansen — Almere, uitbouw 6×3"' maxlength="120" onkeydown="if(event.key==='Enter') createProjectAdmin()">
         <button class="btn-admin btn-admin-primary" onclick="createProjectAdmin()">Aanmaken</button>
       </div>
-      <p class="admin-hint-line">Na aanmaken krijgt het project een unieke code (AEB-XXXXX). Geef die aan de klant mee in de opdrachtbevestiging; hij volgt de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren.</p>
+      <p class="admin-hint-line">Maak het project aan zodra het huisbezoek is gepland. Het krijgt een unieke code (AEB-XXXXX); stuur die met het voorbereidingsbericht naar de klant, dan volgt hij vanaf stap 1 de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren. Kies per project het type (aanbouw/uitbouw) en het plan (Casco, C+, C++): de klantpagina past de uitleg daarop aan en laat bij een aanbouw de stap "gevel openen" vervallen.</p>
     </div>
     <div class="admin-section">
       <h3>Lopende projecten (${codes.length})</h3>
@@ -4943,16 +4954,31 @@ async function renderProjectsTab(body) {
           <div class="proj-card-head">
             <div class="proj-card-label">${_escAdmin(p.label)}</div>
             <button class="proj-code" onclick="copyProjectLink('${code}')" title="Kopieer klantlink">${code}</button>
-            <select onchange="updateProjectPhase('${code}', this.value)">
+            <select onchange="updateProjectPhase('${code}', this.value)" title="Huidige fase">
               ${PROJECT_PHASES.map((ph, i) => `<option value="${i}" ${i === p.phase ? 'selected' : ''}>${i + 1}. ${ph}</option>`).join('')}
             </select>
             <button class="proj-del" onclick="deleteProjectAdmin('${code}')">Verwijderen</button>
           </div>
+          <div class="proj-opties-row">
+            <label>Type
+              <select onchange="updateProjectField('${code}', 'type', this.value)">
+                <option value="">— nog niet bekend —</option>
+                ${Object.entries(PROJECT_TYPES).map(([k, v]) => `<option value="${k}" ${p.type === k ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </label>
+            <label>Plan
+              <select onchange="updateProjectField('${code}', 'plan', this.value)">
+                <option value="">— nog niet bekend —</option>
+                ${Object.entries(PROJECT_PLANNEN).map(([k, v]) => `<option value="${k}" ${p.plan === k ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </label>
+            <button class="btn-admin btn-admin-ghost" onclick="copyHuisbezoekBericht('${code}')" title="Agenda en voorbereiding voor het huisbezoek, met de projectcode en klantlink">Bericht huisbezoek kopiëren</button>
+          </div>
           <div class="proj-note-row">
-            <textarea id="projNote-${code}" maxlength="500" placeholder="Notitie bij de huidige fase (zichtbaar voor de klant), bijv. 'Kozijnen besteld — levering week 41'">${_escAdmin(note)}</textarea>
+            <textarea id="projNote-${code}" maxlength="500" placeholder="Notitie bij de huidige fase (zichtbaar voor de klant), bijv. 'Tekeningen ontvangen — constructeur is bezig' of 'Element besteld — levering week 41'">${_escAdmin(note)}</textarea>
             <button class="btn-admin btn-admin-ghost" onclick="saveProjectNote('${code}')">Bewaar</button>
           </div>
-          <div class="proj-meta">Fase ${p.phase + 1} van ${PROJECT_PHASES.length} · laatst bijgewerkt ${p.updated ? new Date(p.updated).toLocaleDateString('nl-NL') : '—'} · <a href="/project?code=${code}" target="_blank" rel="noopener">bekijk als klant ↗</a></div>
+          <div class="proj-meta">Fase ${p.phase + 1} van ${PROJECT_PHASES.length}${p.type && PROJECT_TYPES[p.type] ? ' · ' + PROJECT_TYPES[p.type] : ''}${p.plan && PROJECT_PLANNEN[p.plan] ? ' · ' + PROJECT_PLANNEN[p.plan] : ''} · laatst bijgewerkt ${p.updated ? new Date(p.updated).toLocaleDateString('nl-NL') : '—'} · <a href="/project?code=${code}" target="_blank" rel="noopener">bekijk als klant ↗</a></div>
         </div>`;
       }).join('')}
     </div>`;
@@ -4994,6 +5020,25 @@ async function createProjectAdmin() {
 async function updateProjectPhase(code, phase) {
   const ok = await _projectsAction({ action: 'update', code, phase: Number(phase) }, 'Fase bijgewerkt');
   if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+async function updateProjectField(code, veld, waarde) {
+  const payload = { action: 'update', code };
+  payload[veld] = waarde;
+  const ok = await _projectsAction(payload, veld === 'type' ? 'Type opgeslagen' : 'Plan opgeslagen');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+// Agenda en voorbereiding voor het huisbezoek, inclusief projectcode en
+// klantlink — plakken in een e-mail of WhatsApp naar de (potentiële) klant.
+// [naam] en [datum en tijd] vult u zelf in.
+function copyHuisbezoekBericht(code) {
+  if (!_PF) { _showToast('projectfasen.js is niet geladen — ververs de pagina', 'error'); return; }
+  const tekst = _PF.huisbezoekBericht({ code, link: location.origin + '/project?code=' + code });
+  navigator.clipboard.writeText(tekst).then(
+    () => _showToast('Bericht huisbezoek gekopieerd — plak het in uw e-mail of WhatsApp en vul naam en datum in', 'success'),
+    () => { window.prompt('Kopieer het bericht:', tekst); }
+  );
 }
 
 async function saveProjectNote(code) {
