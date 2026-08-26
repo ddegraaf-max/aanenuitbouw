@@ -1639,6 +1639,16 @@ img, svg { display: block; max-width: 100%; }
 .proj-opties-row input { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); min-width: 200px; }
 .proj-opties-row input:focus { outline: none; border-color: var(--color-primary); }
 .proj-opties-row .btn-admin { margin-left: auto; }
+/* Beveiliging (authenticator) */
+.bev-status { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; margin-left: 8px; vertical-align: middle; }
+.bev-status.aan { background: #E3F6E8; color: var(--color-success); }
+.bev-status.uit { background: #FBEDEE; color: #B4232A; }
+.bev-acties { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.bev-qr { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.bev-qr svg { width: 200px; height: 200px; flex: 0 0 200px; border: 1px solid var(--color-line); border-radius: 8px; padding: 6px; background: #fff; }
+.bev-geheim { font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--color-ink); background: var(--color-bg); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; word-break: break-all; }
+.bev-codes { font-family: monospace; font-size: 16px; line-height: 1.8; background: var(--color-bg); border: 1px solid var(--color-line); border-radius: 8px; padding: 14px 18px; margin: 10px 0; column-count: 2; }
+.admin-hint-line code { font-family: monospace; background: var(--color-bg); padding: 1px 5px; border-radius: 4px; }
 .proj-recode { border: 0; background: none; color: var(--color-primary); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
 .proj-recode:hover { text-decoration: underline; }
 .proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
@@ -2762,7 +2772,7 @@ img, svg { display: block; max-width: 100%; }
     <div class="admin-header">
       <div>
         <h2 id="adminLoginTitle">Beheerder login</h2>
-        <div class="admin-subtitle">Toegang tot het prijsbeheer</div>
+        <div class="admin-subtitle">Toegang tot het beheer</div>
       </div>
       <button class="admin-close" onclick="closeAdminLogin()" aria-label="Sluiten">×</button>
     </div>
@@ -2771,6 +2781,12 @@ img, svg { display: block; max-width: 100%; }
         <label for="adminPwInput" style="margin-bottom:6px;">Wachtwoord</label>
         <div class="price-input-wrap">
           <input type="password" id="adminPwInput" autocomplete="current-password" placeholder="Voer wachtwoord in" style="text-align:left;font-weight:500;" onkeydown="if(event.key==='Enter') submitAdminLogin();">
+        </div>
+      </div>
+      <div class="admin-row" id="adminCodeRow" style="grid-template-columns:1fr; display:none;">
+        <label for="adminCodeInput" style="margin-bottom:6px;">Code uit uw authenticator-app</label>
+        <div class="price-input-wrap">
+          <input type="text" id="adminCodeInput" inputmode="numeric" autocomplete="one-time-code" placeholder="6 cijfers, of een back-upcode" style="text-align:left;font-weight:600;letter-spacing:2px;" onkeydown="if(event.key==='Enter') submitAdminLogin();">
         </div>
       </div>
       <div class="admin-error" id="adminLoginError">Onjuist wachtwoord — probeer opnieuw</div>
@@ -2795,6 +2811,7 @@ img, svg { display: block; max-width: 100%; }
       <button class="admin-tab active" id="adminTabPrijzen" onclick="setAdminTab('prijzen')">Prijzen</button>
       <button class="admin-tab" id="adminTabPlanning" onclick="setAdminTab('planning')">Beschikbaarheid</button>
       <button class="admin-tab" id="adminTabProjecten" onclick="setAdminTab('projecten')">Projecten</button>
+      <button class="admin-tab" id="adminTabBeveiliging" onclick="setAdminTab('beveiliging')">Beveiliging</button>
     </div>
     <div class="admin-body" id="adminPanelBody"></div>
     <div class="admin-footer">
@@ -4825,7 +4842,7 @@ function _showToast(msg, type) {
 }
 
 function _getAdminPw() {
-  return sessionStorage.getItem('aeu_admin_pw') || '';
+  return sessionStorage.getItem('aeu_admin_token') || '';
 }
 
 async function loadPricesFromServer() {
@@ -4846,6 +4863,13 @@ async function loadPricesFromServer() {
 function openAdminLogin() {
   document.getElementById('adminLoginError').classList.remove('show');
   document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminCodeInput').value = '';
+  document.getElementById('adminCodeRow').style.display = 'none';
+  // Staat de authenticator aan, dan meteen het code-veld tonen
+  fetch('/api/auth/status', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => { document.getElementById('adminCodeRow').style.display = d.tweestaps ? '' : 'none'; })
+    .catch(() => {});
   document.getElementById('adminLoginOverlay').classList.add('open');
   setTimeout(() => document.getElementById('adminPwInput').focus(), 50);
 }
@@ -4854,21 +4878,33 @@ function closeAdminLogin() {
 }
 async function submitAdminLogin() {
   const pw = document.getElementById('adminPwInput').value;
+  const code = document.getElementById('adminCodeInput').value.trim();
   if (!pw) return;
   const errEl = document.getElementById('adminLoginError');
   errEl.classList.remove('show');
   try {
-    const res = await fetch('/api/auth/check', {
+    // Wachtwoord (+ code) gaat één keer naar de server; terug komt een
+    // sessietoken. Het wachtwoord zelf blijft dus niet in de browser staan.
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + pw },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw, code: code }),
     });
-    if (res.ok) {
-      sessionStorage.setItem('aeu_admin_pw', pw);
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.token) {
+      sessionStorage.setItem('aeu_admin_token', data.token);
       _adminLoggedIn = true;
       closeAdminLogin();
       openAdminPanel();
+      if (data.viaBackup) {
+        setTimeout(() => _showToast('Ingelogd met een back-upcode — nog ' + data.backupResterend + ' over. Maak nieuwe aan onder Beveiliging.', 'error'), 400);
+      }
     } else {
-      errEl.textContent = 'Onjuist wachtwoord — probeer opnieuw';
+      if (data.tweestaps) {
+        document.getElementById('adminCodeRow').style.display = '';
+        if (!code) document.getElementById('adminCodeInput').focus();
+      }
+      errEl.textContent = data.error || (res.status === 429 ? 'Te veel pogingen — probeer het over 15 minuten opnieuw' : 'Onjuist wachtwoord — probeer opnieuw');
       errEl.classList.add('show');
     }
   } catch (e) {
@@ -4890,20 +4926,21 @@ function setAdminTab(tab) { _adminTab = tab; renderAdminPanel(); }
 
 function renderAdminPanel() {
   const body = document.getElementById('adminPanelBody');
-  ['Prijzen', 'Planning', 'Projecten'].forEach(t => {
+  ['Prijzen', 'Planning', 'Projecten', 'Beveiliging'].forEach(t => {
     const el = document.getElementById('adminTab' + t);
     if (el) el.classList.toggle('active', _adminTab === t.toLowerCase());
   });
   const isPrices = _adminTab === 'prijzen';
   document.getElementById('adminFooterLeft').style.display = isPrices ? '' : 'none';
   const saveBtn = document.getElementById('adminSaveBtn');
-  saveBtn.style.display = _adminTab === 'projecten' ? 'none' : '';
+  saveBtn.style.display = (_adminTab === 'projecten' || _adminTab === 'beveiliging') ? 'none' : '';
   saveBtn.textContent = isPrices ? 'Opslaan' : 'Beschikbaarheid opslaan';
   document.getElementById('adminPanelTitle').textContent =
-    isPrices ? 'Prijsbeheer' : (_adminTab === 'planning' ? 'Beschikbaarheid' : 'Projectmonitor');
+    isPrices ? 'Prijsbeheer' : (_adminTab === 'planning' ? 'Beschikbaarheid' : (_adminTab === 'beveiliging' ? 'Beveiliging' : 'Projectmonitor'));
 
   if (_adminTab === 'planning') { renderPlanningTab(body); return; }
   if (_adminTab === 'projecten') { renderProjectsTab(body); return; }
+  if (_adminTab === 'beveiliging') { renderBeveiligingTab(body); return; }
 
   let html = '';
   ADMIN_PRICE_GROUPS.forEach(group => {
@@ -5007,6 +5044,169 @@ async function savePlanningAdmin() {
   } catch (e) {
     _showToast('Verbindingsfout — probeer opnieuw', 'error');
   }
+}
+
+// ─── Admin: beveiliging (authenticator / tweestapsverificatie) ───
+// Server: /api/auth/totp (status), /setup, /activeren, /backupcodes, /uitschakelen.
+// Het geheim wordt als QR getoond met /qr.js (eigen generator), zodat het nooit
+// naar een externe QR-dienst gaat.
+let _totpSetup = null;          // { geheim, otpauth } zolang het koppelen bezig is
+let _laatsteBackupcodes = [];   // alleen in het geheugen, voor de kopieerknop
+
+async function _authApi(pad, body) {
+  const token = _getAdminPw();
+  const res = await fetch(pad, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+function _laadQr() {
+  if (window.QR) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = '/qr.js?v=1';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('qr.js niet geladen'));
+    document.head.appendChild(s);
+  });
+}
+
+async function renderBeveiligingTab(body) {
+  body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+  const r = await _authApi('/api/auth/totp');
+  if (_adminTab !== 'beveiliging') return;
+  if (!r.ok) { body.innerHTML = '<p class="admin-hint-line">' + _escAdmin(r.data.error || ('Kon de status niet laden (' + r.status + ')')) + '</p>'; return; }
+  const s = r.data;
+  if (_totpSetup) { renderTotpSetup(body); return; }
+
+  if (s.actief) {
+    body.innerHTML = `
+      <div class="admin-section">
+        <h3>Authenticator-app <span class="bev-status aan">actief</span></h3>
+        <p class="admin-hint-line">Inloggen vereist het wachtwoord én de 6-cijferige code uit uw authenticator-app${s.sinds ? ' (gekoppeld op ' + new Date(s.sinds).toLocaleDateString('nl-NL') + ')' : ''}.${s.bron === 'env' ? ' Het geheim staat als ADMIN_TOTP_SECRET in Railway; uitschakelen of vernieuwen doet u daar.' : ''}</p>
+        <p class="admin-hint-line"><strong>Back-upcodes:</strong> nog ${s.backupResterend} over. Elke code werkt één keer, voor als u uw telefoon niet bij de hand heeft.</p>
+        ${s.bron === 'env' ? '' : `
+        <div class="bev-acties">
+          <button class="btn-admin btn-admin-ghost" onclick="totpNieuweBackupcodes()">Nieuwe back-upcodes</button>
+          <button class="btn-admin btn-admin-danger" onclick="totpUitschakelen()">Authenticator uitschakelen</button>
+        </div>`}
+      </div>
+      <div class="admin-section">
+        <h3>Telefoon kwijt?</h3>
+        <p class="admin-hint-line">Log in met een back-upcode, schakel de authenticator hier uit en koppel daarna uw nieuwe telefoon. Heeft u óók geen back-upcodes meer, zet dan in Railway (service → Variables) de variabele <code>ADMIN_TOTP_UIT</code> op <code>1</code>: de authenticator staat dan tijdelijk uit en u kunt hier opnieuw koppelen. Verwijder de variabele daarna weer.</p>
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Authenticator-app <span class="bev-status uit">${s.noodschakelaar ? 'uit (noodschakelaar)' : 'niet actief'}</span></h3>
+      <p class="admin-hint-line">Nu is alleen het wachtwoord nodig om in te loggen. Met een authenticator-app (Google Authenticator, Microsoft Authenticator, Authy of 1Password) is daarnaast een code nodig die elke 30 seconden verandert. Wie uw wachtwoord raadt of onderschept, komt er dan nog niet in.</p>
+      ${s.noodschakelaar
+        ? '<p class="admin-hint-line"><strong>De noodschakelaar ADMIN_TOTP_UIT staat aan in Railway.</strong> ' + (s.gekoppeld
+            ? 'Er staat nog een oude koppeling. Verwijder die hieronder, haal daarna de variabele weg in Railway en koppel opnieuw met uw nieuwe telefoon.</p><div class="bev-acties"><button class="btn-admin btn-admin-danger" onclick="totpOudeKoppelingWeg()">Oude koppeling verwijderen</button></div>'
+            : 'Verwijder die variabele in Railway; daarna kunt u hier opnieuw koppelen.</p>')
+        : '<button class="btn-admin btn-admin-primary" onclick="totpStartSetup()">Authenticator koppelen</button>'}
+    </div>`;
+}
+
+async function totpStartSetup() {
+  const r = await _authApi('/api/auth/totp/setup', {});
+  if (!r.ok) { _showToast(r.data.error || 'Kon niet starten', 'error'); return; }
+  _totpSetup = r.data;
+  try { await _laadQr(); } catch (e) { /* zonder QR blijft handmatig invoeren over */ }
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
+}
+
+function renderTotpSetup(body) {
+  const qr = window.QR
+    ? window.QR.svg(_totpSetup.otpauth, { breedte: 200 })
+    : '<p class="admin-hint-line">QR-code niet beschikbaar — voer het geheim handmatig in.</p>';
+  const geheimNet = _totpSetup.geheim.replace(/(.{4})/g, '$1 ').trim();
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Stap 1 — Scan de QR-code met uw authenticator-app</h3>
+      <p class="admin-hint-line">Open de app, kies "account toevoegen" en scan deze code. Lukt scannen niet, kies dan "handmatig invoeren" en typ het geheim over.</p>
+      <div class="bev-qr">
+        ${qr}
+        <div>
+          <div class="bev-geheim">${_escAdmin(geheimNet)}</div>
+          <div class="admin-hint-line">Naam in de app: AanEnUitbouw.nl (beheer) · type: tijdgebaseerd (TOTP), 6 cijfers, 30 seconden</div>
+        </div>
+      </div>
+    </div>
+    <div class="admin-section">
+      <h3>Stap 2 — Vul de code in die de app nu toont</h3>
+      <div class="proj-add-row">
+        <input id="totpCodeInput" inputmode="numeric" maxlength="7" placeholder="6 cijfers" style="letter-spacing:3px;font-weight:700;max-width:180px;flex:0 1 180px;" onkeydown="if(event.key==='Enter') totpActiveren()">
+        <button class="btn-admin btn-admin-primary" onclick="totpActiveren()">Activeren</button>
+        <button class="btn-admin btn-admin-ghost" onclick="_totpSetup = null; renderBeveiligingTab(document.getElementById('adminPanelBody'))">Annuleren</button>
+      </div>
+      <p class="admin-hint-line">Na het activeren krijgt u acht back-upcodes. Bewaar die op een veilige plek: daarmee komt u binnen als uw telefoon kwijt of kapot is.</p>
+    </div>`;
+  setTimeout(() => { const el = document.getElementById('totpCodeInput'); if (el) el.focus(); }, 50);
+}
+
+async function totpActiveren() {
+  const el = document.getElementById('totpCodeInput');
+  const code = el ? el.value : '';
+  if (!_totpSetup || code.replace(/\D/g, '').length !== 6) { _showToast('Vul de 6-cijferige code uit de app in', 'error'); return; }
+  const r = await _authApi('/api/auth/totp/activeren', { geheim: _totpSetup.geheim, code });
+  if (!r.ok) { _showToast(r.data.error || 'Activeren mislukt', 'error'); return; }
+  _totpSetup = null;
+  toonBackupcodes(r.data.backupCodes, 'Authenticator gekoppeld. Vanaf nu is bij het inloggen ook de code uit de app nodig.');
+}
+
+function toonBackupcodes(codes, intro) {
+  _laatsteBackupcodes = codes || [];
+  const body = document.getElementById('adminPanelBody');
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Uw back-upcodes</h3>
+      <p class="admin-hint-line">${_escAdmin(intro)} <strong>Bewaar deze codes nu</strong> — ze worden maar één keer getoond. Elke code werkt één keer, in plaats van de code uit de app.</p>
+      <pre class="bev-codes">${_escAdmin(_laatsteBackupcodes.join('\n'))}</pre>
+      <div class="bev-acties">
+        <button class="btn-admin btn-admin-primary" onclick="kopieerBackupcodes()">Kopiëren</button>
+        <button class="btn-admin btn-admin-ghost" onclick="_laatsteBackupcodes = []; renderBeveiligingTab(document.getElementById('adminPanelBody'))">Ik heb ze bewaard</button>
+      </div>
+    </div>`;
+}
+
+function kopieerBackupcodes() {
+  const tekst = 'Back-upcodes beheer AanEnUitbouw.nl (elke code werkt één keer):\n' + _laatsteBackupcodes.join('\n');
+  navigator.clipboard.writeText(tekst).then(
+    () => _showToast('Back-upcodes gekopieerd — plak ze in uw wachtwoordmanager', 'success'),
+    () => _showToast('Kopiëren mislukt — schrijf ze over', 'error')
+  );
+}
+
+async function totpNieuweBackupcodes() {
+  const code = prompt('Vul de code uit uw authenticator-app in om nieuwe back-upcodes te maken. De oude codes vervallen.');
+  if (code == null) return;
+  const r = await _authApi('/api/auth/totp/backupcodes', { code });
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  toonBackupcodes(r.data.backupCodes, 'Nieuwe back-upcodes gemaakt; de oude zijn vervallen.');
+}
+
+async function totpOudeKoppelingWeg() {
+  if (!confirm('Oude authenticator-koppeling en back-upcodes verwijderen? Daarna haalt u ADMIN_TOTP_UIT weg in Railway en koppelt u opnieuw.')) return;
+  const r = await _authApi('/api/auth/totp/uitschakelen', {});
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  _showToast('Oude koppeling verwijderd', 'success');
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
+}
+
+async function totpUitschakelen() {
+  const code = prompt('Weet u zeker dat u de authenticator wilt uitschakelen? Inloggen kan daarna weer met alleen het wachtwoord.\n\nVul ter bevestiging de code uit uw app (of een back-upcode) in:');
+  if (code == null) return;
+  const r = await _authApi('/api/auth/totp/uitschakelen', { code });
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  _showToast('Authenticator uitgeschakeld', 'success');
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
 }
 
 // ─── Admin: projectmonitor ───
@@ -5235,7 +5435,7 @@ async function _postPricesToServer(pricesObj) {
     });
     if (res.ok) return true;
     if (res.status === 401) {
-      sessionStorage.removeItem('aeu_admin_pw');
+      sessionStorage.removeItem('aeu_admin_token');
       _adminLoggedIn = false;
       _showToast('Sessie verlopen — log opnieuw in', 'error');
       closeAdminPanel();
@@ -5316,7 +5516,9 @@ async function importAdminPrices(event) {
 }
 
 function logoutAdmin() {
-  sessionStorage.removeItem('aeu_admin_pw');
+  const token = _getAdminPw();
+  if (token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
+  sessionStorage.removeItem('aeu_admin_token');
   _adminLoggedIn = false;
   closeAdminPanel();
   _showToast('Uitgelogd');

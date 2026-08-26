@@ -11,6 +11,13 @@ const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
 // Fasen, migratie en toegestane waarden van de projectmonitor staan in één
 // gedeeld bestand, dat ook de klantpagina en het beheer gebruiken.
 const PROJECTFASEN = require('./projectfasen.js');
+// Tweestapsverificatie (authenticator-app) voor het beheer — zie src/gedeeld/tweestaps.js
+const TWEESTAPS = require('./src/gedeeld/tweestaps.js');
+const BEHEER_FILE = path.join(DATA_DIR, 'beheer.json');            // geheim + back-upcodes (gehasht)
+const ADMIN_TOTP_SECRET = (process.env.ADMIN_TOTP_SECRET || '').trim(); // optioneel: geheim via Railway i.p.v. het beheerpaneel
+const ADMIN_TOTP_UIT = /^(1|true|ja)$/i.test(process.env.ADMIN_TOTP_UIT || ''); // noodschakelaar: telefoon kwijt én geen back-upcodes
+const SESSIE_DUUR = 12 * 60 * 60 * 1000;                            // na inloggen 12 uur ingelogd
+const _sessies = new TWEESTAPS.Sessies(SESSIE_DUUR);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 // Resend e-mail configuratie
@@ -45,18 +52,83 @@ function jsonResponse(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function checkAuth(req) {
-  if (!ADMIN_PASSWORD) return false;
-  const auth = req.headers['authorization'] || '';
-  const match = /^Bearer\s+(.+)$/i.exec(auth);
-  if (!match) return false;
-  const provided = match[1];
+function wachtwoordKlopt(provided) {
+  if (!ADMIN_PASSWORD || typeof provided !== 'string') return false;
   if (provided.length !== ADMIN_PASSWORD.length) return false;
   let mismatch = 0;
   for (let i = 0; i < provided.length; i++) {
     mismatch |= provided.charCodeAt(i) ^ ADMIN_PASSWORD.charCodeAt(i);
   }
   return mismatch === 0;
+}
+
+function bearerVan(req) {
+  const auth = req.headers['authorization'] || '';
+  const match = /^Bearer\s+(.+)$/i.exec(auth);
+  return match ? match[1].trim() : '';
+}
+
+// Ingelogd = geldig sessietoken (uit /api/auth/login). Zolang de authenticator
+// NIET actief is, werkt het kale wachtwoord als Bearer ook nog; zodra hij
+// actief is, alleen nog tokens — het wachtwoord alleen is dan niet genoeg.
+function checkAuth(req) {
+  if (!ADMIN_PASSWORD) return false;
+  const token = bearerVan(req);
+  if (!token) return false;
+  if (_sessies.geldig(token)) return true;
+  return !tweestapsActief() && wachtwoordKlopt(token);
+}
+
+// ---- Tweestapsverificatie: geheim en back-upcodes in /data/beheer.json ----
+let _beheer = {};
+function laadBeheer() {
+  try {
+    _beheer = JSON.parse(fs.readFileSync(BEHEER_FILE, 'utf8')) || {};
+  } catch (e) {
+    _beheer = {};
+    if (e.code !== 'ENOENT') console.error('beheer.json onleesbaar:', e.message);
+  }
+}
+laadBeheer();
+async function bewaarBeheer() {
+  await writeDataFile(BEHEER_FILE, _beheer);
+}
+
+function totpGeheim() {
+  if (ADMIN_TOTP_UIT) return '';
+  if (ADMIN_TOTP_SECRET) return ADMIN_TOTP_SECRET;
+  return (_beheer.totp && _beheer.totp.secret) || '';
+}
+function tweestapsActief() {
+  return !!totpGeheim();
+}
+function tweestapsBron() {
+  if (!tweestapsActief()) return null;
+  return ADMIN_TOTP_SECRET ? 'env' : 'beheer';
+}
+
+let _laatsteTellerEnv = -1; // hergebruik-bescherming als het geheim uit de omgeving komt
+
+// Tweede stap: code van de app of een back-upcode. Elke code werkt maar één
+// keer (teller wordt onthouden; back-upcodes worden verbruikt).
+async function tweedeStapKlopt(code) {
+  const geheim = totpGeheim();
+  if (!geheim) return { ok: true, soort: 'geen' };
+  const uitEnv = !!ADMIN_TOTP_SECRET;
+  const naTeller = uitEnv ? _laatsteTellerEnv : ((_beheer.totp && _beheer.totp.laatsteTeller) || -1);
+  const teller = TWEESTAPS.totpGeldig(geheim, code, { naTeller });
+  if (teller !== null) {
+    if (uitEnv) _laatsteTellerEnv = teller;
+    else { _beheer.totp.laatsteTeller = teller; await bewaarBeheer(); }
+    return { ok: true, soort: 'app' };
+  }
+  const idx = TWEESTAPS.backupCodeIndex(_beheer.backupCodes || [], code);
+  if (idx !== -1) {
+    _beheer.backupCodes.splice(idx, 1);
+    await bewaarBeheer();
+    return { ok: true, soort: 'backup' };
+  }
+  return { ok: false, soort: null };
 }
 
 function readJsonBody(req, maxBytes = 100000) {
@@ -225,6 +297,7 @@ setInterval(() => {
   for (const [ip, entry] of _adminFails) {
     if (now > entry.reset) _adminFails.delete(ip);
   }
+  _sessies.opruimen();
 }, 10 * 60 * 1000).unref();
 
 // ---- Poortwachters die niet per IP werken ----
@@ -643,6 +716,127 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // ---- Beheer-login: wachtwoord (+ code van de authenticator) → sessietoken ----
+  if (pathname === '/api/auth/status' && req.method === 'GET') {
+    return jsonResponse(res, 200, { tweestaps: tweestapsActief() });
+  }
+
+  if (pathname === '/api/auth/login' && req.method === 'POST') {
+    const ip = clientIp(req);
+    if (adminTooManyFails(ip)) {
+      return jsonResponse(res, 429, { error: 'Te veel mislukte inlogpogingen — probeer het over 15 minuten opnieuw' });
+    }
+    let body = {};
+    try { body = await readJsonBody(req); } catch (e) { return jsonResponse(res, 400, { error: 'Ongeldige aanvraag' }); }
+    const pwOk = wachtwoordKlopt(String(body.password || ''));
+    const stap2 = pwOk ? await tweedeStapKlopt(String(body.code || '')) : { ok: false, soort: null };
+    if (!pwOk || !stap2.ok) {
+      adminRegisterFail(ip);
+      await _sleep(300);
+      return jsonResponse(res, 401, {
+        ok: false,
+        error: tweestapsActief() ? 'Onjuist wachtwoord of onjuiste code' : 'Onjuist wachtwoord',
+        tweestaps: tweestapsActief(),
+      });
+    }
+    adminClearFails(ip);
+    const token = _sessies.maak();
+    return jsonResponse(res, 200, {
+      ok: true,
+      token,
+      tweestaps: tweestapsActief(),
+      viaBackup: stap2.soort === 'backup',
+      backupResterend: (_beheer.backupCodes || []).length,
+    });
+  }
+
+  if (pathname === '/api/auth/logout' && req.method === 'POST') {
+    _sessies.verwijder(bearerVan(req));
+    return jsonResponse(res, 200, { ok: true });
+  }
+
+  if (pathname === '/api/auth/totp' && req.method === 'GET') {
+    if (await adminGeweigerd(req, res)) return;
+    return jsonResponse(res, 200, {
+      actief: tweestapsActief(),
+      bron: tweestapsBron(),
+      noodschakelaar: ADMIN_TOTP_UIT,
+      gekoppeld: !!(_beheer.totp && _beheer.totp.secret),
+      sinds: (_beheer.totp && _beheer.totp.sinds) || null,
+      backupResterend: (_beheer.backupCodes || []).length,
+    });
+  }
+
+  if (pathname === '/api/auth/totp/setup' && req.method === 'POST') {
+    if (await adminGeweigerd(req, res)) return;
+    if (ADMIN_TOTP_SECRET) return jsonResponse(res, 400, { error: 'Het geheim staat in de omgeving (ADMIN_TOTP_SECRET); beheer het via Railway' });
+    if (ADMIN_TOTP_UIT) return jsonResponse(res, 400, { error: 'De noodschakelaar ADMIN_TOTP_UIT staat aan; verwijder die eerst in Railway' });
+    const geheim = TWEESTAPS.nieuwGeheim();
+    return jsonResponse(res, 200, { geheim, otpauth: TWEESTAPS.otpauthUri(geheim, 'AanEnUitbouw.nl', 'beheer') });
+  }
+
+  if (pathname === '/api/auth/totp/activeren' && req.method === 'POST') {
+    if (await adminGeweigerd(req, res)) return;
+    if (ADMIN_TOTP_SECRET) return jsonResponse(res, 400, { error: 'Het geheim staat in de omgeving (ADMIN_TOTP_SECRET); beheer het via Railway' });
+    if (ADMIN_TOTP_UIT) return jsonResponse(res, 400, { error: 'De noodschakelaar ADMIN_TOTP_UIT staat aan; verwijder die eerst in Railway' });
+    try {
+      const body = await readJsonBody(req);
+      const geheim = String(body.geheim || '').toUpperCase().replace(/[^A-Z2-7]/g, '');
+      if (geheim.length !== 32) return jsonResponse(res, 400, { error: 'Ongeldig geheim' });
+      const teller = TWEESTAPS.totpGeldig(geheim, String(body.code || ''));
+      if (teller === null) {
+        return jsonResponse(res, 400, { error: 'De code klopt niet. Controleer of de app het geheim goed heeft ingelezen en probeer de volgende code.' });
+      }
+      const codes = TWEESTAPS.nieuweBackupCodes(8);
+      _beheer.totp = { secret: geheim, sinds: new Date().toISOString(), laatsteTeller: teller };
+      _beheer.backupCodes = codes.map(TWEESTAPS.hashBackupCode);
+      await bewaarBeheer();
+      console.log('Beheer: tweestapsverificatie geactiveerd');
+      return jsonResponse(res, 200, { ok: true, backupCodes: codes });
+    } catch (e) {
+      console.error('TOTP activeren mislukt:', e.message);
+      return jsonResponse(res, 400, { error: e.message || 'Activeren mislukt' });
+    }
+  }
+
+  if ((pathname === '/api/auth/totp/uitschakelen' || pathname === '/api/auth/totp/backupcodes') && req.method === 'POST') {
+    if (await adminGeweigerd(req, res)) return;
+    if (ADMIN_TOTP_SECRET) return jsonResponse(res, 400, { error: 'Het geheim staat in de omgeving (ADMIN_TOTP_SECRET); beheer het via Railway' });
+    if (ADMIN_TOTP_UIT && pathname.endsWith('/uitschakelen')) {
+      // Noodschakelaar staat aan (telefoon kwijt, geen back-upcodes): de oude
+      // koppeling mag zonder code weg, zodat daarna een nieuwe telefoon kan
+      // worden gekoppeld. Wie de Railway-variabelen beheert, heeft toch al alles.
+      delete _beheer.totp;
+      delete _beheer.backupCodes;
+      await bewaarBeheer();
+      console.log('Beheer: oude authenticator-koppeling verwijderd via noodschakelaar');
+      return jsonResponse(res, 200, { ok: true });
+    }
+    if (!tweestapsActief()) return jsonResponse(res, 400, { error: 'Tweestapsverificatie staat niet aan' });
+    try {
+      const body = await readJsonBody(req);
+      const stap2 = await tweedeStapKlopt(String(body.code || ''));
+      if (!stap2.ok) {
+        adminRegisterFail(clientIp(req));
+        await _sleep(300);
+        return jsonResponse(res, 401, { error: 'Onjuiste code' });
+      }
+      if (pathname.endsWith('/uitschakelen')) {
+        delete _beheer.totp;
+        delete _beheer.backupCodes;
+        await bewaarBeheer();
+        console.log('Beheer: tweestapsverificatie uitgeschakeld');
+        return jsonResponse(res, 200, { ok: true });
+      }
+      const codes = TWEESTAPS.nieuweBackupCodes(8);
+      _beheer.backupCodes = codes.map(TWEESTAPS.hashBackupCode);
+      await bewaarBeheer();
+      return jsonResponse(res, 200, { ok: true, backupCodes: codes });
+    } catch (e) {
+      return jsonResponse(res, 400, { error: e.message || 'Mislukt' });
+    }
+  }
+
   if (pathname === '/api/auth/check' && req.method === 'POST') {
     const ip = clientIp(req);
     if (adminTooManyFails(ip)) {
@@ -923,6 +1117,7 @@ const server = http.createServer(async (req, res) => {
       hasResendKey: RESEND_API_KEY.length > 0,
       quoteTo: QUOTE_TO,
       turnstile: TURNSTILE_SECRET ? 'actief' : 'niet ingesteld',
+      tweestaps: tweestapsActief() ? 'actief' : 'uit',
       dataDirExists: fs.existsSync(DATA_DIR),
     });
   }
@@ -945,6 +1140,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`AanEnUitbouw.nl draait op poort ${PORT}`);
   console.log(`Data dir: ${DATA_DIR}`);
   console.log(`Admin password: ${ADMIN_PASSWORD ? 'ingesteld' : 'NIET INGESTELD — admin uitgeschakeld'}`);
+  console.log(`Tweestapsverificatie: ${tweestapsActief() ? 'actief (' + tweestapsBron() + ')' : 'uit — activeren via Beheer → Beveiliging'}`);
   console.log(`Resend API key: ${RESEND_API_KEY ? 'ingesteld' : 'NIET INGESTELD — formulier-verzending uit'}`);
   console.log(`Offertes worden gemaild naar: ${QUOTE_TO}`);
 });

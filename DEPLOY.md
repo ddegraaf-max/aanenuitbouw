@@ -68,6 +68,24 @@ Zonder dit kan het contactformulier geen offertes versturen.
    - **Snel testen:** gebruik `onboarding@resend.dev` als value. Werkt direct, maar mails komen alleen aan op het e-mailadres waarmee je je Resend-account hebt aangemaakt.
    - **Productie:** verifieer je eigen domein in Resend (**Domains** → **Add Domain** → `aanenuitbouw.nl`, volg de DNS-stappen). Daarna kun je `QUOTE_FROM` zetten op bijv. `Offerte <offerte@aanenuitbouw.nl>` en komen mails overal aan.
 
+## 6c. Beheer extra beveiligen met een authenticator (aanbevolen)
+
+Naast het wachtwoord kun je een authenticator-app verplicht maken (Google Authenticator, Microsoft Authenticator, Authy, 1Password). Inloggen vraagt dan ook de 6-cijferige code die elke 30 seconden verandert — wie je wachtwoord raadt of onderschept, komt er niet in.
+
+1. Log in op het beheer → tab **Beveiliging** → **Authenticator koppelen**
+2. Scan de QR-code met de app (of typ het geheim over) en vul de code in die de app toont
+3. **Bewaar de acht back-upcodes** die je daarna ziet, bijvoorbeeld in je wachtwoordmanager. Elke code werkt één keer, voor als je telefoon niet bij de hand is.
+
+Het geheim en de (gehashte) back-upcodes staan in `/data/beheer.json` op het volume. Na inloggen krijgt de browser een sessietoken dat 12 uur geldig is; het wachtwoord zelf blijft niet meer in de browser staan.
+
+**Telefoon kwijt én geen back-upcodes meer?**
+
+1. Railway → service → **Variables** → voeg `ADMIN_TOTP_UIT` = `1` toe (de service herstart; de authenticator staat nu tijdelijk uit)
+2. Log in met alleen het wachtwoord → **Beveiliging** → **Oude koppeling verwijderen**
+3. Verwijder `ADMIN_TOTP_UIT` weer in Railway en koppel opnieuw met je nieuwe telefoon
+
+Wil je het geheim liever niet op het volume maar als variabele? Zet dan `ADMIN_TOTP_SECRET` (32 tekens base32) in Railway; het beheerpaneel toont dan de status maar beheert de koppeling niet.
+
 ## 7. Test de site
 
 1. Settings → **Networking** → **Generate Domain**
