@@ -129,10 +129,10 @@
     {
       id: 'skelet',
       titel: 'Houten skelet',
-      kort: 'De houten wanden en de dakconstructie worden opgebouwd — de vorm van uw aan- of uitbouw wordt zichtbaar.',
+      kort: 'De houten balken en de dakconstructie worden opgebouwd — de vorm van uw aan- of uitbouw wordt zichtbaar.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'De houten wanden en de dakconstructie worden opgebouwd (plat dak, lessenaarsdak, zadeldak of schilddak).',
+        'De houten balken en de dakconstructie worden opgebouwd, conform uw offerte.',
         'Het skelet wordt in deze stap nog niet geïsoleerd; dat gebeurt bij de binnenafwerking (stap 8) als u voor C+ of C++ heeft gekozen.',
         'Na deze stap kan het kozijnelement op maat worden besteld (stap 7).',
       ],
