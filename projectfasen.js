@@ -70,6 +70,7 @@
       nodig: [
         'Uw akkoord op de offerte (ondertekend retour).',
         'Uw definitieve keuzes voor gevel, kozijnen, kleuren en extra’s.',
+        'Wijkt uw elektra af van wat standaard in C+ of C++ zit (meer of andere contact- en lichtpunten)? Dan hebben wij een elektraplan van u nodig: een tekening waarop staat waar de punten moeten komen.',
       ],
     },
     {
@@ -138,7 +139,7 @@
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
-        'Extra wensen voor elektra (contact- of lichtpunten)? Geef ze door voordat de binnenafwerking begint.',
+        'Wijkt uw elektra af van de standaard van C+ of C++? Lever dan uw elektraplan aan vóór de binnenafwerking (stap 8).',
       ],
     },
     {
@@ -181,6 +182,7 @@
       },
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
+        'Bij afwijkende elektra hebben wij uw elektraplan nodig voordat wij met de elektra beginnen.',
         'Bij Casco: na deze stap kunt u zelf, of met uw eigen aannemer, verder met isolatie en afwerking.',
         'Bij C+: kies tijdig uw eigen vloer- en wandafwerking, zodat u na de oplevering direct verder kunt.',
       ],

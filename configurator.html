@@ -657,6 +657,23 @@ img, svg { display: block; max-width: 100%; }
 }
 .plan-features li.extra::before { content: "+"; color: var(--color-mute); }
 
+/* ─── Bouwwijze: prefab of klassiek ─── */
+.bouwwijze-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; align-items: stretch; }
+.bouwwijze-card { position: relative; background: var(--color-paper); border: 2px solid var(--color-line); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
+.bouwwijze-card.featured { border-color: var(--color-primary); background: linear-gradient(180deg, #FFFFFF 0%, var(--color-primary-soft) 200%); }
+.bouwwijze-tag { display: inline-block; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mute); background: var(--color-bg); border-radius: 4px; padding: 4px 10px; margin-bottom: 12px; }
+.bouwwijze-card.featured .bouwwijze-tag { color: var(--color-primary); background: var(--color-primary-soft); }
+.bouwwijze-kop h3 { font-family: var(--font-display); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+.bouwwijze-kop p { color: var(--color-mute); font-size: 14.5px; line-height: 1.6; margin-bottom: 18px; }
+.bouwwijze-lijst { list-style: none; border-top: 1px solid var(--color-line); }
+.bouwwijze-lijst li { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--color-line); font-size: 14px; line-height: 1.55; color: var(--color-ink-light); }
+.bouwwijze-lijst li::before { flex: 0 0 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 13px; margin-top: 1px; }
+.bouwwijze-lijst li.plus::before { content: "+"; background: #E3F6E8; color: var(--color-success); }
+.bouwwijze-lijst li.min::before { content: "−"; background: #FBEDEE; color: #B4232A; }
+.bouwwijze-slot { margin-top: 28px; padding: 20px 24px; background: var(--color-bg); border-radius: var(--radius-lg); font-size: 15px; line-height: 1.7; color: var(--color-ink-light); max-width: 900px; }
+.bouwwijze-slot strong { color: var(--color-ink); }
+@media (max-width: 880px) { .bouwwijze-grid { grid-template-columns: 1fr; } }
+
 @media (max-width: 880px) {
   .plannen-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
 }
@@ -2021,6 +2038,7 @@ img, svg { display: block; max-width: 100%; }
       <a href="#start">Start</a>
       <a href="#diensten">Diensten</a>
       <a href="#plannen">Plannen</a>
+      <a href="#bouwwijze">Bouwwijze</a>
       <a href="#proces">Proces</a>
       <a href="#bodemcheck">Bodemcheck</a>
       <a href="/woningcheck">Woningcheck</a>
@@ -2300,6 +2318,55 @@ img, svg { display: block; max-width: 100%; }
         <a href="#configurator" class="btn btn-secondary" data-plan="cplus2">Selecteer in configurator</a>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     BOUWWIJZE: PREFAB OF KLASSIEK
+     ═══════════════════════════════════════════════════ -->
+<section id="bouwwijze" class="section section-paper">
+  <div class="container">
+    <div class="section-eyebrow">Bouwwijze</div>
+    <h2 class="section-title">Prefab of klassiek bouwen?</h2>
+    <p class="section-sub">Steeds meer aanbouwen komen kant-en-klaar uit de fabriek. Wij bouwen bewust klassiek, op locatie. Hieronder eerlijk de plussen en minnen van allebei, zodat u zelf kunt kiezen.</p>
+
+    <div class="bouwwijze-grid">
+      <article class="bouwwijze-card">
+        <div class="bouwwijze-kop">
+          <span class="bouwwijze-tag">Prefab</span>
+          <h3>Kant-en-klaar uit de fabriek</h3>
+          <p>Houtskeletbouw-elementen worden in een fabriek gemaakt en in een paar dagen op de fundering gezet. De gevel bestaat meestal uit steenstrips: dunne plakjes steen op een plaat.</p>
+        </div>
+        <ul class="bouwwijze-lijst">
+          <li class="plus">Korte bouwtijd op locatie: de elementen staan in enkele dagen.</li>
+          <li class="plus">Minder werkverkeer en overlast in uw tuin.</li>
+          <li class="plus">De montage is weinig afhankelijk van het weer.</li>
+          <li class="min">Steenstrips in plaats van echt metselwerk: naar onze ervaring kwetsbaarder bij stoten en beschadigingen, en het verschil met uw bestaande gevel blijft zichtbaar.</li>
+          <li class="min">Vaak standaardmaten: aansluiten op een bestaande woning die niet haaks of vlak is, is lastiger.</li>
+          <li class="min">Alles ligt vooraf vast; wijzigingen tijdens de bouw zijn nauwelijks mogelijk.</li>
+        </ul>
+      </article>
+
+      <article class="bouwwijze-card featured">
+        <span class="plan-badge">Zo bouwen wij</span>
+        <div class="bouwwijze-kop">
+          <span class="bouwwijze-tag">Klassiek</span>
+          <h3>Traditioneel gebouwd, op locatie</h3>
+          <p>Schroefpalen, een betonnen fundering met bekisting, houten balken en dakconstructie en een gevel van échte massieve bakstenen — steen voor steen gemetseld, passend bij uw woning.</p>
+        </div>
+        <ul class="bouwwijze-lijst">
+          <li class="plus">Echt metselwerk: massieve bakstenen die decennialang meegaan en tegen een stootje kunnen.</li>
+          <li class="plus">Baksteen in een kleur die past bij uw huis, zodat de aanbouw één geheel wordt met de woning.</li>
+          <li class="plus">Maatwerk: elke maat, elke hoek en elke aansluiting — ook bij oudere of scheve woningen.</li>
+          <li class="plus">Bewezen bouwwijze met materialen die elke vakman kent en kan onderhouden.</li>
+          <li class="min">Langere bouwtijd op locatie dan prefab.</li>
+          <li class="min">Meer werkverkeer en overlast in de tuin tijdens de bouw.</li>
+          <li class="min">Metselwerk is weersafhankelijk: bij vorst of hevige regen kan er niet gemetseld worden.</li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="bouwwijze-slot">Ons advies is eerlijk: heeft u haast en is de uitstraling minder belangrijk, dan is prefab een prima keuze. Wilt u een aanbouw die eruitziet en meegaat als de rest van uw huis, dan bouwt u klassiek. Daarom werken wij <strong>uitsluitend met echte massieve bakstenen — geen steenstrips</strong>.</p>
   </div>
 </section>
 
@@ -2628,6 +2695,7 @@ img, svg { display: block; max-width: 100%; }
         <a href="#start">Start</a>
         <a href="#diensten">Diensten</a>
         <a href="#plannen">Plannen</a>
+        <a href="#bouwwijze">Prefab of klassiek</a>
         <a href="#proces">Proces</a>
         <a href="#bodemcheck">Bodemcheck</a>
         <a href="/woningcheck">Woningcheck</a>
@@ -3443,7 +3511,7 @@ function renderStep() {
     const gt = GEVEL_TYPES[state.gevel.type];
     body = `<div class="step-label">${stepNum} — Gevelbekleding</div>
       <h2 class="step-title">Welke gevelbekleding<br>past bij uw woning?</h2>
-      <p class="step-desc">Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong style="color: var(--color-ink)">Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong></p>
+      <p class="step-desc">Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong style="color: var(--color-ink)">Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong> <a href="#bouwwijze" style="color: var(--color-primary); font-weight: 600;">Waarom? Lees prefab of klassiek →</a></p>
       <div class="dim-label" style="margin-bottom: 14px">Materiaal</div>
       <div class="option-grid" style="margin-bottom: 28px">
         ${Object.entries(GEVEL_TYPES).map(([k, t]) => {
@@ -3596,6 +3664,7 @@ function renderStep() {
           <div><div style="font-weight:700; font-family: var(--font-display);">Extra lichtpunten</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_licht} per stuk</div></div>
           <div class="counter"><button onclick="changeCount('light',-1)" ${state.light <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.light}</span><button onclick="changeCount('light',1)">+</button></div>
         </div>
+        <p class="step-desc" style="font-size: 13px; margin: 14px 0 0;">Wijkt uw elektra af van wat standaard in uw plan zit — meer of andere contact- en lichtpunten? Dan vragen wij u na de offerte een <strong>elektraplan</strong> aan te leveren: een tekening waarop staat waar de punten moeten komen.</p>
       </div>
       <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
         <div class="dim-label" style="margin-bottom: 6px">Extra elektra buiten <span style="color: var(--color-mute); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 12px;">— optioneel</span></div>
