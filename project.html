@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- De fasen, teksten en regels staan in één gedeeld bestand (ook gebruikt door server.js en het beheer) -->
-<script src="/projectfasen.js?v=2"></script>
+<script src="/projectfasen.js?v=3"></script>
 <style>
 :root {
   --color-primary:      #1E4FC7;
@@ -312,6 +312,10 @@ function renderDetail(ph, p) {
     if (planTekst) {
       html += '<div class="phase-plan">' + escapeHtml(planTekst) + '</div>';
     }
+  }
+  // Projectspecifiek gegeven uit het beheer (bijv. schroefpalen conform offerte)
+  if (ph.veld && p[ph.veld]) {
+    html += '<div class="phase-plan"><strong>' + escapeHtml(ph.veldKop || '') + ':</strong> ' + escapeHtml(p[ph.veld]) + '</div>';
   }
   if (ph.nodig && ph.nodig.length) {
     html += '<div class="nodig"><h4>' + escapeHtml(ph.nodigKop || 'Wat wij van u nodig hebben') + '</h4><ul>' +

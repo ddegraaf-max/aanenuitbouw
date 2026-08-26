@@ -43,7 +43,7 @@
         'Kozijnen en deuren: openslaande deuren, schuifpui (2- of 4-delig) of harmonicadeur, en de kleur.',
         'Afwerkingsniveau: Casco (alleen wind- en waterdicht), C+ (geïsoleerd en schilderklaar) of C++ (geïsoleerd en sleutelklaar).',
         'De bestaande situatie: bodem, riolering en leidingen, erfgrens, hoogteverschil en bereikbaarheid van de tuin.',
-        'Vergunning, planning, gewenste startperiode en een eerste indicatie van de kosten.',
+        'Vergunning (uw eigen verantwoordelijkheid), planning, gewenste startperiode en een eerste indicatie van de kosten.',
       ],
       nodigKop: 'Zo bereidt u zich voor',
       nodig: [
@@ -75,37 +75,37 @@
     {
       id: 'constructie',
       titel: 'Vergunning & constructie',
-      kort: 'Een constructeur maakt de berekening en indien nodig verzorgen wij de vergunning. Hiervoor hebben wij uw bouwtekeningen nodig.',
+      kort: 'Wij laten alleen de draagbalken berekenen door een constructeur; daarvoor hebben wij uw bouwtekeningen nodig. Vergunning en een eventuele sondering regelt u zelf.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'Een constructeur maakt de berekening voor het staalwerk — bij een uitbouw de stalen draagbalk voor de doorbraak in de achtergevel.',
-        'We controleren of uw aan- of uitbouw vergunningsvrij is. Is een omgevingsvergunning nodig, dan verzorgen wij de aanvraag; houd dan rekening met de beslistermijn van de gemeente.',
-        'Zodra de berekening en, indien nodig, de vergunning rond zijn, kan de bouw starten.',
+        'Een constructeur berekent de draagbalken (het staal) — bij een uitbouw de stalen draagbalk voor de doorbraak in de achtergevel. Meer berekenen wij niet.',
+        'Zodra wij uw bouwtekeningen hebben, gaat de constructeur aan de slag. Met de berekening kan de bouw worden ingepland.',
       ],
-      nodigKop: 'Wat wij van u nodig hebben',
+      nodigKop: 'Wat wij van u nodig hebben en wat u zelf regelt',
       nodig: [
-        'Bouwtekeningen van de woning: plattegronden en doorsneden (pdf, of duidelijke scans of foto’s).',
-        'Heeft u geen tekeningen? Vraag ze op bij het bouwarchief van uw gemeente — wij helpen u op weg.',
-        'Bij een uitbouw zijn de tekeningen extra belangrijk: de constructeur moet het staal voor de doorbraak berekenen. Zonder tekeningen is een opname ter plaatse nodig.',
-        'Hoe eerder wij de stukken hebben, hoe eerder de constructeur aan de slag kan en hoe eerder de bouw kan starten.',
+        'Bouwtekeningen van de woning: plattegronden en doorsneden (pdf, of duidelijke scans of foto’s). Zonder tekeningen is een opname ter plaatse nodig.',
+        'Heeft u geen tekeningen? Vraag ze op bij het bouwarchief van uw gemeente.',
+        'Vergunning: u bent zelf verantwoordelijk om na te gaan of uw aan- of uitbouw vergunningsvrij is en om, als dat nodig is, de omgevingsvergunning bij uw gemeente aan te vragen. Wij controleren dit niet.',
+        'Sondering: is er voor uw situatie een sondering nodig, dan is ook die uw eigen verantwoordelijkheid.',
+        'Hoe eerder wij de tekeningen hebben, hoe eerder de constructeur aan de slag kan.',
       ],
     },
     {
       id: 'fundering',
       titel: 'Start bouw: fundering',
       kort: 'We beginnen altijd met de fundering: schroefpalen en een betonnen fundering met bekisting.',
+      // 'veld' = projectgegeven uit het beheer dat bij deze stap getoond wordt
+      veld: 'palen',
+      veldKop: 'Schroefpalen conform uw offerte',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'De aan- of uitbouw wordt uitgezet en het terrein wordt uitgegraven.',
-        'De schroefpalen worden aangebracht. Het aantal palen en de diepte staan in uw offerte en verschillen per situatie.',
+        'De schroefpalen worden aangebracht, conform uw offerte (aantal en diepte).',
         'Daarop komt de betonnen fundering met bekisting.',
-        'Het beton moet uitharden voordat we verder bouwen.',
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
-        'Maak de plek van de aan- of uitbouw vrij van tuinmeubels, potten en losse spullen. Over bestrating en beplanting maken we vooraf afspraken.',
-        'Zorg voor een doorgang voor materiaal en machines, bijvoorbeeld via de zijkant van de woning of een steeg.',
-        'Reken op wat geluid tijdens het aanbrengen van de palen.',
+        'Maak de plek van de aan- of uitbouw vrij van tuinmeubels, potten en losse spullen.',
+        'Zorg dat de bouwplaats bereikbaar is voor materiaal en machines.',
       ],
     },
     {
@@ -134,7 +134,7 @@
       wat: [
         'De houten wanden en de dakconstructie worden opgebouwd (plat dak, lessenaarsdak, zadeldak of schilddak).',
         'Het skelet wordt in deze stap nog niet geïsoleerd; dat gebeurt bij de binnenafwerking (stap 8) als u voor C+ of C++ heeft gekozen.',
-        'Na deze stap nemen we de exacte maten voor het kozijnelement op.',
+        'Na deze stap kan het kozijnelement op maat worden besteld (stap 7).',
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
@@ -155,7 +155,7 @@
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
-        'Het element wordt speciaal voor u op maat gemaakt; de verwachte leverweek melden wij u hier in een update.',
+        'Het element wordt speciaal voor u op maat gemaakt. Zodra de levering bekend is, ziet u dat hier in een update.',
         'Ondertussen gaat de buitenafwerking gewoon door.',
       ],
     },
@@ -191,7 +191,7 @@
       kort: 'Eindcontrole samen met u en sleuteloverdracht. Ook daarna staan we voor u klaar.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'We lopen de aan- of uitbouw samen met u na en noteren eventuele opleverpunten; die werken we af.',
+        'Eindcontrole samen met u en sleuteloverdracht.',
         'Nazorg: heeft u na de oplevering vragen of zorgen? Wij bieden nazorg en onderhoudsadvies.',
       ],
       nodigKop: 'Wat wij van u nodig hebben',

@@ -27,7 +27,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
-<script src="/projectfasen.js?v=2"></script>
+<script src="/projectfasen.js?v=3"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1610,6 +1610,8 @@ img, svg { display: block; max-width: 100%; }
 .proj-opties-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
 .proj-opties-row label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--color-mute); }
 .proj-opties-row select { min-width: 170px; }
+.proj-opties-row input { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); min-width: 200px; }
+.proj-opties-row input:focus { outline: none; border-color: var(--color-primary); }
 .proj-opties-row .btn-admin { margin-left: auto; }
 .proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
 .proj-del:hover { text-decoration: underline; }
@@ -4944,7 +4946,7 @@ async function renderProjectsTab(body) {
         <input id="projNewLabel" placeholder='Bijv. "Fam. Jansen — Almere, uitbouw 6×3"' maxlength="120" onkeydown="if(event.key==='Enter') createProjectAdmin()">
         <button class="btn-admin btn-admin-primary" onclick="createProjectAdmin()">Aanmaken</button>
       </div>
-      <p class="admin-hint-line">Maak het project aan zodra het huisbezoek is gepland. Het krijgt een unieke code (AEB-XXXXX); stuur die met het voorbereidingsbericht naar de klant, dan volgt hij vanaf stap 1 de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren. Kies per project het type (aanbouw/uitbouw) en het plan (Casco, C+, C++): de klantpagina past de uitleg daarop aan en laat bij een aanbouw de stap "gevel openen" vervallen.</p>
+      <p class="admin-hint-line">Maak het project aan zodra het huisbezoek is gepland. Het krijgt een unieke code (AEB-XXXXX); stuur die met het voorbereidingsbericht naar de klant, dan volgt hij vanaf stap 1 de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren. Kies per project het type (aanbouw/uitbouw) en het plan (Casco, C+, C++): de klantpagina past de uitleg daarop aan en laat bij een aanbouw de stap "gevel openen" vervallen. Vul bij "Schroefpalen" het aantal en de diepte uit de offerte in; de klant ziet dat bij stap 4.</p>
     </div>
     <div class="admin-section">
       <h3>Lopende projecten (${codes.length})</h3>
@@ -4972,6 +4974,9 @@ async function renderProjectsTab(body) {
                 <option value="">— nog niet bekend —</option>
                 ${Object.entries(PROJECT_PLANNEN).map(([k, v]) => `<option value="${k}" ${p.plan === k ? 'selected' : ''}>${v}</option>`).join('')}
               </select>
+            </label>
+            <label>Schroefpalen (conform offerte)
+              <input value="${_escAdmin(p.palen || '')}" maxlength="80" placeholder="bijv. 5 stuks, 13 m diep" onchange="updateProjectField('${code}', 'palen', this.value)">
             </label>
             <button class="btn-admin btn-admin-ghost" onclick="copyHuisbezoekBericht('${code}')" title="Agenda en voorbereiding voor het huisbezoek, met de projectcode en klantlink">Bericht huisbezoek kopiëren</button>
           </div>
@@ -5026,7 +5031,7 @@ async function updateProjectPhase(code, phase) {
 async function updateProjectField(code, veld, waarde) {
   const payload = { action: 'update', code };
   payload[veld] = waarde;
-  const ok = await _projectsAction(payload, veld === 'type' ? 'Type opgeslagen' : 'Plan opgeslagen');
+  const ok = await _projectsAction(payload, { type: 'Type opgeslagen', plan: 'Plan opgeslagen', palen: 'Schroefpalen opgeslagen' }[veld] || 'Opgeslagen');
   if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
 }
 

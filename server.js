@@ -600,7 +600,9 @@ function serveStatic(req, res, urlPath) {
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     res.writeHead(200, {
       'Content-Type': contentType,
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400',
+      // HTML en het gedeelde fasenbestand altijd vers ophalen: een tekstwijziging
+      // moet direct zichtbaar zijn, niet pas na een dag browsercache.
+      'Cache-Control': (ext === '.html' || urlPath === '/projectfasen.js') ? 'no-cache' : 'public, max-age=86400',
     });
     fs.createReadStream(filePath).pipe(res);
   });
@@ -796,6 +798,7 @@ const server = http.createServer(async (req, res) => {
         notes: p.notes || {},
         type: p.type || '',
         plan: p.plan || '',
+        palen: p.palen || '',
         updated: p.updated,
       });
     } catch (e) {
@@ -829,7 +832,7 @@ const server = http.createServer(async (req, res) => {
         if (Object.keys(projects).length >= 200) return jsonResponse(res, 400, { error: 'Maximaal 200 projecten' });
         const code = generateProjectCode(projects);
         const now = new Date().toISOString();
-        projects[code] = { label, phase: 0, notes: {}, type: '', plan: '', schema: PROJECTFASEN.SCHEMA, created: now, updated: now };
+        projects[code] = { label, phase: 0, notes: {}, type: '', plan: '', palen: '', schema: PROJECTFASEN.SCHEMA, created: now, updated: now };
         await writeDataFile(PROJECTS_FILE, projects);
         return jsonResponse(res, 200, { success: true, code });
       }
@@ -860,6 +863,10 @@ const server = http.createServer(async (req, res) => {
           const plan = String(body.plan || '');
           if (plan && !PROJECT_PLANNEN.includes(plan)) return jsonResponse(res, 400, { error: 'Ongeldig plan' });
           p.plan = plan;
+        }
+        if (body.palen !== undefined) {
+          // Schroefpalen conform de offerte, vrije tekst — bijv. "5 stuks, 13 m diep"
+          p.palen = oneLine(body.palen).slice(0, 80);
         }
         if (body.notes !== undefined) {
           if (typeof body.notes !== 'object' || Array.isArray(body.notes)) {
