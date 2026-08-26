@@ -1393,6 +1393,23 @@ img, svg { display: block; max-width: 100%; }
   .over-grid { grid-template-columns: 1fr; gap: 16px; }
 }
 
+/* ─── Samenwerking / partner ─── */
+.partner-card { display: grid; grid-template-columns: 260px 1fr; gap: 36px; align-items: start; background: var(--color-paper); border: 1px solid var(--color-line); border-radius: var(--radius-xl); padding: 36px; box-shadow: var(--shadow-card); }
+.partner-logo { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.partner-logo a { display: block; }
+.partner-logo img { width: 220px; max-width: 100%; height: auto; display: block; }
+.partner-meta { font-size: 13px; color: var(--color-mute); line-height: 1.6; }
+.partner-meta a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
+.partner-body h3 { font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; margin-bottom: 8px; color: var(--color-ink); }
+.partner-body p { color: var(--color-ink-light); font-size: 14.5px; line-height: 1.7; margin-bottom: 18px; }
+.partner-diensten { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 22px; }
+.partner-diensten-kop { flex: 0 0 100%; font-family: var(--font-display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-mute); margin-bottom: 2px; }
+.partner-diensten span:not(.partner-diensten-kop) { font-size: 13px; font-weight: 600; color: var(--color-primary); background: var(--color-primary-soft); border-radius: 999px; padding: 5px 12px; }
+.partner-btn { display: inline-flex; }
+@media (max-width: 880px) {
+  .partner-card { grid-template-columns: 1fr; gap: 24px; padding: 28px 22px; }
+}
+
 /* ═══════════════════════════════════════════════════
    CONTACT
    ═══════════════════════════════════════════════════ */
@@ -2588,6 +2605,39 @@ img, svg { display: block; max-width: 100%; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     SAMENWERKING — Constructiehuis (constructeur)
+     Feiten en logo van constructiehuis.nl; tekst hieronder aanpassen als
+     de samenwerking verandert.
+     ═══════════════════════════════════════════════════ -->
+<section id="samenwerking" class="section section-light">
+  <div class="container">
+    <div class="section-eyebrow">Samenwerking</div>
+    <h2 class="section-title">Onze constructeur: Constructiehuis</h2>
+    <p class="section-sub">Voor de constructieberekening van de draagbalken werken wij samen met Constructiehuis, constructeursbureau voor verbouwingen.</p>
+
+    <div class="partner-card">
+      <div class="partner-logo">
+        <a href="https://constructiehuis.nl" target="_blank" rel="noopener" aria-label="Naar de website van Constructiehuis">
+          <img src="img/partners/constructiehuis-logo.svg" alt="Constructiehuis" loading="lazy">
+        </a>
+        <div class="partner-meta">Constructiehuis B.V. · Eindhoven<br><a href="https://constructiehuis.nl" target="_blank" rel="noopener">constructiehuis.nl</a></div>
+      </div>
+      <div class="partner-body">
+        <h3>Wat Constructiehuis doet</h3>
+        <p>Constructiehuis maakt constructieberekeningen voor verbouwingen: een berekening met constructief advies, als PDF-document geschikt voor de vergunningsaanvraag. Zij werken met vaste prijzen, leveren standaard binnen 2 weken en handelen eventuele vragen van de gemeente over de berekening af.</p>
+        <h3>Wat dit voor u betekent</h3>
+        <p>Bij een uitbouw laten wij de stalen draagbalk voor de doorbraak in de achtergevel door Constructiehuis berekenen. U levert daarvoor de bouwtekeningen van uw woning aan (stap 3 van uw project); met de berekening kan de bouw worden ingepland. Wilt u zelf iets laten berekenen — bijvoorbeeld een doorbraak, dakopbouw of bijgebouw — dan kunt u ook rechtstreeks bij Constructiehuis terecht.</p>
+        <div class="partner-diensten">
+          <span class="partner-diensten-kop">Diensten van Constructiehuis</span>
+          <span>Doorbraak</span><span>Uitbouw</span><span>Bijgebouw</span><span>Dakopbouw</span><span>Dakterras</span><span>Fundering</span><span>Nieuwbouw</span><span>Stalen spant</span><span>Zonnepanelen</span><span>Constructief advies</span><span>Dragende muur check</span><span>Balken check</span><span>Funderingscheck</span>
+        </div>
+        <a href="https://constructiehuis.nl" target="_blank" rel="noopener" class="btn btn-secondary partner-btn">Meer over Constructiehuis →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      RECENT WERK — projecten galerij
      ───────────────────────────────────────────────────
      ⚠️  DEZE SECTIE IS NU VERBORGEN (style="display:none")
@@ -2749,6 +2799,7 @@ img, svg { display: block; max-width: 100%; }
       <div class="footer-col">
         <h5>Bedrijf</h5>
         <a href="#over-ons">Over ons</a>
+        <a href="#samenwerking">Partner: Constructiehuis</a>
         <a href="#werk" data-nav="werk">Recent werk</a>
         <a href="#contact">Contact</a>
         <a href="documenten/privacyverklaring.pdf" target="_blank" rel="noopener">Privacyverklaring</a>

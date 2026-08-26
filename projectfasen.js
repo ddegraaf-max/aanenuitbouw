@@ -89,7 +89,7 @@
       kort: 'Wij laten alleen de draagbalken berekenen door een constructeur; daarvoor hebben wij uw bouwtekeningen nodig. Vergunning en een eventuele sondering regelt u zelf.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'Een constructeur berekent de draagbalken (het staal) — bij een uitbouw de stalen draagbalk voor de doorbraak in de achtergevel. Meer berekenen wij niet.',
+        'Onze partner Constructiehuis (constructiehuis.nl) berekent de draagbalken (het staal) — bij een uitbouw de stalen draagbalk voor de doorbraak in de achtergevel. Meer berekenen wij niet.',
         'Zodra wij uw bouwtekeningen hebben, gaat de constructeur aan de slag. Met de berekening kan de bouw worden ingepland.',
       ],
       nodigKop: 'Wat wij van u nodig hebben en wat u zelf regelt',
