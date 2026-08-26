@@ -28,7 +28,7 @@
   //   nodig      wat wij van de klant nodig hebben / waar hij op kan rekenen
   //   alleenBij  'uitbouw' = deze stap vervalt bij een aanbouw
   //   nvt        tekst als de stap vervalt
-  //   perPlan    extra tekst per afwerkingsniveau (casco / cplus / cplus2)
+  //   perPlan    tekst per afwerkingsniveau (casco / cplus / cplus2 / onbekend)
   const FASEN = [
     {
       id: 'huisbezoek',
@@ -41,13 +41,13 @@
         'Afmetingen, daktype (plat, lessenaar, zadel of schild) en eventueel een lichtkoepel.',
         'Gevel en dakrand: baksteen, kunststof rabat of hout — passend bij uw woning.',
         'Kozijnen en deuren: openslaande deuren, schuifpui (2- of 4-delig) of harmonicadeur, en de kleur.',
-        'Afwerkingsniveau: Casco (wind- en waterdicht), C+ (schilderklaar) of C++ (sleutelklaar).',
-        'De bestaande situatie: fundering en bodem, riolering en leidingen, erfgrens, hoogteverschil en bereikbaarheid van de tuin.',
+        'Afwerkingsniveau: Casco (alleen wind- en waterdicht), C+ (geïsoleerd en schilderklaar) of C++ (geïsoleerd en sleutelklaar).',
+        'De bestaande situatie: bodem, riolering en leidingen, erfgrens, hoogteverschil en bereikbaarheid van de tuin.',
         'Vergunning, planning, gewenste startperiode en een eerste indicatie van de kosten.',
       ],
       nodigKop: 'Zo bereidt u zich voor',
       nodig: [
-        'Bouwtekeningen van uw woning (plattegrond, doorsnede en fundering). Heeft u ze niet, vraag ze dan op bij het bouwarchief van uw gemeente.',
+        'Bouwtekeningen van uw woning (plattegrond en doorsnede). Heeft u ze niet, vraag ze dan op bij het bouwarchief van uw gemeente.',
         'Uw configuratie uit de online configurator op aanenuitbouw.nl, als u die heeft gemaakt.',
         'Foto’s of voorbeelden van aan- en uitbouwen die u aanspreken.',
         'Een indicatie van uw budget en wanneer u het liefst wilt starten.',
@@ -62,6 +62,7 @@
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
         'U ontvangt een gespecificeerde offerte: afwerkingsniveau (Casco, C+ of C++), afmetingen, dak, gevel, kozijnen, extra’s en de totaalprijs.',
+        'Ook het aantal schroefpalen en de diepte ervan staan in de offerte; die verschillen per situatie.',
         'Vragen of wijzigingen? We passen de offerte aan tot hij precies klopt met wat u wilt.',
         'Na ondertekening ontvangt u de opdrachtbevestiging en reserveren we uw plek in de planning.',
       ],
@@ -77,14 +78,13 @@
       kort: 'Een constructeur maakt de berekening en indien nodig verzorgen wij de vergunning. Hiervoor hebben wij uw bouwtekeningen nodig.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'Een constructeur berekent de fundering (schroefpalen), de houten draagconstructie en — bij een uitbouw — de stalen draagbalk voor de doorbraak in de achtergevel.',
-        'We controleren of uw aan- of uitbouw vergunningsvrij is. Is een omgevingsvergunning nodig, dan verzorgen wij de aanvraag; houd dan rekening met de beslistermijn van de gemeente (doorgaans 8 weken).',
-        'Zo nodig laten we een sondering uitvoeren om te bepalen hoe diep de draagkrachtige laag onder uw tuin zit.',
-        'De constructieberekening bepaalt de definitieve uitvoering en is nodig vóór de start van de bouw.',
+        'Een constructeur maakt de berekening voor het staalwerk — bij een uitbouw de stalen draagbalk voor de doorbraak in de achtergevel.',
+        'We controleren of uw aan- of uitbouw vergunningsvrij is. Is een omgevingsvergunning nodig, dan verzorgen wij de aanvraag; houd dan rekening met de beslistermijn van de gemeente.',
+        'Zodra de berekening en, indien nodig, de vergunning rond zijn, kan de bouw starten.',
       ],
       nodigKop: 'Wat wij van u nodig hebben',
       nodig: [
-        'Bouwtekeningen van de woning: plattegronden, doorsneden en de funderingstekening (pdf, of duidelijke scans of foto’s).',
+        'Bouwtekeningen van de woning: plattegronden en doorsneden (pdf, of duidelijke scans of foto’s).',
         'Heeft u geen tekeningen? Vraag ze op bij het bouwarchief van uw gemeente — wij helpen u op weg.',
         'Bij een uitbouw zijn de tekeningen extra belangrijk: de constructeur moet het staal voor de doorbraak berekenen. Zonder tekeningen is een opname ter plaatse nodig.',
         'Hoe eerder wij de stukken hebben, hoe eerder de constructeur aan de slag kan en hoe eerder de bouw kan starten.',
@@ -96,16 +96,16 @@
       kort: 'We beginnen altijd met de fundering: schroefpalen en een betonnen fundering met bekisting.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'De bouwplaats wordt ingericht, de aan- of uitbouw wordt uitgezet en het terrein wordt uitgegraven.',
-        'Schroefpalen worden tot de draagkrachtige zandlaag gedraaid (tot 10 m diep; 5 stuks zijn in elk plan inbegrepen).',
-        'Daarop komt de betonnen fundering met bekisting, inclusief de doorvoeren voor riolering en leidingen.',
+        'De aan- of uitbouw wordt uitgezet en het terrein wordt uitgegraven.',
+        'De schroefpalen worden aangebracht. Het aantal palen en de diepte staan in uw offerte en verschillen per situatie.',
+        'Daarop komt de betonnen fundering met bekisting.',
         'Het beton moet uitharden voordat we verder bouwen.',
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
         'Maak de plek van de aan- of uitbouw vrij van tuinmeubels, potten en losse spullen. Over bestrating en beplanting maken we vooraf afspraken.',
         'Zorg voor een doorgang voor materiaal en machines, bijvoorbeeld via de zijkant van de woning of een steeg.',
-        'Reken op geluid en enige trilling tijdens het aanbrengen van de palen.',
+        'Reken op wat geluid tijdens het aanbrengen van de palen.',
       ],
     },
     {
@@ -116,7 +116,7 @@
       nvt: 'Bij een aanbouw blijft uw achtergevel intact; wij maken alleen waar gewenst een doorgang. Deze stap vervalt.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'De bestaande achtergevel wordt gestut en over de breedte van de uitbouw verwijderd.',
+        'De bestaande achtergevel wordt over de breedte van de uitbouw verwijderd.',
         'De stalen draagbalk uit de constructieberekening wordt geplaatst en neemt de draagkracht van de gevel over.',
         'Al het aansluitwerk aan de bestaande woning is inbegrepen.',
         'Bij een aanbouw blijft de gevel staan en maken we alleen, als u dat wilt, een doorgang naar de nieuwe ruimte.',
@@ -124,24 +124,21 @@
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
         'Maak de ruimte achter de achtergevel leeg of dek alles goed af: dit is de stoffigste stap van de bouw.',
-        'De woning staat tijdelijk open; wij sluiten de opening zo snel mogelijk provisorisch af.',
       ],
     },
     {
       id: 'skelet',
       titel: 'Houten skelet',
-      kort: 'De houten draagconstructie van wanden en dak wordt opgebouwd — de vorm van uw aan- of uitbouw wordt zichtbaar.',
+      kort: 'De houten wanden en de dakconstructie worden opgebouwd — de vorm van uw aan- of uitbouw wordt zichtbaar.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'De houten wanden en de dakconstructie worden opgebouwd volgens de constructieberekening.',
-        'Het dak wordt dichtgelegd (plat, lessenaar, zadel of schild) en de constructie wordt geïsoleerd.',
-        'Heeft u een lichtkoepel gekozen, dan wordt de sparing daarvoor aangebracht.',
+        'De houten wanden en de dakconstructie worden opgebouwd (plat dak, lessenaarsdak, zadeldak of schilddak).',
+        'Het skelet wordt in deze stap nog niet geïsoleerd; dat gebeurt bij de binnenafwerking (stap 8) als u voor C+ of C++ heeft gekozen.',
         'Na deze stap nemen we de exacte maten voor het kozijnelement op.',
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
-        'Dit is het moment om extra wensen voor elektra of leidingen door te geven — zolang de wanden nog open zijn.',
-        'Bij C+ en C++: bevestig de plaatsen van contact- en lichtpunten voordat de wanden dichtgaan.',
+        'Extra wensen voor elektra (contact- of lichtpunten)? Geef ze door voordat de binnenafwerking begint.',
       ],
     },
     {
@@ -151,37 +148,41 @@
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
         'Baksteen: echt massief metselwerk, geen steenstrips, in de gekozen kleur (rood, geel, zwart of crème).',
-        'Kunststof rabat (Keralit) of houten gevelbekleding: onderhoudsarm en snel geplaatst.',
+        'Kunststof rabat (Keralit): onderhoudsvrij en snel geplaatst — of houten gevelbekleding voor een natuurlijke, warme uitstraling.',
         'Dakrand: metselwerk tot boven met zinken deklijst, of een overstek met daktrim. Regenpijp in pvc of zink.',
         'Boven het kozijn: metselwerk met stalen latei of een Trespa-plaat, zoals in uw offerte.',
         'Het kozijnelement — openslaande deuren, schuifpui, 4-delige schuifpui of harmonicadeur — wordt op maat besteld in de gekozen kleur.',
       ],
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
-        'De productie van het element op maat duurt doorgaans enkele weken; wij melden u de verwachte leverweek.',
+        'Het element wordt speciaal voor u op maat gemaakt; de verwachte leverweek melden wij u hier in een update.',
         'Ondertussen gaat de buitenafwerking gewoon door.',
       ],
     },
     {
       id: 'binnenafwerking',
       titel: 'Element plaatsen & binnenafwerking',
-      kort: 'Het kozijnelement wordt geplaatst en de schil is dicht. Afhankelijk van uw plan werken we de binnenkant af.',
+      kort: 'Het kozijnelement wordt geplaatst en uw aan- of uitbouw is wind- en waterdicht. Bij C+ en C++ isoleren we daarna en werken we de binnenkant af.',
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
-        'Het element wordt gesteld, afgekit en afgewerkt; daarmee is uw aan- of uitbouw wind- en waterdicht.',
-        'Bij C+ en C++: dekvloer, elektra (contact- en lichtpunten), vorstvrije buitenkraan en — indien gekozen — vloerverwarming en lichtkoepel.',
-        'Bij C++: wanden en plafond worden volledig afgewerkt, zodat u de ruimte direct in gebruik kunt nemen.',
-        'Bij Casco: geen binnenafwerking — u of uw eigen aannemer gaat verder.',
+        'Het element wordt gesteld en afgedicht: aan de buitenkant met compriband, aan de binnenkant met purschuim. Daarmee is uw aan- of uitbouw wind- en waterdicht.',
+        'Casco: hiermee is ons werk klaar — geen isolatie en geen binnenafwerking. U of uw eigen aannemer gaat verder.',
+        'Isolatie (C+ en C++): de aan- of uitbouw wordt geïsoleerd.',
+        'Dekvloer (C+ en C++): de basis voor vloerverwarming en voor de afwerking met egaline.',
+        'Elektra en water (C+ en C++): contact- en lichtpunten en een vorstvrije buitenkraan; bij C++ volledige elektra.',
+        'Vloerverwarming en lichtkoepel: inbegrepen bij C++, als meerprijs bij C+.',
+        'C++: volledige binnenafwerking — de ruimte is sleutelklaar.',
       ],
       perPlan: {
-        casco:  'Uw plan is Casco: wij leveren wind- en waterdicht op, zonder dekvloer, elektra en vloerverwarming. De binnenafwerking doet u zelf of laat u door uw eigen aannemer uitvoeren.',
-        cplus:  'Uw plan is C+: schilderklare oplevering met afgewerkte dekvloer, 2× contactpunt, 1× lichtpunt en een vorstvrije buitenkraan. Lichtkoepel en vloerverwarming als u die heeft meebesteld.',
-        cplus2: 'Uw plan is C++: volledige binnenafwerking met dekvloer, vloerverwarming, lichtkoepel (standaard maat), volledige elektra en buitenkraan — sleutelklaar.',
+        casco:   'Uw plan is Casco: wij leveren wind- en waterdicht op — zonder isolatie, dekvloer, elektra en vloerverwarming. De binnenafwerking doet u zelf of laat u door uw eigen aannemer uitvoeren.',
+        cplus:   'Uw plan is C+: geïsoleerd en schilderklaar opgeleverd, met dekvloer (afgewerkt met egaline), 2× contactpunt, 1× lichtpunt en een vorstvrije buitenkraan. Lichtkoepel en vloerverwarming als u die heeft meebesteld.',
+        cplus2:  'Uw plan is C++: geïsoleerd en volledig afgewerkt — dekvloer met vloerverwarming (afgewerkt met egaline), lichtkoepel (standaard maat), volledige elektra en buitenkraan. Sleutelklaar.',
+        onbekend: 'Wat u in deze stap krijgt, hangt af van uw plan: Casco (alleen wind- en waterdicht, geen isolatie), C+ (geïsoleerd en schilderklaar, met dekvloer, basis elektra en buitenkraan) of C++ (geïsoleerd en volledig sleutelklaar, inclusief vloerverwarming en lichtkoepel).',
       },
       nodigKop: 'Waar u rekening mee kunt houden',
       nodig: [
+        'Bij Casco: na deze stap kunt u zelf, of met uw eigen aannemer, verder met isolatie en afwerking.',
         'Bij C+: kies tijdig uw eigen vloer- en wandafwerking, zodat u na de oplevering direct verder kunt.',
-        'Geef wijzigingen zo vroeg mogelijk door; na het storten van de dekvloer is de leidingloop niet meer aan te passen.',
       ],
     },
     {
@@ -191,7 +192,6 @@
       watKop: 'Wat er in deze stap gebeurt',
       wat: [
         'We lopen de aan- of uitbouw samen met u na en noteren eventuele opleverpunten; die werken we af.',
-        'U ontvangt de eindfactuur en de bijbehorende documenten.',
         'Nazorg: heeft u na de oplevering vragen of zorgen? Wij bieden nazorg en onderhoudsadvies.',
       ],
       nodigKop: 'Wat wij van u nodig hebben',
@@ -251,7 +251,7 @@
     const regels = [];
     regels.push('Beste ' + (o.naam || '[naam]') + ',');
     regels.push('');
-    regels.push('Bedankt voor uw interesse in een aan- of uitbouw. Op ' + (o.datum || '[datum en tijd]') + ' komen wij bij u langs om kennis te maken, uw wensen te bespreken en de situatie ter plaatse op te nemen. Het bezoek duurt ongeveer een uur en is vrijblijvend.');
+    regels.push('Bedankt voor uw interesse in een aan- of uitbouw. Op ' + (o.datum || '[datum en tijd]') + ' komen wij bij u langs om kennis te maken, uw wensen te bespreken en de situatie ter plaatse op te nemen. Het bezoek is vrijblijvend.');
     regels.push('');
     regels.push(f.watKop + ':');
     f.wat.forEach(r => regels.push('• ' + r));

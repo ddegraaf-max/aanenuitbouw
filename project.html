@@ -307,10 +307,10 @@ function renderDetail(ph, p) {
       ph.wat.map(r => '<li>' + escapeHtml(r) + '</li>').join('') + '</ul></div>';
   }
   if (ph.perPlan) {
-    if (p.plan && ph.perPlan[p.plan]) {
-      html += '<div class="phase-plan"><strong>Uw plan:</strong> ' + escapeHtml(ph.perPlan[p.plan]) + '</div>';
-    } else {
-      html += '<div class="phase-plan">Welke binnenafwerking u krijgt, hangt af van uw plan: <strong>Casco</strong> (wind- en waterdicht), <strong>C+</strong> (schilderklaar met dekvloer, basis elektra en buitenkraan) of <strong>C++</strong> (volledig sleutelklaar, inclusief vloerverwarming en lichtkoepel).</div>';
+    // Tekst per plan uit projectfasen.js; zonder gekozen plan de algemene tekst
+    const planTekst = (p.plan && ph.perPlan[p.plan]) || ph.perPlan.onbekend;
+    if (planTekst) {
+      html += '<div class="phase-plan">' + (p.plan && ph.perPlan[p.plan] ? '<strong>Uw plan:</strong> ' : '') + escapeHtml(planTekst) + '</div>';
     }
   }
   if (ph.nodig && ph.nodig.length) {
