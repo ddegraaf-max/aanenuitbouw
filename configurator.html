@@ -657,6 +657,15 @@ img, svg { display: block; max-width: 100%; }
 }
 .plan-features li.extra::before { content: "+"; color: var(--color-mute); }
 
+/* ─── Social media (links komen uit projectfasen.js → SOCIAL) ─── */
+.footer-social { display: flex; gap: 10px; margin-top: 18px; }
+.footer-social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background 0.15s, border-color 0.15s; }
+.footer-social a:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); }
+.contact-social { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.contact-social a { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 7px 12px; }
+.contact-social a:hover { background: rgba(255,255,255,0.12); }
+[data-social][hidden], [data-social-blok][hidden] { display: none !important; }
+
 /* ─── Bouwwijze: prefab of klassiek ─── */
 .bouwwijze-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; align-items: stretch; }
 .bouwwijze-card { position: relative; background: var(--color-paper); border: 2px solid var(--color-line); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
@@ -2660,6 +2669,19 @@ img, svg { display: block; max-width: 100%; }
             <div class="value" style="font-size: 14px; line-height: 1.5;">Creditline BV<br>KvK 59683198 · BTW NL853603108B01</div>
           </div>
         </div>
+        <div class="contact-info-item" data-social-blok hidden>
+          <div class="contact-info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div>
+            <div class="label">Volg onze projecten</div>
+            <div class="value" style="font-size: 14px; line-height: 1.5;">Dagelijks foto’s van de bouw op Facebook en Instagram.</div>
+            <div class="contact-social">
+              <a data-social="facebook" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z" fill="currentColor"/></svg> Facebook</a>
+              <a data-social="instagram" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="contact-cta-block">
@@ -2688,6 +2710,10 @@ img, svg { display: block; max-width: 100%; }
           </svg>
         </a>
         <p>Vakkundige aan- en uitbouwen op maat. Met meer dan 20 jaar ervaring transformeren we uw woning naar uw wensen.</p>
+        <div class="footer-social" data-social-blok hidden>
+          <a data-social="facebook" href="#" target="_blank" rel="noopener" aria-label="Creditline Montage op Facebook" title="Facebook" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z" fill="currentColor"/></svg></a>
+          <a data-social="instagram" href="#" target="_blank" rel="noopener" aria-label="Creditline Montage op Instagram" title="Instagram" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        </div>
       </div>
       <div class="footer-col">
         <h5>Navigatie</h5>
@@ -5334,6 +5360,7 @@ render();
     .catch(function () { el.textContent = 'versie onbekend'; });
 })();
 </script>
+<script>if (window.PROJECTFASEN) PROJECTFASEN.vulSocialLinks(document);</script>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
 </body>

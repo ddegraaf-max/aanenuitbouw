@@ -6,6 +6,23 @@
 <title>Volg uw project — AanEnUitbouw.nl</title>
 <meta name="description" content="Volg de voortgang van uw aanbouw of uitbouw met uw persoonlijke projectcode.">
 <meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://aanenuitbouw.nl/project">
+<!-- Open Graph: dezelfde deel-preview (met afbeelding) als de website, bijv. in WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aanenuitbouw.nl/project">
+<meta property="og:title" content="Volg uw project — AanEnUitbouw.nl">
+<meta property="og:description" content="Volg stap voor stap de voortgang van uw aanbouw of uitbouw met uw persoonlijke projectcode.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:site_name" content="AanEnUitbouw.nl">
+<meta property="og:image" content="https://aanenuitbouw.nl/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Volg uw project — AanEnUitbouw.nl">
+<meta name="twitter:description" content="Volg stap voor stap de voortgang van uw aanbouw of uitbouw met uw persoonlijke projectcode.">
+<meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,6 +142,15 @@ details.phase-more .phase-detail { margin-top: 10px; }
 .contact-note strong { color: var(--color-ink); }
 .contact-note a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
 
+.social-note { margin-top: 28px; background: var(--color-primary); color: #fff; border-radius: 16px; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-card); }
+.social-note strong { font-family: var(--font-display); font-size: 17px; display: block; margin-bottom: 4px; }
+.social-note p { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.85); max-width: 440px; }
+.social-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.social-links a { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--color-primary); font-family: var(--font-display); font-weight: 700; font-size: 14px; text-decoration: none; padding: 10px 16px; border-radius: 10px; }
+.social-links a:hover { background: var(--color-primary-soft); }
+.social-links a[hidden] { display: none; }
+.social-note[hidden] { display: none; }
+
 footer { border-top: 1px solid var(--color-line); padding: 24px; text-align: center; font-size: 12.5px; color: var(--color-mute); }
 
 @media (max-width: 520px) {
@@ -179,6 +205,17 @@ footer { border-top: 1px solid var(--color-line); padding: 24px; text-align: cen
       <strong>Vragen over uw project?</strong> Bel ons op <a href="tel:+31646150160">+31&nbsp;646&nbsp;150&nbsp;160</a> of mail naar <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a> en vermeld uw projectcode.
     </div>
   </div>
+
+  <div class="social-note" data-social-blok hidden>
+    <div>
+      <strong>Foto’s van uw project</strong>
+      <p>Wij plaatsen dagelijks foto’s van onze projecten op Facebook en Instagram. Volg ons en zie de bouw van uw aan- of uitbouw van dag tot dag.</p>
+    </div>
+    <div class="social-links">
+      <a data-social="facebook" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z" fill="currentColor"/></svg> Facebook</a>
+      <a data-social="instagram" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+    </div>
+  </div>
 </div>
 
 <footer>&copy; 2026 Creditline BV &middot; KvK 59683198 &middot; <a href="/">aanenuitbouw.nl</a></footer>
@@ -187,6 +224,7 @@ footer { border-top: 1px solid var(--color-line); padding: 24px; text-align: cen
 // Alle fasen, teksten en regels komen uit /projectfasen.js.
 const PF = window.PROJECTFASEN || null;
 const PHASES = PF ? PF.FASEN : [];
+if (PF) PF.vulSocialLinks(document);
 
 const input = document.getElementById('codeInput');
 input.addEventListener('input', () => {

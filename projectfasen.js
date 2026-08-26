@@ -20,6 +20,15 @@
   const TYPES = { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw' };
   const PLANNEN = { casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
 
+  // Social media van Creditline Montage — hier plaatsen wij dagelijks foto's
+  // van de projecten. Dit is de ENIGE plek waar de links staan: de website
+  // (footer + contact), de projectpagina en het huisbezoekbericht lezen ze
+  // hieruit. Leeg laten = knop wordt verborgen.
+  const SOCIAL = {
+    facebook:  'https://www.facebook.com/61558476812755',        // Creditline Montage Ramen & Deuren | Bussum
+    instagram: 'https://www.instagram.com/creditlinemontage/',   // @creditlinemontage
+  };
+
   // Per fase:
   //   titel      korte naam (beheer + klantpagina)
   //   kort       één zin onder de titel
@@ -265,6 +274,13 @@
       regels.push('Uw projectcode is ' + o.code + '. Hiermee volgt u vanaf nu elke stap van uw project' + (o.link ? ': ' + o.link : ' op aanenuitbouw.nl/project') + '.');
       regels.push('');
     }
+    const kanalen = [];
+    if (SOCIAL.facebook) kanalen.push('Facebook: ' + SOCIAL.facebook);
+    if (SOCIAL.instagram) kanalen.push('Instagram: ' + SOCIAL.instagram);
+    if (kanalen.length) {
+      regels.push('Wij plaatsen dagelijks foto’s van onze projecten. Volg ons op ' + kanalen.join(' en ') + '.');
+      regels.push('');
+    }
     regels.push('Heeft u vooraf vragen? Bel ons gerust op +31 646 150 160 of mail naar project@aanenuitbouw.nl.');
     regels.push('');
     regels.push('Met vriendelijke groet,');
@@ -272,5 +288,20 @@
     return regels.join('\n');
   }
 
-  return { FASEN, TYPES, PLANNEN, SCHEMA, MIGRATIE_V1, migreerProject, faseVervalt, huisbezoekBericht };
+  // Vult alle <a data-social="facebook|instagram"> op een pagina met de link
+  // uit SOCIAL en verbergt knoppen (en lege blokken) zonder link.
+  function vulSocialLinks(doc) {
+    const d = doc || (typeof document !== 'undefined' ? document : null);
+    if (!d) return;
+    d.querySelectorAll('[data-social]').forEach(a => {
+      const url = SOCIAL[a.getAttribute('data-social')] || '';
+      if (url) { a.href = url; a.hidden = false; } else { a.hidden = true; }
+    });
+    d.querySelectorAll('[data-social-blok]').forEach(blok => {
+      const zichtbaar = Array.from(blok.querySelectorAll('[data-social]')).some(a => !a.hidden);
+      blok.hidden = !zichtbaar;
+    });
+  }
+
+  return { FASEN, TYPES, PLANNEN, SOCIAL, SCHEMA, MIGRATIE_V1, migreerProject, faseVervalt, huisbezoekBericht, vulSocialLinks };
 });
