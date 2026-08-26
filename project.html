@@ -310,7 +310,7 @@ function renderDetail(ph, p) {
     // Tekst per plan uit projectfasen.js; zonder gekozen plan de algemene tekst
     const planTekst = (p.plan && ph.perPlan[p.plan]) || ph.perPlan.onbekend;
     if (planTekst) {
-      html += '<div class="phase-plan">' + (p.plan && ph.perPlan[p.plan] ? '<strong>Uw plan:</strong> ' : '') + escapeHtml(planTekst) + '</div>';
+      html += '<div class="phase-plan">' + escapeHtml(planTekst) + '</div>';
     }
   }
   if (ph.nodig && ph.nodig.length) {
