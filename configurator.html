@@ -2252,9 +2252,9 @@ img, svg { display: block; max-width: 100%; }
           <li>Betonnen fundering met bekisting</li>
           <li>Schroefpalen tot 10 m diep (5 stuks inbegrepen)</li>
           <li>Hoogwaardige draagconstructie</li>
-          <li>Ruwbouw oplevering — wind- en waterdicht</li>
+          <li>Ruwbouw oplevering — wind- en waterdicht, zonder isolatie</li>
           <li>Standaard openslaande deuren wit</li>
-          <li class="extra">Lichtkoepel als meerprijs · elektra en vloerverwarming niet mogelijk</li>
+          <li class="extra">Lichtkoepel als meerprijs · geen isolatie, elektra en vloerverwarming niet mogelijk</li>
         </ul>
         <a href="#configurator" class="btn btn-secondary" data-plan="casco">Selecteer in configurator</a>
       </div>
@@ -2269,6 +2269,7 @@ img, svg { display: block; max-width: 100%; }
         </div>
         <ul class="plan-features">
           <li>Alles uit Casco</li>
+          <li>Isolatie inbegrepen</li>
           <li>Schilderklare oplevering</li>
           <li>Afgewerkte dekvloer</li>
           <li>2× contactpunt en 1× lichtpunt</li>
@@ -2287,7 +2288,7 @@ img, svg { display: block; max-width: 100%; }
           <span class="plan-price-unit">/m²</span>
         </div>
         <ul class="plan-features">
-          <li>Alles uit C+</li>
+          <li>Alles uit C+ (inclusief isolatie)</li>
           <li>Volledige binnenafwerking</li>
           <li>Lichtkoepel inbegrepen (standaard maat)</li>
           <li>Vloerverwarming inbegrepen</li>
@@ -2840,9 +2841,9 @@ let PRICES = { ...DEFAULT_PRICES };
 // Server-prijzen worden async geladen via loadPricesFromServer() onderaan dit script
 
 const PLANS = {
-  casco:  { name: 'Casco',  desc: 'Wind- en waterdicht opgeleverd — voor de doe-het-zelver of eigen aannemer. Elektra en vloerverwarming niet mogelijk.', get rate() { return PRICES.plan_casco_rate; } },
-  cplus:  { name: 'C+',     desc: 'Schilderklaar opgeleverd met dekvloer, basis elektra en buitenkraan.',     get rate() { return PRICES.plan_cplus_rate; } },
-  cplus2: { name: 'C++',    desc: 'Volledig sleutelklaar met dekvloer, inclusief lichtkoepel en vloerverwarming.', get rate() { return PRICES.plan_cplus2_rate; } },
+  casco:  { name: 'Casco',  desc: 'Wind- en waterdicht opgeleverd, zonder isolatie — voor de doe-het-zelver of eigen aannemer. Elektra en vloerverwarming niet mogelijk.', get rate() { return PRICES.plan_casco_rate; } },
+  cplus:  { name: 'C+',     desc: 'Geïsoleerd en schilderklaar opgeleverd met dekvloer, basis elektra en buitenkraan.',     get rate() { return PRICES.plan_cplus_rate; } },
+  cplus2: { name: 'C++',    desc: 'Geïsoleerd en volledig sleutelklaar met dekvloer, inclusief lichtkoepel en vloerverwarming.', get rate() { return PRICES.plan_cplus2_rate; } },
 };
 const ROOF_TYPES = {
   plat:      { label: 'Plat dak',      desc: 'Strakke, moderne lijn — optioneel met lichtkoepel voor extra daglicht.', get mult() { return PRICES.roof_plat_mult; } },
@@ -3418,9 +3419,9 @@ function renderStep() {
       </div>`;
   } else if (step.id === 'plan') {
     const features = {
-      casco:  ['Ruwbouw', 'Schroefpalen', 'Standaard kozijnen'],
-      cplus:  ['Schilderklaar', '2× contactpunt', '1× lichtpunt', 'Buitenkraan'],
-      cplus2: ['Volledig afgewerkt', 'Lichtkoepel inbegrepen', 'Vloerverwarming', 'Elektra'],
+      casco:  ['Ruwbouw', 'Wind- en waterdicht', 'Geen isolatie', 'Standaard kozijnen'],
+      cplus:  ['Isolatie', 'Schilderklaar', '2× contactpunt', '1× lichtpunt', 'Buitenkraan'],
+      cplus2: ['Isolatie', 'Volledig afgewerkt', 'Lichtkoepel inbegrepen', 'Vloerverwarming', 'Elektra'],
     };
     body = `<div class="step-label">${stepNum} — Afwerking</div>
       <h2 class="step-title">Kies uw afwerkingsniveau</h2>
@@ -3581,7 +3582,7 @@ function renderStep() {
       ${inCasco ? `
       <div style="margin-top: 32px; padding: 20px 24px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-panel, #F7F9FC);">
         <div style="font-weight:700; font-family: var(--font-display); margin-bottom: 4px;">Elektra niet mogelijk bij Casco</div>
-        <div style="font-size:13px; color: var(--color-mute); line-height: 1.6;">Bij het Casco-plan leveren wij de ${state.type} wind- en waterdicht op, zonder installaties. Elektra (contactpunten, lichtpunten, buiteninstallaties) en vloerverwarming zijn daarom niet als extra te kiezen. Kies C+ of C++ als u dit door ons wilt laten verzorgen.</div>
+        <div style="font-size:13px; color: var(--color-mute); line-height: 1.6;">Bij het Casco-plan leveren wij de ${state.type} wind- en waterdicht op, zonder isolatie en zonder installaties. Elektra (contactpunten, lichtpunten, buiteninstallaties) en vloerverwarming zijn daarom niet als extra te kiezen. Kies C+ of C++ als u dit door ons wilt laten verzorgen.</div>
       </div>` : `
       <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
         <div class="dim-label" style="margin-bottom: 14px">Extra elektra binnen</div>
