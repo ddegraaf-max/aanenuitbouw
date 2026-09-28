@@ -7,32 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 56'><path d='M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z' fill='%231E4FC7'/><rect x='36' y='32' width='24' height='18' fill='%234ECD6B'/></svg>">
 <meta name="description" content="Transformeer uw huis met deskundige aan- en uitbouwen. Stel direct online uw uitbouw samen en ontvang een prijsindicatie.">
 
-<link rel="canonical" href="https://aanenuitbouw.nl/">
-<meta property="og:url" content="https://aanenuitbouw.nl/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
-<meta property="og:description" content="Stel online uw aan- of uitbouw samen en ontvang binnen 48 uur een offerte op maat.">
-<meta property="og:image" content="https://aanenuitbouw.nl/img/og-image.png">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "name": "AanEnUitbouw.nl",
-  "legalName": "Creditline B.V.",
-  "url": "https://aanenuitbouw.nl",
-  "image": "https://aanenuitbouw.nl/img/og-image.png",
-  "telephone": "+31646150160",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Bussum",
-    "addressCountry": "NL"
-  },
-  "areaServed": "Nederland",
-  "priceRange": "€€€",
-  "knowsAbout": ["aanbouw", "uitbouw", "dakkapel", "vergunningsvrij bouwen", "constructieberekening", "vergunningsaanvraag"]  
-}
-</script>
-
 <!-- SEO -->
 <link rel="canonical" href="https://aanenuitbouw.nl/">
 <meta name="robots" content="index, follow">
@@ -45,15 +19,104 @@
 <meta property="og:description" content="Transformeer uw huis met deskundige aan- en uitbouwen. Stel direct online uw uitbouw samen en ontvang een prijsindicatie binnen 48 uur.">
 <meta property="og:locale" content="nl_NL">
 <meta property="og:site_name" content="AanEnUitbouw.nl">
+<meta property="og:image" content="https://aanenuitbouw.nl/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<!-- Gefaseerd laden aanzetten, behalve als de link direct naar een sectie wijst (bijv. /#contact) -->
+<script>if (!location.hash) document.documentElement.className = 'laadt-gefaseerd';</script>
+<!-- 'defer': laadt op de achtergrond en houdt de opbouw van de pagina niet tegen.
+     Het script onderaan de pagina neemt PROJECTFASEN over zodra de pagina klaar is. -->
+<script src="/projectfasen.js?v=3" defer></script>
+<!-- Bedrijfsgegevens voor zoekmachines. Alles hierin staat ook zichtbaar op de
+     pagina; past u daar een dienst of gegeven aan, pas het dan ook hier aan. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "HomeAndConstructionBusiness",
+      "@id": "https://aanenuitbouw.nl/#bedrijf",
+      "name": "AanEnUitbouw.nl",
+      "legalName": "Creditline B.V.",
+      "url": "https://aanenuitbouw.nl/",
+      "image": "https://aanenuitbouw.nl/img/og-image.png",
+      "description": "Vakkundige aan- en uitbouwen op maat. Stel online uw uitbouw samen en ontvang een prijsindicatie binnen 48 uur.",
+      "telephone": "+31646150160",
+      "vatID": "NL853603108B01",
+      "identifier": { "@type": "PropertyValue", "propertyID": "KvK", "value": "59683198" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Bussum",
+        "addressCountry": "NL"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Nederland"
+      },
+      "priceRange": "€€",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Onze diensten",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Aanbouw", "description": "Een uitbreiding aan de achterzijde van uw woning, waarbij de bestaande achtergevel intact blijft." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Uitbouw", "description": "Een uitbreiding aan de achterzijde van uw woning, geheel geïntegreerd met de bestaande ruimte." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ramen & Deuren" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Stuc, tegel & schilderwerk" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Elektrisch & dakwerk" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Rolluiken & screens" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dakkapellen" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dakramen & lichtkoepels" } }
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://aanenuitbouw.nl/#website",
+      "url": "https://aanenuitbouw.nl/",
+      "name": "AanEnUitbouw.nl",
+      "inLanguage": "nl-NL",
+      "publisher": { "@id": "https://aanenuitbouw.nl/#bedrijf" }
+    }
+  ]
+}
+</script>
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
 <meta name="twitter:description" content="Stel direct online uw aan- of uitbouw samen en ontvang een prijsindicatie binnen 48 uur.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Lettertypen staan in de map /fonts op de eigen server (niet meer bij Google):
+     de pagina hoeft dan niet op een andere website te wachten voordat de tekst verschijnt. -->
+<link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* ═══════════════════════════════════════════════════
+   LETTERTYPEN (eigen server, map /fonts)
+   ═══════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(/fonts/dm-sans-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(/fonts/dm-sans-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url(/fonts/manrope-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url(/fonts/manrope-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ═══════════════════════════════════════════════════
    DESIGN TOKENS
    ═══════════════════════════════════════════════════ */
@@ -123,7 +186,8 @@ img, svg { display: block; max-width: 100%; }
   height: var(--header-h);
 }
 .header-inner {
-  max-width: 1240px;
+  /* Breder dan de inhoud van de pagina (1240 px): het menu heeft die ruimte nodig */
+  max-width: 1720px;
   margin: 0 auto;
   padding: 0 32px;
   height: 100%;
@@ -214,14 +278,24 @@ img, svg { display: block; max-width: 100%; }
 .nav-toggle.open span:nth-child(2) { opacity: 0; }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
-@media (max-width: 1100px) {
+/* Het menu, het logo en de belknop passen alleen op een breed scherm voluit
+   naast elkaar. Daarom wordt de kop in stappen compacter; zo valt de belknop
+   nooit buiten beeld.
+     tot 1720 px  zonder de tekst "Uw huis uitbreiden"
+     tot 1500 px  menu compacter
+     tot 1320 px  belknop als rond pictogram
+     tot 1150 px  uitklapmenu (hamburger)                                   */
+.main-nav a { white-space: nowrap; }
+@media (max-width: 1719px) {
   .brand-tag { display: none; }
-  .main-nav { gap: 0; }
-  .main-nav a { padding: 8px 10px; font-size: 13px; }
 }
-@media (max-width: 880px) {
-  .nav-toggle { display: flex; }
-  /* Bel-knop wordt compact icoon-only op mobiel */
+@media (max-width: 1499px) {
+  .header-inner { gap: 20px; }
+  .main-nav { gap: 0; }
+  .main-nav a { padding: 8px 9px; font-size: 13.5px; }
+}
+@media (max-width: 1319px) {
+  /* Bel-knop wordt compact icoon-only */
   .contact-cta {
     font-size: 0;
     padding: 0;
@@ -241,6 +315,9 @@ img, svg { display: block; max-width: 100%; }
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
   }
+}
+@media (max-width: 1149px) {
+  .nav-toggle { display: flex; }
   .header-inner { gap: 12px; }
   /* Mobiel uitklapmenu */
   .main-nav {
@@ -434,6 +511,11 @@ img, svg { display: block; max-width: 100%; }
    SECTIONS — basis
    ═══════════════════════════════════════════════════ */
 .section { padding: 96px 0; }
+/* Gefaseerd laden: eerst het eerste scherm tonen, daarna rekent de browser de
+   secties eronder één voor één door (zie "GEFASEERD LADEN" in het script).
+   De inhoud staat gewoon in de pagina, ook voor zoekmachines. */
+.laadt-gefaseerd .section,
+.laadt-gefaseerd .site-footer { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 .section-light { background: var(--color-bg); }
 .section-paper { background: var(--color-paper); }
 .section-blue  { background: var(--color-primary); color: #fff; }
@@ -467,6 +549,22 @@ img, svg { display: block; max-width: 100%; }
   line-height: 1.6;
 }
 .section-blue .section-sub { color: rgba(255,255,255,0.8); }
+
+/* Link naar een losse pagina (bijv. "Meer over een aanbouw") */
+.blok-link { text-align: center; margin-top: 40px; }
+.meer-link {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--color-primary-line);
+  padding-bottom: 2px;
+  transition: border-color 0.15s;
+}
+.meer-link:hover { border-color: var(--color-primary); }
+.meer-link::after { content: " →"; }
+.dienst-hero-body .meer-link { display: inline-block; margin-top: 16px; }
 
 @media (max-width: 640px) {
   .section { padding: 64px 0; }
@@ -650,6 +748,32 @@ img, svg { display: block; max-width: 100%; }
   flex-shrink: 0;
 }
 .plan-features li.extra::before { content: "+"; color: var(--color-mute); }
+
+/* ─── Social media (links komen uit projectfasen.js → SOCIAL) ─── */
+.footer-social { display: flex; gap: 10px; margin-top: 18px; }
+.footer-social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background 0.15s, border-color 0.15s; }
+.footer-social a:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); }
+.contact-social { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.contact-social a { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 7px 12px; }
+.contact-social a:hover { background: rgba(255,255,255,0.12); }
+[data-social][hidden], [data-social-blok][hidden] { display: none !important; }
+
+/* ─── Bouwwijze: prefab of klassiek ─── */
+.bouwwijze-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; align-items: stretch; }
+.bouwwijze-card { position: relative; background: var(--color-paper); border: 2px solid var(--color-line); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
+.bouwwijze-card.featured { border-color: var(--color-primary); background: linear-gradient(180deg, #FFFFFF 0%, var(--color-primary-soft) 200%); }
+.bouwwijze-tag { display: inline-block; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mute); background: var(--color-bg); border-radius: 4px; padding: 4px 10px; margin-bottom: 12px; }
+.bouwwijze-card.featured .bouwwijze-tag { color: var(--color-primary); background: var(--color-primary-soft); }
+.bouwwijze-kop h3 { font-family: var(--font-display); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+.bouwwijze-kop p { color: var(--color-mute); font-size: 14.5px; line-height: 1.6; margin-bottom: 18px; }
+.bouwwijze-lijst { list-style: none; border-top: 1px solid var(--color-line); }
+.bouwwijze-lijst li { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--color-line); font-size: 14px; line-height: 1.55; color: var(--color-ink-light); }
+.bouwwijze-lijst li::before { flex: 0 0 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 13px; margin-top: 1px; }
+.bouwwijze-lijst li.plus::before { content: "+"; background: #E3F6E8; color: var(--color-success); }
+.bouwwijze-lijst li.min::before { content: "−"; background: #FBEDEE; color: #B4232A; }
+.bouwwijze-slot { margin-top: 28px; padding: 20px 24px; background: var(--color-bg); border-radius: var(--radius-lg); font-size: 15px; line-height: 1.7; color: var(--color-ink-light); max-width: 900px; }
+.bouwwijze-slot strong { color: var(--color-ink); }
+@media (max-width: 880px) { .bouwwijze-grid { grid-template-columns: 1fr; } }
 
 @media (max-width: 880px) {
   .plannen-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
@@ -1361,6 +1485,23 @@ img, svg { display: block; max-width: 100%; }
   .over-grid { grid-template-columns: 1fr; gap: 16px; }
 }
 
+/* ─── Samenwerking / partner ─── */
+.partner-card { display: grid; grid-template-columns: 260px 1fr; gap: 36px; align-items: start; background: var(--color-paper); border: 1px solid var(--color-line); border-radius: var(--radius-xl); padding: 36px; box-shadow: var(--shadow-card); }
+.partner-logo { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.partner-logo a { display: block; }
+.partner-logo img { width: 220px; max-width: 100%; height: auto; display: block; }
+.partner-meta { font-size: 13px; color: var(--color-mute); line-height: 1.6; }
+.partner-meta a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
+.partner-body h3 { font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; margin-bottom: 8px; color: var(--color-ink); }
+.partner-body p { color: var(--color-ink-light); font-size: 14.5px; line-height: 1.7; margin-bottom: 18px; }
+.partner-diensten { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 22px; }
+.partner-diensten-kop { flex: 0 0 100%; font-family: var(--font-display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-mute); margin-bottom: 2px; }
+.partner-diensten span:not(.partner-diensten-kop) { font-size: 13px; font-weight: 600; color: var(--color-primary); background: var(--color-primary-soft); border-radius: 999px; padding: 5px 12px; }
+.partner-btn { display: inline-flex; }
+@media (max-width: 880px) {
+  .partner-card { grid-template-columns: 1fr; gap: 24px; padding: 28px 22px; }
+}
+
 /* ═══════════════════════════════════════════════════
    CONTACT
    ═══════════════════════════════════════════════════ */
@@ -1400,8 +1541,8 @@ img, svg { display: block; max-width: 100%; }
   font-size: 17px; font-weight: 700;
   color: #fff; margin-top: 2px;
 }
-.contact-info-item a { text-decoration: none; }
-.contact-info-item a:hover .value { color: var(--color-accent-green); }
+.contact-info-item a, a.contact-info-item { text-decoration: none; }
+.contact-info-item a:hover .value, a.contact-info-item:hover .value { color: var(--color-accent-green); }
 .contact-cta-block {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.18);
@@ -1451,7 +1592,7 @@ img, svg { display: block; max-width: 100%; }
   color: rgba(255,255,255,0.55);
   max-width: 280px;
 }
-.footer-col h5 {
+.footer-col h4 {
   font-family: var(--font-display);
   font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--color-accent-green); font-weight: 700;
@@ -1476,6 +1617,30 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 540px) {
   .footer-top { grid-template-columns: 1fr; }
 }
+/* Telefoon en e-mail onder het logo */
+.footer-contact { margin-top: 16px; display: grid; gap: 6px; justify-items: start; }
+.footer-contact a {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 14.5px; font-weight: 700;
+  transition: color 0.15s;
+}
+.footer-contact a:hover { color: #fff; }
+/* Voet met vijf kolommen (logo + vier rijen links) */
+.footer-col .footer-kop {
+  font-family: var(--font-display);
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-accent-green); font-weight: 700;
+  margin-bottom: 16px;
+}
+.footer-top.vijf { grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 32px; }
+@media (max-width: 1000px) {
+  .footer-top.vijf { grid-template-columns: 1fr 1fr 1fr; }
+  .footer-top.vijf .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) { .footer-top.vijf { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .footer-top.vijf { grid-template-columns: 1fr; } }
 
 /* ═══════════════════════════════════════════════════
    ADMIN PANEEL — Beheerder login + prijsbeheer
@@ -1553,6 +1718,75 @@ img, svg { display: block; max-width: 100%; }
   overflow-y: auto;
   flex: 1;
 }
+/* ─── Beschikbaarheid (publiek) ─── */
+.avail-card { background: var(--color-paper); border: 1px solid var(--color-line); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); padding: 28px 32px; }
+.avail-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.avail-title { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+.avail-next { font-size: 14px; color: var(--color-mute); margin-top: 4px; }
+.avail-next strong { color: var(--color-success); }
+.avail-cta { white-space: nowrap; }
+.avail-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.avail-month { border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 12px 14px; text-align: center; }
+.avail-month .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; }
+.avail-month .m-status { font-size: 12px; margin-top: 3px; font-weight: 600; }
+.avail-month.st-green  { background: #EDFAF1; border-color: #BFE9CC; } .avail-month.st-green .m-status  { color: var(--color-success); }
+.avail-month.st-orange { background: #FEF6EA; border-color: #F3DCB4; } .avail-month.st-orange .m-status { color: #A96A0F; }
+.avail-month.st-red    { background: #FBEDEE; border-color: #F2CCCE; } .avail-month.st-red .m-status    { color: #B4232A; }
+.avail-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 18px; font-size: 12.5px; color: var(--color-mute); }
+.avail-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.dot-green { background: var(--color-accent-green); } .dot-orange { background: #E8A33D; } .dot-red { background: #D64545; }
+
+/* ─── Admin: tabs ─── */
+.admin-tabs { display: flex; gap: 4px; padding: 0 28px; border-bottom: 1px solid var(--color-line); background: var(--color-bg-soft); }
+.admin-tab { border: 0; background: none; font-family: var(--font-display); font-weight: 700; font-size: 13.5px; color: var(--color-mute); padding: 14px 16px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.admin-tab:hover { color: var(--color-ink); }
+.admin-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+/* ─── Admin: planning ─── */
+.plan-months-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.plan-month-pill { border: 1.5px solid var(--color-line); border-radius: var(--radius-lg); padding: 12px 14px; cursor: pointer; text-align: center; user-select: none; transition: transform 0.1s ease; }
+.plan-month-pill:hover { transform: translateY(-1px); }
+.plan-month-pill .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; }
+.plan-month-pill .m-status { font-size: 11.5px; margin-top: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-mute); }
+.plan-month-pill.st-green  { background: #EDFAF1; border-color: var(--color-accent-green); } .plan-month-pill.st-green .m-status  { color: var(--color-success); }
+.plan-month-pill.st-orange { background: #FEF6EA; border-color: #E8A33D; } .plan-month-pill.st-orange .m-status { color: #A96A0F; }
+.plan-month-pill.st-red    { background: #FBEDEE; border-color: #D64545; } .plan-month-pill.st-red .m-status    { color: #B4232A; }
+.admin-hint-line { font-size: 12.5px; color: var(--color-mute); margin: 0 0 14px; line-height: 1.6; }
+
+/* ─── Admin: projecten ─── */
+.proj-add-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.proj-add-row input { flex: 1; min-width: 220px; border: 1.5px solid var(--color-line); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: var(--font-sans); }
+.proj-add-row input:focus { outline: none; border-color: var(--color-primary); }
+.proj-card { border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px; background: var(--color-paper); }
+.proj-card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.proj-card-label { font-family: var(--font-display); font-weight: 700; font-size: 15px; flex: 1; min-width: 160px; }
+.proj-code { font-family: monospace; font-size: 13px; background: var(--color-primary-soft); color: var(--color-primary); border-radius: 6px; padding: 4px 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; border: 0; }
+.proj-code:hover { background: var(--color-primary-line); }
+.proj-card select { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); background: var(--color-paper); }
+.proj-note-row { display: flex; gap: 10px; margin-top: 12px; }
+.proj-note-row textarea { flex: 1; border: 1.5px solid var(--color-line); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: var(--font-sans); resize: vertical; min-height: 40px; }
+.proj-note-row textarea:focus { outline: none; border-color: var(--color-primary); }
+.proj-opties-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
+.proj-opties-row label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--color-mute); }
+.proj-opties-row select { min-width: 170px; }
+.proj-opties-row input { border: 1.5px solid var(--color-line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; font-family: var(--font-sans); min-width: 200px; }
+.proj-opties-row input:focus { outline: none; border-color: var(--color-primary); }
+.proj-opties-row .btn-admin { margin-left: auto; }
+/* Beveiliging (authenticator) */
+.bev-status { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; margin-left: 8px; vertical-align: middle; }
+.bev-status.aan { background: #E3F6E8; color: var(--color-success); }
+.bev-status.uit { background: #FBEDEE; color: #B4232A; }
+.bev-acties { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.bev-qr { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.bev-qr svg { width: 200px; height: 200px; flex: 0 0 200px; border: 1px solid var(--color-line); border-radius: 8px; padding: 6px; background: #fff; }
+.bev-geheim { font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--color-ink); background: var(--color-bg); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; word-break: break-all; }
+.bev-codes { font-family: monospace; font-size: 16px; line-height: 1.8; background: var(--color-bg); border: 1px solid var(--color-line); border-radius: 8px; padding: 14px 18px; margin: 10px 0; column-count: 2; }
+.admin-hint-line code { font-family: monospace; background: var(--color-bg); padding: 1px 5px; border-radius: 4px; }
+.proj-recode { border: 0; background: none; color: var(--color-primary); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
+.proj-recode:hover { text-decoration: underline; }
+.proj-del { border: 0; background: none; color: #B4232A; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
+.proj-del:hover { text-decoration: underline; }
+.proj-meta { font-size: 12px; color: var(--color-mute); margin-top: 8px; }
 .admin-section {
   margin-bottom: 28px;
 }
@@ -1715,6 +1949,226 @@ img, svg { display: block; max-width: 100%; }
   /* Bel-knop in hero stat-rij voorkomt overlopen */
   .hero-stat-num { font-size: 23px; }
 }
+
+/* ─── Antispam ─── */
+/* Valstrik: volledig buiten beeld en onbereikbaar voor het toetsenbord. Niet met
+   display:none of visibility:hidden — daar kijken de betere bots op. */
+.valstrik { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.turnstile-doel { margin: 18px 0 4px; min-height: 0; }
+
+/* ─── Stap 8: bouwtekeningen en adrescontrole ─── */
+.adres-status { font-size: 12.5px; color: var(--color-mute); margin-top: 6px; min-height: 1em; }
+.adres-status.ok { color: var(--color-success); }
+.adres-status.fout { color: #B4232A; }
+
+.tk-keuzes { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.tk-keuze {
+  border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: #fff;
+  padding: 14px 16px; text-align: left; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; gap: 4px; transition: border-color .12s, box-shadow .12s;
+}
+.tk-keuze:hover { border-color: var(--color-primary); }
+.tk-keuze .tk-titel { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; color: var(--color-ink); }
+.tk-keuze .tk-uitleg { font-size: 12.5px; color: var(--color-mute); line-height: 1.5; }
+/* Gekozen: rand plus vinkje, zodat de keuze ook zonder kleuronderscheid zichtbaar is. */
+.tk-keuze.gekozen { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.tk-keuze.gekozen .tk-titel::after { content: ' ✓'; color: var(--color-primary); }
+
+.tk-archief {
+  margin-top: 14px; padding: 14px 18px; background: #eef3fd; border-radius: 10px;
+  font-size: 13.5px; line-height: 1.6; color: var(--color-ink);
+}
+.tk-archief a { color: var(--color-primary); font-weight: 600; }
+
+/* ─── Stap 8: startvoorkeur, foto's en woninglink ─── */
+.c-extra { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.c-extra-kop { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--color-ink); margin-bottom: 6px; }
+.c-optioneel { font-family: var(--font-body); font-weight: 500; font-size: 12px; color: var(--color-mute); letter-spacing: 0.02em; }
+.c-extra-uitleg { font-size: 13.5px; color: var(--color-mute); line-height: 1.6; margin: 0 0 16px; max-width: 62ch; }
+
+.start-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.start-chip {
+  border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: #fff;
+  padding: 10px 8px; text-align: center; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; gap: 2px; transition: border-color .12s, box-shadow .12s;
+}
+.start-chip:hover { border-color: var(--color-primary); }
+.start-chip .m-name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; text-transform: capitalize; color: var(--color-ink); }
+.start-chip .m-status { font-size: 11.5px; font-weight: 600; color: var(--color-mute); }
+.start-chip.st-green  { background: #EDFAF1; border-color: #BFE9CC; } .start-chip.st-green .m-status  { color: var(--color-success); }
+.start-chip.st-orange { background: #FEF6EA; border-color: #F3DCB4; } .start-chip.st-orange .m-status { color: #A96A0F; }
+.start-chip.st-red    { background: #FBEDEE; border-color: #F2CCCE; } .start-chip.st-red .m-status    { color: #B4232A; }
+.start-chip.flex { background: var(--color-bg-soft); }
+/* Gekozen maand: dubbele rand in het primair blauw, zodat de keuze ook zichtbaar
+   is voor wie kleuren niet goed onderscheidt. */
+.start-chip.gekozen { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.start-chip.gekozen .m-name::after { content: ' ✓'; color: var(--color-primary); }
+
+.foto-rij { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.foto-thumb { position: relative; width: 104px; height: 104px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-line); }
+.foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-weg {
+  position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0;
+  border-radius: 50%; background: rgba(15,26,46,.78); color: #fff; font-size: 16px;
+  line-height: 1; cursor: pointer;
+}
+.foto-weg:hover { background: #B4232A; }
+.foto-add {
+  width: 104px; height: 104px; border: 1.5px dashed var(--color-line); border-radius: var(--radius-lg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  cursor: pointer; color: var(--color-mute); background: var(--color-bg-soft); text-align: center;
+}
+.foto-add:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.foto-add-plus { font-size: 22px; line-height: 1; font-weight: 300; }
+.foto-add-tekst { font-size: 11.5px; font-weight: 600; padding: 0 6px; }
+.foto-melding { font-size: 12.5px; color: var(--color-mute); margin-top: 8px; min-height: 1em; }
+.foto-melding.fout { color: #B4232A; }
+
+@media (max-width: 520px) {
+  .start-chips { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .foto-thumb, .foto-add { width: 88px; height: 88px; }
+}
+
+/* ---------- Bodemcheck ---------- */
+.bodemcheck-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+  gap: 40px;
+  align-items: start;
+  margin-top: 36px;
+}
+.bodemcheck-intro p {
+  color: var(--color-ink-light);
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+.bodemcheck-punten {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+}
+.bodemcheck-punten li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 10px;
+  color: var(--color-ink);
+}
+.bodemcheck-punten li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 14px;
+  height: 8px;
+  border-left: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(-45deg);
+}
+.bodemcheck-klein {
+  font-size: 13px;
+  color: var(--color-mute);
+  line-height: 1.6;
+  margin: 0;
+}
+.bodemcheck-kaart {
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  padding: 26px 24px;
+  box-shadow: 0 18px 40px -28px rgba(26, 37, 64, 0.4);
+}
+.bodemcheck-kaart label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+  margin-bottom: 10px;
+}
+.bodemcheck-veld {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bodemcheck-veld input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  padding: 13px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-bg-soft);
+  color: var(--color-ink);
+}
+.bodemcheck-veld input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.bodemcheck-veld button {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.bodemcheck-veld button:hover {
+  background: var(--color-primary-hover);
+}
+.bodemcheck-hint {
+  font-size: 13px;
+  color: var(--color-mute);
+  margin: 14px 0 0;
+}
+.bodemcheck-hint a {
+  color: var(--color-primary);
+}
+@media (max-width: 860px) {
+  .bodemcheck-wrap {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+@media (max-width: 420px) {
+  /* Op een telefoon is er binnen de container nog circa 300 px over; met de
+     oorspronkelijke binnenmarge bleef er te weinig ruimte voor het invoerveld. */
+  .bodemcheck-kaart {
+    padding: 20px 16px;
+  }
+  .bodemcheck-punten li {
+    padding-left: 24px;
+  }
+}
+
+/* ---------- Versiestempel ---------- */
+/* Laat zien welke versie er daadwerkelijk live staat. Na een upload moet dit
+   getal veranderen; blijft het gelijk, dan is de deploy niet aangekomen of
+   kijk je naar een gecachte pagina. */
+.site-versie {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-mute);
+  opacity: 0.75;
+  cursor: pointer;
+  user-select: all;
+}
+.site-versie:hover { opacity: 1; }
+.site-versie pre {
+  font-family: inherit;
+  font-size: 10px;
+  text-align: left;
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  cursor: text;
+}
 </style>
 </head>
 <body>
@@ -1739,6 +2193,8 @@ img, svg { display: block; max-width: 100%; }
       <a href="#diensten">Diensten</a>
       <a href="#plannen">Plannen</a>
       <a href="#proces">Proces</a>
+      <a href="#bodemcheck">Bodemcheck</a>
+      <a href="/woningcheck">Woningcheck</a>
       <a href="#configurator">Configurator</a>
       <a href="#over-ons">Over ons</a>
       <a href="#werk" data-nav="werk">Werk</a>
@@ -1862,6 +2318,7 @@ img, svg { display: block; max-width: 100%; }
         <div class="dienst-hero-body">
           <h3>Aanbouw</h3>
           <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, waarbij de bestaande achtergevel intact blijft — wij maken alleen waar gewenst een doorgang. Ideaal voor een extra slaapkamer, kantoor, berging of speelkamer.</p>
+          <a class="meer-link" href="/aanbouw">Meer over een aanbouw</a>
         </div>
       </div>
 
@@ -1897,6 +2354,7 @@ img, svg { display: block; max-width: 100%; }
         <div class="dienst-hero-body">
           <h3>Uitbouw</h3>
           <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, geheel geïntegreerd met de bestaande ruimte. De volledige achtergevel wordt verwijderd zodat woonkamer of keuken naadloos overgaat in de uitbouw.</p>
+          <a class="meer-link" href="/uitbouw">Meer over een uitbouw</a>
         </div>
       </div>
     </div>
@@ -1969,9 +2427,9 @@ img, svg { display: block; max-width: 100%; }
           <li>Betonnen fundering met bekisting</li>
           <li>Schroefpalen tot 10 m diep (5 stuks inbegrepen)</li>
           <li>Hoogwaardige draagconstructie</li>
-          <li>Ruwbouw oplevering</li>
+          <li>Ruwbouw oplevering — wind- en waterdicht, zonder isolatie</li>
           <li>Standaard openslaande deuren wit</li>
-          <li class="extra">Elektra, lichtkoepel, vloerverwarming als meerprijs</li>
+          <li class="extra">Lichtkoepel als meerprijs · geen isolatie, elektra en vloerverwarming niet mogelijk</li>
         </ul>
         <a href="#configurator" class="btn btn-secondary" data-plan="casco">Selecteer in configurator</a>
       </div>
@@ -1986,7 +2444,9 @@ img, svg { display: block; max-width: 100%; }
         </div>
         <ul class="plan-features">
           <li>Alles uit Casco</li>
+          <li>Isolatie inbegrepen</li>
           <li>Schilderklare oplevering</li>
+          <li>Afgewerkte dekvloer</li>
           <li>2× contactpunt en 1× lichtpunt</li>
           <li>1× buitenkraan (vorstvrij)</li>
           <li>Standaard openslaande deuren wit</li>
@@ -2003,7 +2463,7 @@ img, svg { display: block; max-width: 100%; }
           <span class="plan-price-unit">/m²</span>
         </div>
         <ul class="plan-features">
-          <li>Alles uit C+</li>
+          <li>Alles uit C+ (inclusief isolatie)</li>
           <li>Volledige binnenafwerking</li>
           <li>Lichtkoepel inbegrepen (standaard maat)</li>
           <li>Vloerverwarming inbegrepen</li>
@@ -2011,6 +2471,80 @@ img, svg { display: block; max-width: 100%; }
           <li>Standaard openslaande deuren wit</li>
         </ul>
         <a href="#configurator" class="btn btn-secondary" data-plan="cplus2">Selecteer in configurator</a>
+      </div>
+    </div>
+    <div class="blok-link"><a class="meer-link" href="/plannen-en-prijzen">Alles over plannen en prijzen</a></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     BOUWWIJZE: PREFAB OF KLASSIEK
+     ═══════════════════════════════════════════════════ -->
+<section id="bouwwijze" class="section section-paper">
+  <div class="container">
+    <div class="section-eyebrow">Bouwwijze</div>
+    <h2 class="section-title">Prefab of klassiek bouwen?</h2>
+    <p class="section-sub">Steeds meer aanbouwen komen kant-en-klaar uit de fabriek. Wij bouwen bewust klassiek, op locatie. Hieronder eerlijk de plussen en minnen van allebei, zodat u zelf kunt kiezen.</p>
+
+    <div class="bouwwijze-grid">
+      <article class="bouwwijze-card">
+        <div class="bouwwijze-kop">
+          <span class="bouwwijze-tag">Prefab</span>
+          <h3>Kant-en-klaar uit de fabriek</h3>
+          <p>Houtskeletbouw-elementen worden in een fabriek gemaakt en in een paar dagen op de fundering gezet. De gevel bestaat meestal uit steenstrips: dunne plakjes steen op een plaat.</p>
+        </div>
+        <ul class="bouwwijze-lijst">
+          <li class="plus">Korte bouwtijd op locatie: de elementen staan in enkele dagen.</li>
+          <li class="plus">Minder werkverkeer en overlast in uw tuin.</li>
+          <li class="plus">De montage is weinig afhankelijk van het weer.</li>
+          <li class="min">Steenstrips in plaats van echt metselwerk: naar onze ervaring kwetsbaarder bij stoten en beschadigingen, en het verschil met uw bestaande gevel blijft zichtbaar.</li>
+          <li class="min">Vaak standaardmaten: aansluiten op een bestaande woning die niet haaks of vlak is, is lastiger.</li>
+          <li class="min">Alles ligt vooraf vast; wijzigingen tijdens de bouw zijn nauwelijks mogelijk.</li>
+        </ul>
+      </article>
+
+      <article class="bouwwijze-card featured">
+        <span class="plan-badge">Zo bouwen wij</span>
+        <div class="bouwwijze-kop">
+          <span class="bouwwijze-tag">Klassiek</span>
+          <h3>Traditioneel gebouwd, op locatie</h3>
+          <p>Schroefpalen, een betonnen fundering met bekisting, houten balken en dakconstructie en een gevel van échte massieve bakstenen — steen voor steen gemetseld, passend bij uw woning.</p>
+        </div>
+        <ul class="bouwwijze-lijst">
+          <li class="plus">Echt metselwerk: massieve bakstenen die decennialang meegaan en tegen een stootje kunnen.</li>
+          <li class="plus">Baksteen in een kleur die past bij uw huis, zodat de aanbouw één geheel wordt met de woning.</li>
+          <li class="plus">Maatwerk: elke maat, elke hoek en elke aansluiting — ook bij oudere of scheve woningen.</li>
+          <li class="plus">Bewezen bouwwijze met materialen die elke vakman kent en kan onderhouden.</li>
+          <li class="min">Langere bouwtijd op locatie dan prefab.</li>
+          <li class="min">Meer werkverkeer en overlast in de tuin tijdens de bouw.</li>
+          <li class="min">Metselwerk is weersafhankelijk: bij vorst of hevige regen kan er niet gemetseld worden.</li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="bouwwijze-slot">Ons advies is eerlijk: heeft u haast en is de uitstraling minder belangrijk, dan is prefab een prima keuze. Wilt u een aanbouw die eruitziet en meegaat als de rest van uw huis, dan bouwt u klassiek. Daarom werken wij <strong>uitsluitend met echte massieve bakstenen — geen steenstrips</strong>.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     BESCHIKBAARHEID (gevuld vanaf /api/planning; blijft
+     verborgen zolang er geen planning is ingesteld)
+     ═══════════════════════════════════════════════════ -->
+<section id="beschikbaarheid" class="section section-paper" style="display:none; padding-top: 0;">
+  <div class="container">
+    <div class="avail-card">
+      <div class="avail-head">
+        <div>
+          <div class="avail-title">Actuele beschikbaarheid</div>
+          <div class="avail-next" id="availNext"></div>
+        </div>
+        <a href="#configurator" class="btn btn-primary avail-cta">Reserveer uw plek</a>
+      </div>
+      <div class="avail-months" id="availMonths"></div>
+      <div class="avail-legend">
+        <span><i class="dot dot-green"></i>Ruimte beschikbaar</span>
+        <span><i class="dot dot-orange"></i>Beperkte ruimte</span>
+        <span><i class="dot dot-red"></i>Volgeboekt</span>
       </div>
     </div>
   </div>
@@ -2042,6 +2576,39 @@ img, svg { display: block; max-width: 100%; }
         <p>Ook na oplevering staan we voor u klaar. Vragen of zorgen? Wij bieden uitgebreide nazorg en onderhoudsadvies.</p>
       </div>
     </div>
+    <div class="blok-link"><a class="meer-link" href="/werkwijze">Bekijk alle stappen</a></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     BODEMCHECK
+     ═══════════════════════════════════════════════════ -->
+<section id="bodemcheck" class="section section-light">
+  <div class="container">
+    <div class="section-eyebrow">Gratis bodemcheck</div>
+    <h2 class="section-title">Hoe diep zit de draagkrachtige laag onder uw tuin?</h2>
+    <p class="section-sub">Elke sondering die in Nederland is uitgevoerd en aan de overheid is aangeleverd, is openbaar. Wij zoeken de metingen rond uw adres op en laten zien op welke diepte het zand begint waarop gefundeerd kan worden.</p>
+
+    <div class="bodemcheck-wrap">
+      <div class="bodemcheck-intro">
+        <p>Dat bepaalt hoe uw aanbouw gefundeerd moet worden. Zit er vast zand op een meter diepte, dan volstaat een strokenfundering. Zit er eerst tien meter klei en veen, dan wordt het een paalfundering — en dat is een wezenlijk verschil in de begroting.</p>
+        <ul class="bodemcheck-punten">
+          <li>Grondlagen en conusweerstand tot soms dertig meter diep</li>
+          <li>Indicatie van het funderingstype voor uw situatie</li>
+          <li>Gratis, direct, zonder registratie</li>
+        </ul>
+        <p class="bodemcheck-klein">Bron: Basisregistratie Ondergrond (BRO). Een indicatie, geen geotechnisch advies — voor de vergunning blijft een sondering op uw eigen perceel nodig.</p>
+      </div>
+
+      <form class="bodemcheck-kaart" id="bodemcheckForm" action="/bodemcheck" method="get">
+        <label for="bodemcheckPostcode">Uw postcode en huisnummer</label>
+        <div class="bodemcheck-veld">
+          <input type="text" id="bodemcheckPostcode" name="q" placeholder="1401 EX 5" autocomplete="postal-code" spellcheck="false">
+          <button type="submit">Bodem bekijken</button>
+        </div>
+        <p class="bodemcheck-hint">Of open de <a href="/bodemcheck">bodemcheck</a> zonder adres. Wilt u weten wat er van uw wóning bekend is &mdash; bouwjaar, oppervlakte, hoogtes &mdash; ga dan naar de <a href="/woningcheck">woningcheck</a>.</p>
+      </form>
+    </div>
   </div>
 </section>
 
@@ -2052,7 +2619,7 @@ img, svg { display: block; max-width: 100%; }
   <div class="container">
     <div class="section-eyebrow">Configurator</div>
     <h2 class="section-title">Stel uw project samen</h2>
-    <p class="section-sub">In zes stappen — van afmetingen tot afwerking — stelt u uw eigen aan- of uitbouw samen. Direct prijsindicatie en waardestijging.</p>
+    <p class="section-sub">In acht stappen — van afmetingen tot afwerking — stelt u uw eigen aan- of uitbouw samen. Direct prijsindicatie en waardestijging.</p>
   </div>
 
   <div class="app">
@@ -2158,6 +2725,39 @@ img, svg { display: block; max-width: 100%; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     SAMENWERKING — Constructiehuis (constructeur)
+     Feiten en logo van constructiehuis.nl; tekst hieronder aanpassen als
+     de samenwerking verandert.
+     ═══════════════════════════════════════════════════ -->
+<section id="samenwerking" class="section section-light">
+  <div class="container">
+    <div class="section-eyebrow">Samenwerking</div>
+    <h2 class="section-title">Onze constructeur: Constructiehuis</h2>
+    <p class="section-sub">Voor de constructieberekening van de draagbalken werken wij samen met Constructiehuis, constructeursbureau voor verbouwingen.</p>
+
+    <div class="partner-card">
+      <div class="partner-logo">
+        <a href="https://constructiehuis.nl" target="_blank" rel="noopener" aria-label="Naar de website van Constructiehuis">
+          <img src="img/partners/constructiehuis-logo.svg" alt="Constructiehuis" loading="lazy">
+        </a>
+        <div class="partner-meta">Constructiehuis B.V. · Eindhoven<br><a href="https://constructiehuis.nl" target="_blank" rel="noopener">constructiehuis.nl</a></div>
+      </div>
+      <div class="partner-body">
+        <h3>Wat Constructiehuis doet</h3>
+        <p>Constructiehuis maakt constructieberekeningen voor verbouwingen: een berekening met constructief advies, als PDF-document geschikt voor de vergunningsaanvraag. Zij werken met vaste prijzen, leveren standaard binnen 2 weken en handelen eventuele vragen van de gemeente over de berekening af.</p>
+        <h3>Wat dit voor u betekent</h3>
+        <p>Bij een uitbouw laten wij de stalen draagbalk voor de doorbraak in de achtergevel door Constructiehuis berekenen. U levert daarvoor de bouwtekeningen van uw woning aan (stap 3 van uw project); met de berekening kan de bouw worden ingepland. Wilt u zelf iets laten berekenen — bijvoorbeeld een doorbraak, dakopbouw of bijgebouw — dan kunt u ook rechtstreeks bij Constructiehuis terecht.</p>
+        <div class="partner-diensten">
+          <span class="partner-diensten-kop">Diensten van Constructiehuis</span>
+          <span>Doorbraak</span><span>Uitbouw</span><span>Bijgebouw</span><span>Dakopbouw</span><span>Dakterras</span><span>Fundering</span><span>Nieuwbouw</span><span>Stalen spant</span><span>Zonnepanelen</span><span>Constructief advies</span><span>Dragende muur check</span><span>Balken check</span><span>Funderingscheck</span>
+        </div>
+        <a href="https://constructiehuis.nl" target="_blank" rel="noopener" class="btn btn-secondary partner-btn">Meer over Constructiehuis →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      RECENT WERK — projecten galerij
      ───────────────────────────────────────────────────
      ⚠️  DEZE SECTIE IS NU VERBORGEN (style="display:none")
@@ -2210,6 +2810,7 @@ img, svg { display: block; max-width: 100%; }
       </article>
 
     </div>
+    <div class="blok-link"><a class="meer-link" href="/projecten">Alle projecten</a></div>
   </div>
 </section>
 
@@ -2233,6 +2834,13 @@ img, svg { display: block; max-width: 100%; }
             <div class="value">+31 646 150 160</div>
           </div>
         </a>
+        <a data-social="whatsapp" data-social-tekst="Hallo, ik heb een vraag over een aan- of uitbouw." href="https://wa.me/31646150160" target="_blank" rel="noopener" class="contact-info-item">
+          <div class="contact-info-icon"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/></svg></div>
+          <div>
+            <div class="label">WhatsApp</div>
+            <div class="value">Stuur ons een bericht</div>
+          </div>
+        </a>
         <a href="mailto:project@aanenuitbouw.nl" class="contact-info-item">
           <div class="contact-info-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
@@ -2251,6 +2859,19 @@ img, svg { display: block; max-width: 100%; }
             <div class="value" style="font-size: 14px; line-height: 1.5;">Creditline BV<br>KvK 59683198 · BTW NL853603108B01</div>
           </div>
         </div>
+        <div class="contact-info-item" data-social-blok hidden>
+          <div class="contact-info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div>
+            <div class="label">Volg onze projecten</div>
+            <div class="value" style="font-size: 14px; line-height: 1.5;">Dagelijks foto’s van de bouw op Facebook en Instagram.</div>
+            <div class="contact-social">
+              <a data-social="facebook" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z" fill="currentColor"/></svg> Facebook</a>
+              <a data-social="instagram" href="#" target="_blank" rel="noopener" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="contact-cta-block">
@@ -2267,7 +2888,7 @@ img, svg { display: block; max-width: 100%; }
      ═══════════════════════════════════════════════════ -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-top">
+    <div class="footer-top vijf">
       <div class="footer-brand">
         <a href="#start" class="brand" aria-label="AanEnUitbouw.nl">
           <svg class="brand-logo" viewBox="0 0 360 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AanEnUitbouw.nl">
@@ -2279,32 +2900,55 @@ img, svg { display: block; max-width: 100%; }
           </svg>
         </a>
         <p>Vakkundige aan- en uitbouwen op maat. Met meer dan 20 jaar ervaring transformeren we uw woning naar uw wensen.</p>
+        <div class="footer-contact">
+          <a href="tel:+31646150160">+31 646 150 160</a>
+          <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a>
+        </div>
+        <div class="footer-social" data-social-blok hidden>
+          <a data-social="facebook" href="#" target="_blank" rel="noopener" aria-label="Creditline Montage op Facebook" title="Facebook" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z" fill="currentColor"/></svg></a>
+          <a data-social="instagram" href="#" target="_blank" rel="noopener" aria-label="Creditline Montage op Instagram" title="Instagram" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a data-social="whatsapp" href="https://wa.me/31646150160" target="_blank" rel="noopener" aria-label="Stuur ons een WhatsApp-bericht" title="WhatsApp" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/></svg></a>
+        </div>
+      </div>
+      <!-- De kolommen hieronder staan ook onder de losse pagina's
+           (src/paginas/teksten.js, onderdeel VOET). Houd ze gelijk. -->
+      <div class="footer-col">
+        <h4>Aan- en uitbouw</h4>
+        <a href="/aanbouw">Aanbouw</a>
+        <a href="/uitbouw">Uitbouw</a>
+        <a href="/plannen-en-prijzen">Plannen en prijzen</a>
+        <a href="/prefab-of-klassiek">Prefab of klassiek</a>
+        <a href="/werkwijze">Werkwijze</a>
+        <a href="/projecten">Projecten</a>
       </div>
       <div class="footer-col">
-        <h5>Navigatie</h5>
-        <a href="#start">Start</a>
-        <a href="#diensten">Diensten</a>
-        <a href="#plannen">Plannen</a>
-        <a href="#proces">Proces</a>
+        <h4>Opties</h4>
+        <a href="/dak-en-dakrand">Dak en dakrand</a>
+        <a href="/gevelbekleding">Gevelbekleding</a>
+        <a href="/pui-en-kozijnen">Pui en kozijnen</a>
+        <a href="/extras">Extra's</a>
+        <a href="/veelgestelde-vragen">Veelgestelde vragen</a>
+      </div>
+      <div class="footer-col">
+        <h4>Online</h4>
         <a href="#configurator">Configurator</a>
+        <a href="/bodemcheck">Bodemcheck</a>
+        <a href="/woningcheck">Woningcheck</a>
+        <a href="/project">Volg uw project</a>
       </div>
       <div class="footer-col">
-        <h5>Bedrijf</h5>
-        <a href="#over-ons">Over ons</a>
-        <a href="#werk" data-nav="werk">Recent werk</a>
-        <a href="#contact">Contact</a>
+        <h4>Bedrijf</h4>
+        <a href="/over-ons">Over ons</a>
+        <a href="/over-ons#samenwerking">Partner: Constructiehuis</a>
+        <a href="/contact">Contact</a>
         <a href="documenten/privacyverklaring.pdf" target="_blank" rel="noopener">Privacyverklaring</a>
         <a href="documenten/algemene-voorwaarden.pdf" target="_blank" rel="noopener">Algemene voorwaarden</a>
-      </div>
-      <div class="footer-col">
-        <h5>Contact</h5>
-        <a href="tel:+31646150160">+31 646 150 160</a>
-        <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a>
       </div>
     </div>
     <div class="footer-bottom">
       <div>© 2026 Creditline BV. Alle rechten voorbehouden.</div>
       <div>KvK 59683198 · BTW NL853603108B01</div>
+      <div class="site-versie" id="siteVersie" title="Welke versie er live staat. Klik om de details te zien." role="status"></div>
       <a href="#" class="beheer-link" onclick="event.preventDefault(); openAdminLogin();" title="Beheerder-toegang">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.6"/>
@@ -2321,7 +2965,7 @@ img, svg { display: block; max-width: 100%; }
     <div class="admin-header">
       <div>
         <h2 id="adminLoginTitle">Beheerder login</h2>
-        <div class="admin-subtitle">Toegang tot het prijsbeheer</div>
+        <div class="admin-subtitle">Toegang tot het beheer</div>
       </div>
       <button class="admin-close" onclick="closeAdminLogin()" aria-label="Sluiten">×</button>
     </div>
@@ -2332,10 +2976,13 @@ img, svg { display: block; max-width: 100%; }
           <input type="password" id="adminPwInput" autocomplete="current-password" placeholder="Voer wachtwoord in" style="text-align:left;font-weight:500;" onkeydown="if(event.key==='Enter') submitAdminLogin();">
         </div>
       </div>
-      <div class="admin-error" id="adminLoginError">Onjuist wachtwoord — probeer opnieuw</div>
-      <div style="font-size:12px; color: var(--color-mute); margin-top:14px; line-height:1.5;">
-      <code style="background:#F2F4F6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;"
+      <div class="admin-row" id="adminCodeRow" style="grid-template-columns:1fr; display:none;">
+        <label for="adminCodeInput" style="margin-bottom:6px;">Code uit uw authenticator-app</label>
+        <div class="price-input-wrap">
+          <input type="text" id="adminCodeInput" inputmode="numeric" autocomplete="one-time-code" placeholder="6 cijfers, of een back-upcode" style="text-align:left;font-weight:600;letter-spacing:2px;" onkeydown="if(event.key==='Enter') submitAdminLogin();">
+        </div>
       </div>
+      <div class="admin-error" id="adminLoginError">Onjuist wachtwoord — probeer opnieuw</div>
     </div>
     <div class="admin-footer">
       <button class="btn-admin btn-admin-ghost" onclick="closeAdminLogin()">Annuleer</button>
@@ -2353,9 +3000,15 @@ img, svg { display: block; max-width: 100%; }
       </div>
       <button class="admin-close" onclick="closeAdminPanel()" aria-label="Sluiten">×</button>
     </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="adminTabPrijzen" onclick="setAdminTab('prijzen')">Prijzen</button>
+      <button class="admin-tab" id="adminTabPlanning" onclick="setAdminTab('planning')">Beschikbaarheid</button>
+      <button class="admin-tab" id="adminTabProjecten" onclick="setAdminTab('projecten')">Projecten</button>
+      <button class="admin-tab" id="adminTabBeveiliging" onclick="setAdminTab('beveiliging')">Beveiliging</button>
+    </div>
     <div class="admin-body" id="adminPanelBody"></div>
     <div class="admin-footer">
-      <div class="group">
+      <div class="group" id="adminFooterLeft">
         <button class="btn-admin btn-admin-danger" onclick="resetAdminPrices()">Reset standaard</button>
         <button class="btn-admin btn-admin-ghost" onclick="exportAdminPrices()">Export</button>
         <button class="btn-admin btn-admin-ghost" onclick="document.getElementById('adminImportFile').click()">Import</button>
@@ -2363,7 +3016,7 @@ img, svg { display: block; max-width: 100%; }
       </div>
       <div class="group">
         <button class="btn-admin btn-admin-ghost" onclick="logoutAdmin()">Uitloggen</button>
-        <button class="btn-admin btn-admin-primary" onclick="saveAdminPrices()">Opslaan</button>
+        <button class="btn-admin btn-admin-primary" id="adminSaveBtn" onclick="adminSave()">Opslaan</button>
       </div>
     </div>
   </div>
@@ -2394,6 +3047,39 @@ document.addEventListener('DOMContentLoaded', () => {
   if (grid && grid.querySelectorAll('.werk-card').length < 3) grid.classList.add('few');
 });
 
+// ═══════════════════════════════════════════════════
+// GEFASEERD LADEN
+// ───────────────────────────────────────────────────
+// Bij het openen toont de browser eerst alleen het eerste scherm. Zodra de
+// pagina geladen is, worden de secties eronder één voor één doorgerekend op
+// momenten dat de browser niets te doen heeft. Klikt de bezoeker eerder
+// ergens op, dan gebeurt de rest in één keer, zodat menulinks altijd op de
+// juiste plek uitkomen.
+(function () {
+  const root = document.documentElement;
+  if (!root.classList.contains('laadt-gefaseerd')) return;
+  const wacht = window.requestIdleCallback
+    ? (f) => requestIdleCallback(f, { timeout: 1000 })
+    : (f) => setTimeout(f, 50);
+  let delen = null;
+  function allesNu() {
+    root.classList.remove('laadt-gefaseerd');
+    document.removeEventListener('click', allesNu, true);
+  }
+  function volgende() {
+    if (!root.classList.contains('laadt-gefaseerd')) return;
+    const deel = delen.shift();
+    if (!deel) return allesNu();
+    deel.style.contentVisibility = 'visible';
+    wacht(volgende);
+  }
+  document.addEventListener('click', allesNu, true);
+  window.addEventListener('load', () => {
+    delen = Array.from(document.querySelectorAll('.section, .site-footer'));
+    setTimeout(() => wacht(volgende), 300);
+  });
+})();
+
 // Mobiel hamburgermenu
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('navToggle');
@@ -2409,7 +3095,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sluit het menu zodra er op een link wordt getikt
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
   // Sluit bij verandering naar desktop-formaat
-  window.addEventListener('resize', () => { if (window.innerWidth > 880) setOpen(false); });
+  window.addEventListener('resize', () => { if (window.innerWidth >= 1150) setOpen(false); });
 });
 
 // ═══════════════════════════════════════════════════
@@ -2435,7 +3121,9 @@ const state = {
   electraBuiten: 0,
   lightBuiten: 0,
   m2Prijs: 4500,
-  contact: { name: '', email: '', phone: '', message: '', consent: false },
+  contact: { name: '', email: '', phone: '', message: '', consent: false,
+             startMonth: '', listingUrl: '', photos: [],
+             adres: '', gemeente: '', tekeningen: '' },
   submitted: false,
 };
 
@@ -2470,7 +3158,8 @@ const DEFAULT_PRICES = {
   roof_schild_mult:          1.18,
   uitbouw_wand_per_meter:    450,
   doors_schuifpui:           3500,
-  doors_harmonica:           5500,
+  doors_schuifpui4:          5500,
+  doors_harmonica:           7500,
   color_extra:               850,
   bovenkozijn_metselwerk:    1250,
   bovenkozijn_trespa:        450,
@@ -2492,9 +3181,9 @@ let PRICES = { ...DEFAULT_PRICES };
 // Server-prijzen worden async geladen via loadPricesFromServer() onderaan dit script
 
 const PLANS = {
-  casco:  { name: 'Casco',  desc: 'Ruwbouw oplevering — voor de doe-het-zelver of eigen aannemer.', get rate() { return PRICES.plan_casco_rate; } },
-  cplus:  { name: 'C+',     desc: 'Schilderklaar opgeleverd, met basis elektra en buitenkraan.',     get rate() { return PRICES.plan_cplus_rate; } },
-  cplus2: { name: 'C++',    desc: 'Volledig sleutelklaar, inclusief lichtkoepel en vloerverwarming.', get rate() { return PRICES.plan_cplus2_rate; } },
+  casco:  { name: 'Casco',  desc: 'Wind- en waterdicht opgeleverd, zonder isolatie — voor de doe-het-zelver of eigen aannemer. Elektra en vloerverwarming niet mogelijk.', get rate() { return PRICES.plan_casco_rate; } },
+  cplus:  { name: 'C+',     desc: 'Geïsoleerd en schilderklaar opgeleverd met dekvloer, basis elektra en buitenkraan.',     get rate() { return PRICES.plan_cplus_rate; } },
+  cplus2: { name: 'C++',    desc: 'Geïsoleerd en volledig sleutelklaar met dekvloer, inclusief lichtkoepel en vloerverwarming.', get rate() { return PRICES.plan_cplus2_rate; } },
 };
 const ROOF_TYPES = {
   plat:      { label: 'Plat dak',      desc: 'Strakke, moderne lijn — optioneel met lichtkoepel voor extra daglicht.', get mult() { return PRICES.roof_plat_mult; } },
@@ -2505,6 +3194,7 @@ const ROOF_TYPES = {
 const DOORS = {
   openslaand: { label: 'Openslaande deuren', desc: '4-vlaks kozijn met vast glas links en rechts; in het midden gaan de deuren open.', extra: 0 },
   schuifpui:  { label: 'Schuifpui',          desc: 'Brede glaspartij die zijdelings opent.',                     get extra() { return PRICES.doors_schuifpui; } },
+  schuifpui4: { label: 'Schuifpui 4-delig',  desc: 'Vier panelen die over elkaar schuiven voor een extra brede opening — geen draaiende deuren die bij wind kunnen dichtklappen.', get extra() { return PRICES.doors_schuifpui4; } },
   harmonica:  { label: 'Harmonicadeur',      desc: 'Volledig vouwbare wand voor een maximale opening.',         get extra() { return PRICES.doors_harmonica; } },
 };
 const DAKRAND_TYPES = {
@@ -2596,7 +3286,7 @@ function calculate() {
   if (state.regenpijp.links)  extras += pipeBase;
   if (state.regenpijp.rechts) extras += pipeBase;
   if (state.extras.lichtkoepel    && state.plan !== 'cplus2') extras += PRICES.extra_lichtkoepel;
-  if (state.extras.vloerverwarming && state.plan !== 'cplus2') extras += a * PRICES.extra_vloerverwarming_m2;
+  if (state.extras.vloerverwarming && state.plan !== 'cplus2' && state.plan !== 'casco') extras += a * PRICES.extra_vloerverwarming_m2;
   if (state.extras.buitenkraan    && state.plan === 'casco')  extras += PRICES.extra_buitenkraan;
   extras += state.electra * PRICES.electra_contact;
   extras += state.light * PRICES.electra_licht;
@@ -2695,6 +3385,14 @@ function kleurMiniSvg(colorHex, doorType) {
     puiDetail = `
       <line x1="53" y1="33" x2="53" y2="61" stroke="${stroke}" stroke-width="1.5"/>
       <circle cx="49" cy="47" r="1.4" fill="${stroke}"/>`;
+  } else if (doorType === 'schuifpui4') {
+    // 4-delige schuifpui: drie gelijke verticale splits, grepen op de twee middelste panelen
+    puiDetail = `
+      <line x1="36" y1="33" x2="36" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <line x1="50" y1="33" x2="50" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <line x1="64" y1="33" x2="64" y2="61" stroke="${stroke}" stroke-width="1.2"/>
+      <circle cx="46" cy="47" r="1.2" fill="${stroke}"/>
+      <circle cx="54" cy="47" r="1.2" fill="${stroke}"/>`;
   } else if (doorType === 'harmonica') {
     // Harmonicadeur: meerdere smalle segmenten met afwisselende vouwhoeken
     puiDetail = [32, 42, 52, 62, 72].map(x =>
@@ -2967,7 +3665,7 @@ function renderStep() {
     c.innerHTML = `<div class="step-content confirmation">
       <div class="check-icon">✓</div>
       <h2 class="step-title">Bedankt voor uw aanvraag</h2>
-      <p class="step-desc" style="margin: 0 auto 32px; max-width: 460px;">U ontvangt binnen 48 uur een persoonlijke offerte op het opgegeven e-mailadres. Heeft u haast? Bel ons direct op <strong style="color:var(--color-primary)">+31 646 150 160</strong>.</p>
+      <p class="step-desc" style="margin: 0 auto 32px; max-width: 460px;">U ontvangt binnen 48 uur een persoonlijke offerte op het opgegeven e-mailadres. Heeft u haast? Bel ons direct op <strong style="color:var(--color-primary)">+31 646 150 160</strong> of stuur een <a href="https://wa.me/31646150160?text=Hallo%2C%20ik%20heb%20zojuist%20een%20offerte%20aangevraagd." target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:700;">WhatsApp-bericht</a>.</p>
       <button class="btn btn-secondary" onclick="resetConfig()">Nieuwe configuratie starten</button>
     </div>`;
     return;
@@ -2976,6 +3674,7 @@ function renderStep() {
   const step = STEPS[state.step];
   const inCpp   = state.plan === 'cplus2';
   const inCplus = state.plan === 'cplus' || inCpp;
+  const inCasco = state.plan === 'casco';
   const stepNum = `Stap ${state.step + 1} / ${STEPS.length}`;
   let body = '';
 
@@ -3060,9 +3759,9 @@ function renderStep() {
       </div>`;
   } else if (step.id === 'plan') {
     const features = {
-      casco:  ['Ruwbouw', 'Schroefpalen', 'Standaard kozijnen'],
-      cplus:  ['Schilderklaar', '2× contactpunt', '1× lichtpunt', 'Buitenkraan'],
-      cplus2: ['Volledig afgewerkt', 'Lichtkoepel inbegrepen', 'Vloerverwarming', 'Elektra'],
+      casco:  ['Ruwbouw', 'Wind- en waterdicht', 'Geen isolatie', 'Standaard kozijnen'],
+      cplus:  ['Isolatie', 'Schilderklaar', '2× contactpunt', '1× lichtpunt', 'Buitenkraan'],
+      cplus2: ['Isolatie', 'Volledig afgewerkt', 'Lichtkoepel inbegrepen', 'Vloerverwarming', 'Elektra'],
     };
     body = `<div class="step-label">${stepNum} — Afwerking</div>
       <h2 class="step-title">Kies uw afwerkingsniveau</h2>
@@ -3082,7 +3781,7 @@ function renderStep() {
     const gt = GEVEL_TYPES[state.gevel.type];
     body = `<div class="step-label">${stepNum} — Gevelbekleding</div>
       <h2 class="step-title">Welke gevelbekleding<br>past bij uw woning?</h2>
-      <p class="step-desc">Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong style="color: var(--color-ink)">Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong></p>
+      <p class="step-desc">Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong style="color: var(--color-ink)">Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong> <a href="#bouwwijze" style="color: var(--color-primary); font-weight: 600;">Waarom? Lees prefab of klassiek →</a></p>
       <div class="dim-label" style="margin-bottom: 14px">Materiaal</div>
       <div class="option-grid" style="margin-bottom: 28px">
         ${Object.entries(GEVEL_TYPES).map(([k, t]) => {
@@ -3159,11 +3858,11 @@ function renderStep() {
             <div class="option-desc">Premium platdakraam (LUMIZEN®, 100×100 cm) met driedubbel HR+++ glas voor extra daglicht.</div>
           </div>
         </div>
-        <div class="option-card check-card ${(state.extras.vloerverwarming || inCpp) ? 'selected' : ''} ${inCpp ? 'locked' : ''}" ${inCpp ? '' : 'onclick="toggleExtra(\'vloerverwarming\')"'}>
+        <div class="option-card check-card ${(state.extras.vloerverwarming || inCpp) ? 'selected' : ''} ${(inCpp || inCasco) ? 'locked' : ''}" ${(inCpp || inCasco) ? '' : 'onclick="toggleExtra(\'vloerverwarming\')"'}>
           <div class="option-radio"></div>
           <div class="option-body">
-            <div class="option-title">Vloerverwarming<span class="option-price">${inCpp ? '<span class="badge-included">Inbegrepen</span>' : '+€' + PRICES.extra_vloerverwarming_m2 + '/m²'}</span></div>
-            <div class="option-desc">Comfortabele warmte zonder radiatoren — ideaal in combinatie met een tegelvloer.</div>
+            <div class="option-title">Vloerverwarming<span class="option-price">${inCpp ? '<span class="badge-included">Inbegrepen</span>' : inCasco ? '<span class="badge-included" style="background: var(--color-line); color: var(--color-mute);">Niet mogelijk bij Casco</span>' : '+€' + PRICES.extra_vloerverwarming_m2 + '/m²'}</span></div>
+            <div class="option-desc">${inCasco ? 'Vloerverwarming vereist een dekvloer. Bij Casco (wind- en waterdicht) wordt geen dekvloer gelegd — kies C+ of C++ als u vloerverwarming wilt.' : 'Comfortabele warmte zonder radiatoren — ideaal in combinatie met een tegelvloer.'}</div>
           </div>
         </div>
         <div class="option-card check-card ${(state.extras.buitenkraan || inCplus) ? 'selected' : ''} ${inCplus ? 'locked' : ''}" ${inCplus ? '' : 'onclick="toggleExtra(\'buitenkraan\')"'}>
@@ -3220,6 +3919,11 @@ function renderStep() {
             </div>`).join('')}
         </div>` : ''}
       </div>
+      ${inCasco ? `
+      <div style="margin-top: 32px; padding: 20px 24px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-panel, #F7F9FC);">
+        <div style="font-weight:700; font-family: var(--font-display); margin-bottom: 4px;">Elektra niet mogelijk bij Casco</div>
+        <div style="font-size:13px; color: var(--color-mute); line-height: 1.6;">Bij het Casco-plan leveren wij de ${state.type} wind- en waterdicht op, zonder isolatie en zonder installaties. Elektra (contactpunten, lichtpunten, buiteninstallaties) en vloerverwarming zijn daarom niet als extra te kiezen. Kies C+ of C++ als u dit door ons wilt laten verzorgen.</div>
+      </div>` : `
       <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
         <div class="dim-label" style="margin-bottom: 14px">Extra elektra binnen</div>
         <div class="extra-row">
@@ -3230,6 +3934,7 @@ function renderStep() {
           <div><div style="font-weight:700; font-family: var(--font-display);">Extra lichtpunten</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_licht} per stuk</div></div>
           <div class="counter"><button onclick="changeCount('light',-1)" ${state.light <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.light}</span><button onclick="changeCount('light',1)">+</button></div>
         </div>
+        <p class="step-desc" style="font-size: 13px; margin: 14px 0 0;">Wijkt uw elektra af van wat standaard in uw plan zit — meer of andere contact- en lichtpunten? Dan vragen wij u na de offerte een <strong>elektraplan</strong> aan te leveren: een tekening waarop staat waar de punten moeten komen.</p>
       </div>
       <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-line);">
         <div class="dim-label" style="margin-bottom: 6px">Extra elektra buiten <span style="color: var(--color-mute); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 12px;">— optioneel</span></div>
@@ -3242,7 +3947,7 @@ function renderStep() {
           <div><div style="font-weight:700; font-family: var(--font-display);">Buitenlichtpunt</div><div style="font-size:13px;color:var(--color-mute); margin-top: 2px;">€${PRICES.electra_licht_buiten} per stuk, geschikt voor gevel of overstek</div></div>
           <div class="counter"><button onclick="changeCount('lightBuiten',-1)" ${state.lightBuiten <= 0 ? 'disabled' : ''}>−</button><span class="counter-value">${state.lightBuiten}</span><button onclick="changeCount('lightBuiten',1)">+</button></div>
         </div>
-      </div>`;
+      </div>`}`;
   } else if (step.id === 'contact') {
     body = `<div class="step-label">${stepNum} — Contact</div>
       <h2 class="step-title">Ontvang uw<br>persoonlijke offerte</h2>
@@ -3251,8 +3956,36 @@ function renderStep() {
         <div class="form-field"><label>Voor- en achternaam</label><input type="text" id="cname" value="${state.contact.name}" placeholder="Jan Jansen"></div>
         <div class="form-field"><label>Telefoon</label><input type="tel" id="cphone" value="${state.contact.phone}" placeholder="06-12345678"></div>
         <div class="form-field full"><label>E-mailadres</label><input type="email" id="cemail" value="${state.contact.email}" placeholder="naam@voorbeeld.nl"></div>
+        <div class="form-field full"><label>Adres van de woning</label><input type="text" id="cadres" value="${escAttr(state.contact.adres)}" placeholder="Poststraat 5, 1401 EX Bussum"><div class="adres-status" id="adresStatus"></div></div>
         <div class="form-field full"><label>Bericht (optioneel)</label><textarea id="cmsg" placeholder="Bijzonderheden over uw woning, gewenste planning, etc.">${state.contact.message}</textarea></div>
       </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Wanneer wilt u starten?</div>
+        <p class="c-extra-uitleg">Onze actuele beschikbaarheid staat hieronder. Kies de maand die u het beste past — bij een volle maand zetten we u op de wachtlijst.</p>
+        ${renderStartMaanden()}
+      </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Heeft u bouwtekeningen van de woning?</div>
+        <p class="c-extra-uitleg">Bij een uitbouw moet een constructeur het staal berekenen voor de doorbraak in de achtergevel. Met de bestaande tekeningen erbij gaat dat sneller en scherper — zonder tekeningen is een opname ter plaatse nodig.</p>
+        ${renderTekeningKeuze()}
+      </div>
+
+      <div class="c-extra">
+        <div class="c-extra-kop">Foto van de achterzijde <span class="c-optioneel">optioneel</span></div>
+        <p class="c-extra-uitleg">Eén foto van de achtergevel zegt ons meer dan een half uur bellen: we zien de bestaande pui, de dakrand en het niveauverschil. Maximaal drie foto's; ze worden in uw browser verkleind voordat ze worden verstuurd.</p>
+        ${renderFotoKiezer()}
+        <div class="form-field full" style="margin-top:16px">
+          <label>Of een link naar de woning, bijvoorbeeld op Funda</label>
+          <input type="url" id="clisting" value="${escAttr(state.contact.listingUrl)}" placeholder="https://www.funda.nl/...">
+        </div>
+      </div>
+      <!-- Valstrik: staat buiten beeld en is voor het toetsenbord onbereikbaar.
+           Een bezoeker vult dit nooit in, een formulierbot doorgaans wel. Niet
+           met display:none, want daar kijken de betere bots op. -->
+      <div class="valstrik" aria-hidden="true"><label>Website<input type="text" id="cwebsite" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div id="turnstileDoel" class="turnstile-doel"></div>
       <label class="form-consent"><input type="checkbox" id="cconsent" ${state.contact.consent ? 'checked' : ''}><span>Ik ga akkoord met het privacybeleid en ontvang graag een offerte op basis van bovenstaande configuratie.</span></label>`;
   }
 
@@ -3271,6 +4004,16 @@ function renderStep() {
     document.getElementById('cemail').addEventListener('input', e => state.contact.email = e.target.value);
     document.getElementById('cmsg').addEventListener('input', e => state.contact.message = e.target.value);
     document.getElementById('cconsent').addEventListener('change', e => state.contact.consent = e.target.checked);
+    plaatsTurnstile();
+    const adresVeld = document.getElementById('cadres');
+    if (adresVeld) {
+      adresVeld.addEventListener('input', e => { state.contact.adres = e.target.value; });
+      adresVeld.addEventListener('blur', zoekGemeenteBijAdres);
+    }
+    const listing = document.getElementById('clisting');
+    if (listing) listing.addEventListener('input', e => state.contact.listingUrl = e.target.value.trim());
+    const fotoInput = document.getElementById('cfotos');
+    if (fotoInput) fotoInput.addEventListener('change', e => verwerkFotos(e.target.files));
   }
 }
 
@@ -3577,6 +4320,19 @@ function renderPreview() {
     s += `<line x1="${sp1[0]}" y1="${sp1[1]}" x2="${sp2[0]}" y2="${sp2[1]}" stroke="${doorCol}" stroke-width="1.6"/>`;
     const grip = P(splitX - 0.1, doorH * 0.5, 0);
     s += `<circle cx="${grip[0]}" cy="${grip[1]}" r="2.5" fill="${doorCol}"/>`;
+  } else if (state.doors === 'schuifpui4') {
+    // 4-delige schuifpui: drie gelijke verticale stijlen, grepen op de twee middelste (schuivende) panelen
+    const w0 = doorMargin;
+    const span = w - 2 * doorMargin;
+    const x25 = w0 + span * 0.25;
+    const x50 = w0 + span * 0.50;
+    const x75 = w0 + span * 0.75;
+    [x25, x50, x75].forEach(xp => {
+      const a = P(xp, 0.05, 0), b = P(xp, doorH - 0.05, 0);
+      s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${doorCol}" stroke-width="1.4"/>`;
+    });
+    const g1 = P(x50 - 0.12, doorH * 0.5, 0), g2 = P(x50 + 0.12, doorH * 0.5, 0);
+    s += `<circle cx="${g1[0]}" cy="${g1[1]}" r="2" fill="${doorCol}"/><circle cx="${g2[0]}" cy="${g2[1]}" r="2" fill="${doorCol}"/>`;
   } else if (state.doors === 'harmonica') {
     const segs = Math.max(4, Math.round(w * 1.3));
     for (let i = 1; i < segs; i++) {
@@ -3738,8 +4494,13 @@ let _prev = { step: -1, type: '', roof: '', plan: '', doors: '', doorColor: '', 
 function triggerMorph() {
   const wrap = document.querySelector('.preview-wrap');
   if (wrap) {
-    wrap.classList.remove('morphing');
-    void wrap.offsetWidth;
+    // Herstarten hoeft alleen als de animatie al eens gedraaid heeft. Bij het
+    // laden van de pagina dwingt offsetWidth de browser anders de hele pagina
+    // door te rekenen voordat er iets op het scherm staat.
+    if (wrap.classList.contains('morphing')) {
+      wrap.classList.remove('morphing');
+      void wrap.offsetWidth;
+    }
     wrap.classList.add('morphing');
   }
 }
@@ -3786,6 +4547,14 @@ function setField(key, value) {
   } else {
     state[key] = value;
   }
+  // Casco is wind- en waterdicht: geen dekvloer, dus geen vloerverwarming en geen elektra
+  if (key === 'plan' && value === 'casco') {
+    state.extras.vloerverwarming = false;
+    state.electra = 0;
+    state.light = 0;
+    state.electraBuiten = 0;
+    state.lightBuiten = 0;
+  }
   render();
 }
 function toggleRegenpijpSide(side) { state.regenpijp[side] = !state.regenpijp[side]; render(); }
@@ -3810,6 +4579,289 @@ function prevStep() {
     document.getElementById('configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
+// ─── Antispam ───
+
+// Wanneer de bezoeker de pagina opende. Het verschil met het moment van
+// versturen gaat mee in de aanvraag; de server weigert wat binnen drie seconden
+// terugkomt, want dat is geen mens dat naam, e-mail, adres en een configuratie
+// heeft ingevuld.
+const _geopendOp = Date.now();
+
+// Turnstile van Cloudflare, alleen als de server een sitekey teruggeeft. Staat
+// die er niet, dan gebeurt er niets en werkt het formulier zoals altijd.
+let _turnstileSitekey = '';
+let _turnstileToken = '';
+
+async function laadAntispam() {
+  try {
+    const res = await fetch('/api/publieke-config');
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (!cfg.turnstileSitekey) return;
+    _turnstileSitekey = cfg.turnstileSitekey;
+    await new Promise((klaar, mislukt) => {
+      const el = document.createElement('script');
+      el.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      el.async = true;
+      el.onload = klaar;
+      el.onerror = mislukt;
+      document.head.appendChild(el);
+    });
+    plaatsTurnstile();
+  } catch (e) {
+    // Geen Turnstile is geen ramp: de andere sloten staan nog overeind.
+    console.warn('Turnstile niet geladen:', e && e.message);
+  }
+}
+
+function plaatsTurnstile() {
+  if (!_turnstileSitekey || !window.turnstile) return;
+  const doel = document.getElementById('turnstileDoel');
+  if (!doel || doel.dataset.gezet === '1') return;
+  doel.dataset.gezet = '1';
+  window.turnstile.render(doel, {
+    sitekey: _turnstileSitekey,
+    action: 'offerte',
+    callback: (token) => { _turnstileToken = token; },
+    'expired-callback': () => { _turnstileToken = ''; },
+    'error-callback': () => { _turnstileToken = ''; },
+  });
+}
+
+// ─── Stap 8: startvoorkeur, foto's en woninglink ───
+
+// De beschikbaarheid uit /api/planning, gedeeld met het blok op de homepage,
+// zodat de maandkeuze hieronder en dat blok altijd hetzelfde tonen.
+//
+// Staat met opzet HIER, boven het gebruik. Zou deze declaratie verderop in het
+// bestand staan, dan is hij nog niet geïnitialiseerd op het moment dat render()
+// hem aanroept, en valt de hele pagina om met "Cannot access before
+// initialization". Dat is eerder gebeurd en het kost onnodig veel zoektijd.
+let _publicPlanning = null;
+
+/**
+ * Keuze over de bouwtekeningen. Drie antwoorden, elk met een ander gevolg voor
+ * ons: bij "heb ik" kan de constructeur ze meteen inzien, bij "opvragen" krijgt
+ * de klant de juiste link naar zijn gemeente, en bij "geen" weten we dat er een
+ * opname ter plaatse nodig is en kunnen we dat in de offerte meenemen.
+ */
+const TEKENING_KEUZES = [
+  { waarde: 'heb-ik',    titel: 'Ja, die heb ik',        uitleg: 'U kunt ze later per e-mail meesturen.' },
+  { waarde: 'opvragen',  titel: 'Nee, wil ik opvragen',  uitleg: 'Wij laten zien waar dat bij uw gemeente kan.' },
+  { waarde: 'geen',      titel: 'Nee, en dat lukt niet', uitleg: 'Dan nemen we de bestaande situatie ter plaatse op.' },
+];
+
+function renderTekeningKeuze() {
+  const gekozen = state.contact.tekeningen;
+  const knoppen = TEKENING_KEUZES.map(k => `<button type="button"
+      class="tk-keuze ${gekozen === k.waarde ? 'gekozen' : ''}"
+      onclick="kiesTekeningen('${k.waarde}')">
+      <span class="tk-titel">${k.titel}</span>
+      <span class="tk-uitleg">${k.uitleg}</span>
+    </button>`).join('');
+
+  let extra = '';
+  if (gekozen === 'opvragen') {
+    extra = state.contact.gemeente
+      ? `<div class="tk-archief" id="tkArchief">Bezig met opzoeken voor gemeente ${escAttr(state.contact.gemeente)}…</div>`
+      : `<div class="tk-archief">Vul hierboven het adres van de woning in, dan zoeken wij op waar u bij uw gemeente het bouwdossier kunt inzien.</div>`;
+  }
+
+  return `<div class="tk-keuzes">${knoppen}</div>${extra}`;
+}
+
+function kiesTekeningen(waarde) {
+  state.contact.tekeningen = state.contact.tekeningen === waarde ? '' : waarde;
+  render();
+  if (state.contact.tekeningen === 'opvragen') vulArchiefBlok();
+}
+
+/**
+ * Zoekt bij het ingevulde adres de gemeente op via de woningcheck. Dat endpoint
+ * doet alleen een adresopzoeking en de archieflijst — geen volledige analyse.
+ */
+async function zoekGemeenteBijAdres() {
+  const adres = (state.contact.adres || '').trim();
+  const status = document.getElementById('adresStatus');
+  if (adres.length < 5) { if (status) status.textContent = ''; return; }
+  if (status) status.textContent = 'Adres controleren…';
+  try {
+    const res = await fetch('/woningcheck/api/gemeente?q=' + encodeURIComponent(adres));
+    if (!res.ok) throw new Error('niet gevonden');
+    const d = await res.json();
+    state.contact.gemeente = d.gemeente || '';
+    _archiefCache = d.archief || null;
+    if (status) {
+      status.textContent = d.gemeente
+        ? 'Gevonden: ' + d.adres + ' (gemeente ' + d.gemeente + ')'
+        : 'Adres gevonden.';
+      status.className = 'adres-status ok';
+    }
+    if (state.contact.tekeningen === 'opvragen') vulArchiefBlok();
+  } catch (e) {
+    state.contact.gemeente = '';
+    _archiefCache = null;
+    if (status) {
+      status.textContent = 'Dit adres kon niet worden gevonden. Vul postcode en huisnummer in.';
+      status.className = 'adres-status fout';
+    }
+  }
+}
+
+let _archiefCache = null;
+
+function vulArchiefBlok() {
+  const blok = document.getElementById('tkArchief');
+  if (!blok) return;
+  if (!_archiefCache) {
+    blok.textContent = 'Vul hierboven het adres in, dan zoeken wij het bouwarchief van uw gemeente op.';
+    return;
+  }
+  const a = _archiefCache;
+  blok.innerHTML = a.url
+    ? `${a.tekst}${a.let_op ? ' ' + a.let_op : ''}<br><a href="${a.url}" target="_blank" rel="noopener noreferrer">Naar het bouwarchief van ${a.gemeente} →</a>`
+    : `${a.tekst}`;
+}
+
+function startMaandStatus(ym) {
+  if (!ym || ym === 'flexibel') return '';
+  const planning = (_publicPlanning && _publicPlanning.months) || null;
+  const st = planning ? planning[ym] : null;
+  return st ? MONTH_STATUS_LABEL[st] : '';
+}
+
+function escAttr(v) {
+  return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/**
+ * Maandkeuze met de echte beschikbaarheid uit /api/planning. Zelfde kleuren en
+ * labels als het blok op de homepage en het adminpaneel, zodat er maar één
+ * waarheid is: wat jij in Beschikbaarheid instelt, ziet de klant hier.
+ *
+ * Is er nog geen planning ingesteld, dan tonen we de maanden zonder kleur --
+ * beter een keuze zonder kleurcode dan geen keuze.
+ */
+function renderStartMaanden() {
+  const planning = (_publicPlanning && _publicPlanning.months) || null;
+  const maanden = upcomingMonths(9);
+  const gekozen = state.contact.startMonth;
+
+  const chips = maanden.map(ym => {
+    const st = planning ? planning[ym] : null;
+    const vol = st === 'red';
+    const klassen = ['start-chip'];
+    if (st) klassen.push('st-' + st);
+    if (gekozen === ym) klassen.push('gekozen');
+    if (vol) klassen.push('vol');
+    return `<button type="button" class="${klassen.join(' ')}" onclick="kiesStartMaand('${ym}')"
+      title="${vol ? 'Volgeboekt — u komt op de wachtlijst' : ''}">
+      <span class="m-name">${monthName(ym)}</span>
+      ${st ? `<span class="m-status">${MONTH_STATUS_LABEL[st]}</span>` : ''}
+    </button>`;
+  }).join('');
+
+  const flex = `<button type="button" class="start-chip flex ${gekozen === 'flexibel' ? 'gekozen' : ''}"
+    onclick="kiesStartMaand('flexibel')">
+    <span class="m-name">Flexibel</span><span class="m-status">Zo snel mogelijk</span>
+  </button>`;
+
+  return `<div class="start-chips">${flex}${chips}</div>
+    ${planning ? `<div class="avail-legend" style="margin-top:14px">
+      <span><i class="dot dot-green"></i>Ruimte beschikbaar</span>
+      <span><i class="dot dot-orange"></i>Beperkte ruimte</span>
+      <span><i class="dot dot-red"></i>Volgeboekt — wachtlijst</span>
+    </div>` : ''}`;
+}
+
+function kiesStartMaand(ym) {
+  state.contact.startMonth = state.contact.startMonth === ym ? '' : ym;
+  render();
+}
+
+function renderFotoKiezer() {
+  const fotos = state.contact.photos || [];
+  const thumbs = fotos.map((f, i) => `<div class="foto-thumb">
+    <img src="${f.preview}" alt="Foto ${i + 1} van de achterzijde">
+    <button type="button" class="foto-weg" onclick="verwijderFoto(${i})" aria-label="Foto verwijderen">×</button>
+  </div>`).join('');
+
+  const knop = fotos.length >= 3 ? '' : `<label class="foto-add">
+    <input type="file" id="cfotos" accept="image/jpeg,image/png,image/webp" multiple hidden>
+    <span class="foto-add-plus">+</span>
+    <span class="foto-add-tekst">${fotos.length ? 'Nog een foto' : 'Foto kiezen'}</span>
+  </label>`;
+
+  return `<div class="foto-rij">${thumbs}${knop}</div>
+    <div class="foto-melding" id="fotoMelding"></div>`;
+}
+
+function verwijderFoto(i) {
+  state.contact.photos.splice(i, 1);
+  render();
+}
+
+/**
+ * Leest de gekozen bestanden en verkleint ze in de browser tot maximaal
+ * 1600 px met JPEG-kwaliteit 0,82. Een telefoonfoto van 4 MB wordt daarmee
+ * doorgaans 200 tot 400 kB. Dat is nodig: ongewijzigd zouden drie foto's de
+ * aanvraag te groot maken voor de e-mail.
+ */
+async function verwerkFotos(bestanden) {
+  const melding = document.getElementById('fotoMelding');
+  const zeg = (tekst, soort) => { if (melding) { melding.textContent = tekst; melding.className = 'foto-melding ' + (soort || ''); } };
+  const ruimte = 3 - (state.contact.photos || []).length;
+  if (ruimte <= 0) { zeg('Maximaal drie foto\'s.', 'fout'); return; }
+
+  zeg('Foto\'s verkleinen…');
+  let toegevoegd = 0;
+  for (const bestand of Array.from(bestanden).slice(0, ruimte)) {
+    if (!/^image\/(jpeg|png|webp)$/.test(bestand.type)) { zeg('Alleen JPG, PNG of WEBP.', 'fout'); continue; }
+    if (bestand.size > 25 * 1024 * 1024) { zeg('Die foto is groter dan 25 MB.', 'fout'); continue; }
+    try {
+      const klein = await verkleinFoto(bestand);
+      state.contact.photos.push(klein);
+      toegevoegd++;
+    } catch (e) {
+      zeg('Deze foto kon niet worden gelezen.', 'fout');
+    }
+  }
+  if (toegevoegd) {
+    render();
+    const m2 = document.getElementById('fotoMelding');
+    if (m2) m2.textContent = toegevoegd === 1 ? 'Foto toegevoegd.' : toegevoegd + ' foto\'s toegevoegd.';
+  }
+}
+
+function verkleinFoto(bestand) {
+  return new Promise((klaar, mislukt) => {
+    const lezer = new FileReader();
+    lezer.onerror = () => mislukt(new Error('lezen mislukt'));
+    lezer.onload = () => {
+      const img = new Image();
+      img.onerror = () => mislukt(new Error('geen geldige afbeelding'));
+      img.onload = () => {
+        const MAX = 1600;
+        const schaal = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * schaal));
+        canvas.height = Math.max(1, Math.round(img.height * schaal));
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        klaar({
+          type: 'image/jpeg',
+          data: dataUrl.split(',')[1],
+          preview: dataUrl,
+          bytes: Math.round(dataUrl.length * 0.75),
+        });
+      };
+      img.src = lezer.result;
+    };
+    lezer.readAsDataURL(bestand);
+  });
+}
+
 async function submitConfig() {
   const c = state.contact;
   if (!c.name || !c.email) { alert('Vul a.u.b. uw naam en e-mailadres in.'); return; }
@@ -3828,6 +4880,16 @@ async function submitConfig() {
       rows: buildSummaryRows(),
       total: fmt(calc.total),
     },
+    invultijdMs: Date.now() - _geopendOp,
+    turnstileToken: _turnstileToken,
+    website: (document.getElementById('cwebsite') || {}).value || '',
+    adres: c.adres || '',
+    gemeente: c.gemeente || '',
+    tekeningen: c.tekeningen || '',
+    startMonth: c.startMonth || '',
+    startMonthStatus: startMaandStatus(c.startMonth),
+    listingUrl: c.listingUrl || '',
+    photos: (c.photos || []).map(f => ({ type: f.type, data: f.data })),
   };
 
   try {
@@ -3860,7 +4922,9 @@ function resetConfig() {
     extras: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false },
     electra: 0, light: 0,
     electraBuiten: 0, lightBuiten: 0,
-    contact: { name: '', email: '', phone: '', message: '', consent: false },
+    contact: { name: '', email: '', phone: '', message: '', consent: false,
+             startMonth: '', listingUrl: '', photos: [],
+             adres: '', gemeente: '', tekeningen: '' },
     submitted: false,
   });
   _viewPreset = '3d';
@@ -3935,8 +4999,9 @@ const ADMIN_PRICE_GROUPS = [
   {
     title: 'Pui — extra t.o.v. openslaande deuren',
     items: [
-      { key: 'doors_schuifpui',  label: 'Schuifpui',        hint: '' },
-      { key: 'doors_harmonica',  label: 'Harmonicadeur',    hint: '' },
+      { key: 'doors_schuifpui',  label: 'Schuifpui',          hint: '' },
+      { key: 'doors_schuifpui4', label: 'Schuifpui 4-delig',  hint: '' },
+      { key: 'doors_harmonica',  label: 'Harmonicadeur',      hint: '' },
     ],
   },
   {
@@ -4008,7 +5073,7 @@ function _showToast(msg, type) {
 }
 
 function _getAdminPw() {
-  return sessionStorage.getItem('aeu_admin_pw') || '';
+  return sessionStorage.getItem('aeu_admin_token') || '';
 }
 
 async function loadPricesFromServer() {
@@ -4029,6 +5094,13 @@ async function loadPricesFromServer() {
 function openAdminLogin() {
   document.getElementById('adminLoginError').classList.remove('show');
   document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminCodeInput').value = '';
+  document.getElementById('adminCodeRow').style.display = 'none';
+  // Staat de authenticator aan, dan meteen het code-veld tonen
+  fetch('/api/auth/status', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => { document.getElementById('adminCodeRow').style.display = d.tweestaps ? '' : 'none'; })
+    .catch(() => {});
   document.getElementById('adminLoginOverlay').classList.add('open');
   setTimeout(() => document.getElementById('adminPwInput').focus(), 50);
 }
@@ -4037,21 +5109,33 @@ function closeAdminLogin() {
 }
 async function submitAdminLogin() {
   const pw = document.getElementById('adminPwInput').value;
+  const code = document.getElementById('adminCodeInput').value.trim();
   if (!pw) return;
   const errEl = document.getElementById('adminLoginError');
   errEl.classList.remove('show');
   try {
-    const res = await fetch('/api/auth/check', {
+    // Wachtwoord (+ code) gaat één keer naar de server; terug komt een
+    // sessietoken. Het wachtwoord zelf blijft dus niet in de browser staan.
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + pw },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw, code: code }),
     });
-    if (res.ok) {
-      sessionStorage.setItem('aeu_admin_pw', pw);
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.token) {
+      sessionStorage.setItem('aeu_admin_token', data.token);
       _adminLoggedIn = true;
       closeAdminLogin();
       openAdminPanel();
+      if (data.viaBackup) {
+        setTimeout(() => _showToast('Ingelogd met een back-upcode — nog ' + data.backupResterend + ' over. Maak nieuwe aan onder Beveiliging.', 'error'), 400);
+      }
     } else {
-      errEl.textContent = 'Onjuist wachtwoord — probeer opnieuw';
+      if (data.tweestaps) {
+        document.getElementById('adminCodeRow').style.display = '';
+        if (!code) document.getElementById('adminCodeInput').focus();
+      }
+      errEl.textContent = data.error || (res.status === 429 ? 'Te veel pogingen — probeer het over 15 minuten opnieuw' : 'Onjuist wachtwoord — probeer opnieuw');
       errEl.classList.add('show');
     }
   } catch (e) {
@@ -4068,8 +5152,27 @@ function openAdminPanel() {
 function closeAdminPanel() {
   document.getElementById('adminPanelOverlay').classList.remove('open');
 }
+let _adminTab = 'prijzen';
+function setAdminTab(tab) { _adminTab = tab; renderAdminPanel(); }
+
 function renderAdminPanel() {
   const body = document.getElementById('adminPanelBody');
+  ['Prijzen', 'Planning', 'Projecten', 'Beveiliging'].forEach(t => {
+    const el = document.getElementById('adminTab' + t);
+    if (el) el.classList.toggle('active', _adminTab === t.toLowerCase());
+  });
+  const isPrices = _adminTab === 'prijzen';
+  document.getElementById('adminFooterLeft').style.display = isPrices ? '' : 'none';
+  const saveBtn = document.getElementById('adminSaveBtn');
+  saveBtn.style.display = (_adminTab === 'projecten' || _adminTab === 'beveiliging') ? 'none' : '';
+  saveBtn.textContent = isPrices ? 'Opslaan' : 'Beschikbaarheid opslaan';
+  document.getElementById('adminPanelTitle').textContent =
+    isPrices ? 'Prijsbeheer' : (_adminTab === 'planning' ? 'Beschikbaarheid' : (_adminTab === 'beveiliging' ? 'Beveiliging' : 'Projectmonitor'));
+
+  if (_adminTab === 'planning') { renderPlanningTab(body); return; }
+  if (_adminTab === 'projecten') { renderProjectsTab(body); return; }
+  if (_adminTab === 'beveiliging') { renderBeveiligingTab(body); return; }
+
   let html = '';
   ADMIN_PRICE_GROUPS.forEach(group => {
     html += `<div class="admin-section"><h3>${group.title}</h3>`;
@@ -4094,6 +5197,468 @@ function renderAdminPanel() {
   body.innerHTML = html;
 }
 
+function adminSave() {
+  if (_adminTab === 'planning') { savePlanningAdmin(); return; }
+  saveAdminPrices();
+}
+
+// ─── Admin: beschikbaarheid ───
+let _planningDraft = null; // { '2026-08': 'green', ... }
+const MONTH_STATUS_LABEL = { green: 'Beschikbaar', orange: 'Beperkt', red: 'Vol' };
+
+function upcomingMonths(n) {
+  const out = [];
+  const d = new Date();
+  d.setDate(1);
+  for (let i = 0; i < n; i++) {
+    out.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+    d.setMonth(d.getMonth() + 1);
+  }
+  return out;
+}
+function monthName(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+}
+
+async function renderPlanningTab(body) {
+  if (_planningDraft === null) {
+    body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+    try {
+      const res = await fetch('/api/planning');
+      _planningDraft = res.ok ? ((await res.json()).months || {}) : {};
+    } catch (e) { _planningDraft = {}; }
+    if (_adminTab !== 'planning') return;
+  }
+  const months = upcomingMonths(12);
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Komende 12 maanden</h3>
+      <p class="admin-hint-line">Klik op een maand om de status te wisselen (beschikbaar → beperkt → vol). Sla daarna op met de knop rechtsonder. De eerste zes maanden worden op de website getoond; de eerstvolgende groene of oranje maand wordt uitgelicht als startdatum.</p>
+      <div class="plan-months-grid">
+        ${months.map(ym => {
+          const st = _planningDraft[ym] || 'green';
+          return `<div class="plan-month-pill st-${st}" onclick="cyclePlanningMonth('${ym}')">
+            <div class="m-name">${monthName(ym)}</div>
+            <div class="m-status">${MONTH_STATUS_LABEL[st]}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function cyclePlanningMonth(ym) {
+  const order = ['green', 'orange', 'red'];
+  const cur = _planningDraft[ym] || 'green';
+  _planningDraft[ym] = order[(order.indexOf(cur) + 1) % order.length];
+  renderPlanningTab(document.getElementById('adminPanelBody'));
+}
+
+async function savePlanningAdmin() {
+  const pw = _getAdminPw();
+  if (!pw) { _showToast('Niet ingelogd', 'error'); return; }
+  const months = {};
+  upcomingMonths(12).forEach(ym => { months[ym] = _planningDraft[ym] || 'green'; });
+  try {
+    const res = await fetch('/api/planning', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+      body: JSON.stringify({ months }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      _showToast(err.error || 'Opslaan mislukt', 'error');
+      return;
+    }
+    _showToast('Beschikbaarheid opgeslagen — direct zichtbaar op de site', 'success');
+    renderPublicAvailability({ months });
+  } catch (e) {
+    _showToast('Verbindingsfout — probeer opnieuw', 'error');
+  }
+}
+
+// ─── Admin: beveiliging (authenticator / tweestapsverificatie) ───
+// Server: /api/auth/totp (status), /setup, /activeren, /backupcodes, /uitschakelen.
+// Het geheim wordt als QR getoond met /qr.js (eigen generator), zodat het nooit
+// naar een externe QR-dienst gaat.
+let _totpSetup = null;          // { geheim, otpauth } zolang het koppelen bezig is
+let _laatsteBackupcodes = [];   // alleen in het geheugen, voor de kopieerknop
+
+async function _authApi(pad, body) {
+  const token = _getAdminPw();
+  const res = await fetch(pad, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+function _laadQr() {
+  if (window.QR) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = '/qr.js?v=1';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('qr.js niet geladen'));
+    document.head.appendChild(s);
+  });
+}
+
+async function renderBeveiligingTab(body) {
+  body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+  const r = await _authApi('/api/auth/totp');
+  if (_adminTab !== 'beveiliging') return;
+  if (!r.ok) { body.innerHTML = '<p class="admin-hint-line">' + _escAdmin(r.data.error || ('Kon de status niet laden (' + r.status + ')')) + '</p>'; return; }
+  const s = r.data;
+  if (_totpSetup) { renderTotpSetup(body); return; }
+
+  if (s.actief) {
+    body.innerHTML = `
+      <div class="admin-section">
+        <h3>Authenticator-app <span class="bev-status aan">actief</span></h3>
+        <p class="admin-hint-line">Inloggen vereist het wachtwoord én de 6-cijferige code uit uw authenticator-app${s.sinds ? ' (gekoppeld op ' + new Date(s.sinds).toLocaleDateString('nl-NL') + ')' : ''}.${s.bron === 'env' ? ' Het geheim staat als ADMIN_TOTP_SECRET in Railway; uitschakelen of vernieuwen doet u daar.' : ''}</p>
+        <p class="admin-hint-line"><strong>Back-upcodes:</strong> nog ${s.backupResterend} over. Elke code werkt één keer, voor als u uw telefoon niet bij de hand heeft.</p>
+        ${s.bron === 'env' ? '' : `
+        <div class="bev-acties">
+          <button class="btn-admin btn-admin-ghost" onclick="totpNieuweBackupcodes()">Nieuwe back-upcodes</button>
+          <button class="btn-admin btn-admin-danger" onclick="totpUitschakelen()">Authenticator uitschakelen</button>
+        </div>`}
+      </div>
+      <div class="admin-section">
+        <h3>Telefoon kwijt?</h3>
+        <p class="admin-hint-line">Log in met een back-upcode, schakel de authenticator hier uit en koppel daarna uw nieuwe telefoon. Heeft u óók geen back-upcodes meer, zet dan in Railway (service → Variables) de variabele <code>ADMIN_TOTP_UIT</code> op <code>1</code>: de authenticator staat dan tijdelijk uit en u kunt hier opnieuw koppelen. Verwijder de variabele daarna weer.</p>
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Authenticator-app <span class="bev-status uit">${s.noodschakelaar ? 'uit (noodschakelaar)' : 'niet actief'}</span></h3>
+      <p class="admin-hint-line">Nu is alleen het wachtwoord nodig om in te loggen. Met een authenticator-app (Google Authenticator, Microsoft Authenticator, Authy of 1Password) is daarnaast een code nodig die elke 30 seconden verandert. Wie uw wachtwoord raadt of onderschept, komt er dan nog niet in.</p>
+      ${s.noodschakelaar
+        ? '<p class="admin-hint-line"><strong>De noodschakelaar ADMIN_TOTP_UIT staat aan in Railway.</strong> ' + (s.gekoppeld
+            ? 'Er staat nog een oude koppeling. Verwijder die hieronder, haal daarna de variabele weg in Railway en koppel opnieuw met uw nieuwe telefoon.</p><div class="bev-acties"><button class="btn-admin btn-admin-danger" onclick="totpOudeKoppelingWeg()">Oude koppeling verwijderen</button></div>'
+            : 'Verwijder die variabele in Railway; daarna kunt u hier opnieuw koppelen.</p>')
+        : '<button class="btn-admin btn-admin-primary" onclick="totpStartSetup()">Authenticator koppelen</button>'}
+    </div>`;
+}
+
+async function totpStartSetup() {
+  const r = await _authApi('/api/auth/totp/setup', {});
+  if (!r.ok) { _showToast(r.data.error || 'Kon niet starten', 'error'); return; }
+  _totpSetup = r.data;
+  try { await _laadQr(); } catch (e) { /* zonder QR blijft handmatig invoeren over */ }
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
+}
+
+function renderTotpSetup(body) {
+  const qr = window.QR
+    ? window.QR.svg(_totpSetup.otpauth, { breedte: 200 })
+    : '<p class="admin-hint-line">QR-code niet beschikbaar — voer het geheim handmatig in.</p>';
+  const geheimNet = _totpSetup.geheim.replace(/(.{4})/g, '$1 ').trim();
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Stap 1 — Scan de QR-code met uw authenticator-app</h3>
+      <p class="admin-hint-line">Open de app, kies "account toevoegen" en scan deze code. Lukt scannen niet, kies dan "handmatig invoeren" en typ het geheim over.</p>
+      <div class="bev-qr">
+        ${qr}
+        <div>
+          <div class="bev-geheim">${_escAdmin(geheimNet)}</div>
+          <div class="admin-hint-line">Naam in de app: AanEnUitbouw.nl (beheer) · type: tijdgebaseerd (TOTP), 6 cijfers, 30 seconden</div>
+        </div>
+      </div>
+    </div>
+    <div class="admin-section">
+      <h3>Stap 2 — Vul de code in die de app nu toont</h3>
+      <div class="proj-add-row">
+        <input id="totpCodeInput" inputmode="numeric" maxlength="7" placeholder="6 cijfers" style="letter-spacing:3px;font-weight:700;max-width:180px;flex:0 1 180px;" onkeydown="if(event.key==='Enter') totpActiveren()">
+        <button class="btn-admin btn-admin-primary" onclick="totpActiveren()">Activeren</button>
+        <button class="btn-admin btn-admin-ghost" onclick="_totpSetup = null; renderBeveiligingTab(document.getElementById('adminPanelBody'))">Annuleren</button>
+      </div>
+      <p class="admin-hint-line">Na het activeren krijgt u acht back-upcodes. Bewaar die op een veilige plek: daarmee komt u binnen als uw telefoon kwijt of kapot is.</p>
+    </div>`;
+  setTimeout(() => { const el = document.getElementById('totpCodeInput'); if (el) el.focus(); }, 50);
+}
+
+async function totpActiveren() {
+  const el = document.getElementById('totpCodeInput');
+  const code = el ? el.value : '';
+  if (!_totpSetup || code.replace(/\D/g, '').length !== 6) { _showToast('Vul de 6-cijferige code uit de app in', 'error'); return; }
+  const r = await _authApi('/api/auth/totp/activeren', { geheim: _totpSetup.geheim, code });
+  if (!r.ok) { _showToast(r.data.error || 'Activeren mislukt', 'error'); return; }
+  _totpSetup = null;
+  toonBackupcodes(r.data.backupCodes, 'Authenticator gekoppeld. Vanaf nu is bij het inloggen ook de code uit de app nodig.');
+}
+
+function toonBackupcodes(codes, intro) {
+  _laatsteBackupcodes = codes || [];
+  const body = document.getElementById('adminPanelBody');
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Uw back-upcodes</h3>
+      <p class="admin-hint-line">${_escAdmin(intro)} <strong>Bewaar deze codes nu</strong> — ze worden maar één keer getoond. Elke code werkt één keer, in plaats van de code uit de app.</p>
+      <pre class="bev-codes">${_escAdmin(_laatsteBackupcodes.join('\n'))}</pre>
+      <div class="bev-acties">
+        <button class="btn-admin btn-admin-primary" onclick="kopieerBackupcodes()">Kopiëren</button>
+        <button class="btn-admin btn-admin-ghost" onclick="_laatsteBackupcodes = []; renderBeveiligingTab(document.getElementById('adminPanelBody'))">Ik heb ze bewaard</button>
+      </div>
+    </div>`;
+}
+
+function kopieerBackupcodes() {
+  const tekst = 'Back-upcodes beheer AanEnUitbouw.nl (elke code werkt één keer):\n' + _laatsteBackupcodes.join('\n');
+  navigator.clipboard.writeText(tekst).then(
+    () => _showToast('Back-upcodes gekopieerd — plak ze in uw wachtwoordmanager', 'success'),
+    () => _showToast('Kopiëren mislukt — schrijf ze over', 'error')
+  );
+}
+
+async function totpNieuweBackupcodes() {
+  const code = prompt('Vul de code uit uw authenticator-app in om nieuwe back-upcodes te maken. De oude codes vervallen.');
+  if (code == null) return;
+  const r = await _authApi('/api/auth/totp/backupcodes', { code });
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  toonBackupcodes(r.data.backupCodes, 'Nieuwe back-upcodes gemaakt; de oude zijn vervallen.');
+}
+
+async function totpOudeKoppelingWeg() {
+  if (!confirm('Oude authenticator-koppeling en back-upcodes verwijderen? Daarna haalt u ADMIN_TOTP_UIT weg in Railway en koppelt u opnieuw.')) return;
+  const r = await _authApi('/api/auth/totp/uitschakelen', {});
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  _showToast('Oude koppeling verwijderd', 'success');
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
+}
+
+async function totpUitschakelen() {
+  const code = prompt('Weet u zeker dat u de authenticator wilt uitschakelen? Inloggen kan daarna weer met alleen het wachtwoord.\n\nVul ter bevestiging de code uit uw app (of een back-upcode) in:');
+  if (code == null) return;
+  const r = await _authApi('/api/auth/totp/uitschakelen', { code });
+  if (!r.ok) { _showToast(r.data.error || 'Mislukt', 'error'); return; }
+  _showToast('Authenticator uitgeschakeld', 'success');
+  renderBeveiligingTab(document.getElementById('adminPanelBody'));
+}
+
+// ─── Admin: projectmonitor ───
+// Fasen, typen en plannen staan in /projectfasen.js (gedeeld met server.js en
+// project.html). De fallback hieronder houdt het beheer werkend als dat
+// bestand onverhoopt niet geladen is.
+let _PF = null;
+let PROJECT_PHASES = ['Huisbezoek', 'Offerte', 'Vergunning & constructie', 'Start bouw: fundering', 'Draagbalken & gevel openen', 'Houten skelet', 'Buitenafwerking & element bestellen', 'Element plaatsen & binnenafwerking', 'Oplevering'];
+let PROJECT_TYPES = { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw' };
+let PROJECT_PLANNEN = { casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
+// projectfasen.js laadt met 'defer' en is er dus pas ná dit script. Daarom
+// hier pas overnemen zodra de pagina klaar is met laden.
+document.addEventListener('DOMContentLoaded', () => {
+  _PF = window.PROJECTFASEN || null;
+  if (!_PF) return;
+  PROJECT_PHASES = _PF.FASEN.map(f => f.titel);
+  PROJECT_TYPES = _PF.TYPES;
+  PROJECT_PLANNEN = _PF.PLANNEN;
+  _PF.vulSocialLinks(document);
+});
+let _projectsCache = null;
+
+async function renderProjectsTab(body) {
+  body.innerHTML = '<p class="admin-hint-line">Laden…</p>';
+  const pw = _getAdminPw();
+  try {
+    const res = await fetch('/api/projects', { headers: { 'Authorization': 'Bearer ' + pw } });
+    if (!res.ok) throw new Error('Kon projecten niet laden (' + res.status + ')');
+    _projectsCache = await res.json();
+  } catch (e) {
+    body.innerHTML = '<p class="admin-hint-line">' + e.message + '</p>';
+    return;
+  }
+  if (_adminTab !== 'projecten') return;
+
+  const codes = Object.keys(_projectsCache).sort((a, b) =>
+    (_projectsCache[b].updated || '').localeCompare(_projectsCache[a].updated || ''));
+
+  body.innerHTML = `
+    <div class="admin-section">
+      <h3>Nieuw project</h3>
+      <div class="proj-add-row">
+        <input id="projNewLabel" placeholder='Bijv. "Fam. Jansen — Almere, uitbouw 6×3"' maxlength="120" onkeydown="if(event.key==='Enter') createProjectAdmin()">
+        <button class="btn-admin btn-admin-primary" onclick="createProjectAdmin()">Aanmaken</button>
+      </div>
+      <p class="admin-hint-line">Maak het project aan zodra het huisbezoek is gepland. Het krijgt een unieke code (AEB-XXXXX); stuur die met het voorbereidingsbericht naar de klant, dan volgt hij vanaf stap 1 de voortgang op aanenuitbouw.nl/project. Klik op de code om de directe link te kopiëren. Kies per project het type (aanbouw/uitbouw) en het plan (Casco, C+, C++): de klantpagina past de uitleg daarop aan en laat bij een aanbouw de stap "gevel openen" vervallen. Vul bij "Schroefpalen" het aantal en de diepte uit de offerte in; de klant ziet dat bij stap 4.</p>
+    </div>
+    <div class="admin-section">
+      <h3>Lopende projecten (${codes.length})</h3>
+      ${codes.length === 0 ? '<p class="admin-hint-line">Nog geen projecten aangemaakt.</p>' : codes.map(code => {
+        const p = _projectsCache[code];
+        const note = (p.notes && p.notes[p.phase]) || '';
+        return `<div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-card-label">${_escAdmin(p.label)}</div>
+            <button class="proj-code" onclick="copyProjectLink('${code}')" title="Kopieer klantlink">${code}</button>
+            <select onchange="updateProjectPhase('${code}', this.value)" title="Huidige fase">
+              ${PROJECT_PHASES.map((ph, i) => `<option value="${i}" ${i === p.phase ? 'selected' : ''}>${i + 1}. ${ph}</option>`).join('')}
+            </select>
+            <button class="proj-recode" onclick="recodeProjectAdmin('${code}')" title="Nieuwe projectcode; fase, notities, type en plan blijven bewaard">Nieuwe code</button>
+            <button class="proj-del" onclick="deleteProjectAdmin('${code}')">Verwijderen</button>
+          </div>
+          <div class="proj-opties-row">
+            <label>Type
+              <select onchange="updateProjectField('${code}', 'type', this.value)">
+                <option value="">— nog niet bekend —</option>
+                ${Object.entries(PROJECT_TYPES).map(([k, v]) => `<option value="${k}" ${p.type === k ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </label>
+            <label>Plan
+              <select onchange="updateProjectField('${code}', 'plan', this.value)">
+                <option value="">— nog niet bekend —</option>
+                ${Object.entries(PROJECT_PLANNEN).map(([k, v]) => `<option value="${k}" ${p.plan === k ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </label>
+            <label>Schroefpalen (conform offerte)
+              <input value="${_escAdmin(p.palen || '')}" maxlength="80" placeholder="bijv. 5 stuks, 13 m diep" onchange="updateProjectField('${code}', 'palen', this.value)">
+            </label>
+            <button class="btn-admin btn-admin-ghost" onclick="copyHuisbezoekBericht('${code}')" title="Agenda en voorbereiding voor het huisbezoek, met de projectcode en klantlink">Bericht huisbezoek kopiëren</button>
+          </div>
+          <div class="proj-note-row">
+            <textarea id="projNote-${code}" maxlength="500" placeholder="Notitie bij de huidige fase (zichtbaar voor de klant), bijv. 'Tekeningen ontvangen — constructeur is bezig' of 'Element besteld — levering week 41'">${_escAdmin(note)}</textarea>
+            <button class="btn-admin btn-admin-ghost" onclick="saveProjectNote('${code}')">Bewaar</button>
+          </div>
+          <div class="proj-meta">Fase ${p.phase + 1} van ${PROJECT_PHASES.length}${p.type && PROJECT_TYPES[p.type] ? ' · ' + PROJECT_TYPES[p.type] : ''}${p.plan && PROJECT_PLANNEN[p.plan] ? ' · ' + PROJECT_PLANNEN[p.plan] : ''} · laatst bijgewerkt ${p.updated ? new Date(p.updated).toLocaleDateString('nl-NL') : '—'} · <a href="/project?code=${code}" target="_blank" rel="noopener">bekijk als klant ↗</a></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function _escAdmin(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function _projectsAction(payload, okMsg) {
+  const pw = _getAdminPw();
+  if (!pw) { _showToast('Niet ingelogd', 'error'); return null; }
+  try {
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { _showToast(data.error || 'Actie mislukt', 'error'); return null; }
+    if (okMsg) _showToast(okMsg, 'success');
+    return data;
+  } catch (e) {
+    _showToast('Verbindingsfout — probeer opnieuw', 'error');
+    return null;
+  }
+}
+
+async function createProjectAdmin() {
+  const label = document.getElementById('projNewLabel').value.trim();
+  if (!label) { _showToast('Vul eerst een omschrijving in', 'error'); return; }
+  const data = await _projectsAction({ action: 'create', label }, null);
+  if (data && data.code) {
+    _showToast('Project aangemaakt: ' + data.code, 'success');
+    renderProjectsTab(document.getElementById('adminPanelBody'));
+  }
+}
+
+async function updateProjectPhase(code, phase) {
+  const ok = await _projectsAction({ action: 'update', code, phase: Number(phase) }, 'Fase bijgewerkt');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+async function updateProjectField(code, veld, waarde) {
+  const payload = { action: 'update', code };
+  payload[veld] = waarde;
+  const ok = await _projectsAction(payload, { type: 'Type opgeslagen', plan: 'Plan opgeslagen', palen: 'Schroefpalen opgeslagen' }[veld] || 'Opgeslagen');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+// Agenda en voorbereiding voor het huisbezoek, inclusief projectcode en
+// klantlink — plakken in een e-mail of WhatsApp naar de (potentiële) klant.
+// [naam] en [datum en tijd] vult u zelf in.
+function copyHuisbezoekBericht(code) {
+  if (!_PF) { _showToast('projectfasen.js is niet geladen — ververs de pagina', 'error'); return; }
+  const tekst = _PF.huisbezoekBericht({ code, link: location.origin + '/project?code=' + code });
+  navigator.clipboard.writeText(tekst).then(
+    () => _showToast('Bericht huisbezoek gekopieerd — plak het in uw e-mail of WhatsApp en vul naam en datum in', 'success'),
+    () => { window.prompt('Kopieer het bericht:', tekst); }
+  );
+}
+
+async function saveProjectNote(code) {
+  const p = _projectsCache[code];
+  if (!p) return;
+  const val = document.getElementById('projNote-' + code).value;
+  const notes = { ...(p.notes || {}) };
+  notes[p.phase] = val;
+  await _projectsAction({ action: 'update', code, notes }, 'Notitie opgeslagen');
+}
+
+// Nieuwe code voor een bestaand project (bijv. voor een verse deel-preview in
+// WhatsApp of als een link is gelekt). Alle gegevens gaan mee; de oude code vervalt.
+async function recodeProjectAdmin(code) {
+  const p = _projectsCache[code];
+  if (!confirm('Nieuwe code maken voor "' + (p ? p.label : code) + '"?\n\nDe oude code ' + code + ' werkt daarna niet meer. Fase, notities, type en plan blijven bewaard.')) return;
+  const data = await _projectsAction({ action: 'recode', code }, null);
+  if (data && data.code) {
+    copyProjectLink(data.code);
+    renderProjectsTab(document.getElementById('adminPanelBody'));
+  }
+}
+
+async function deleteProjectAdmin(code) {
+  const p = _projectsCache[code];
+  if (!confirm('Project "' + (p ? p.label : code) + '" definitief verwijderen? De klantcode werkt daarna niet meer.')) return;
+  const ok = await _projectsAction({ action: 'delete', code }, 'Project verwijderd');
+  if (ok) renderProjectsTab(document.getElementById('adminPanelBody'));
+}
+
+function copyProjectLink(code) {
+  const link = location.origin + '/project?code=' + code;
+  navigator.clipboard.writeText(link).then(
+    () => _showToast('Klantlink gekopieerd: ' + link, 'success'),
+    () => _showToast(link, 'success')
+  );
+}
+
+// ─── Publieke beschikbaarheid op de homepage ───
+function renderPublicAvailability(planning) {
+  const section = document.getElementById('beschikbaarheid');
+  if (!section || !planning || !planning.months) return;
+  const months = upcomingMonths(6).filter(ym => planning.months[ym]);
+  if (months.length === 0) { section.style.display = 'none'; return; }
+
+  document.getElementById('availMonths').innerHTML = months.map(ym => {
+    const st = planning.months[ym];
+    return `<div class="avail-month st-${st}">
+      <div class="m-name">${monthName(ym)}</div>
+      <div class="m-status">${MONTH_STATUS_LABEL[st]}</div>
+    </div>`;
+  }).join('');
+
+  const firstOpen = upcomingMonths(12).find(ym => {
+    const st = planning.months[ym];
+    return st === 'green' || st === 'orange';
+  });
+  document.getElementById('availNext').innerHTML = firstOpen
+    ? 'Eerstvolgende beschikbare startdatum: <strong>' + monthName(firstOpen) + '</strong>'
+    : 'Momenteel volgeboekt — neem contact op voor de wachtlijst.';
+  section.style.display = '';
+}
+
+async function loadPublicAvailability() {
+  try {
+    const res = await fetch('/api/planning');
+    if (!res.ok) return; // geen planning ingesteld → blok blijft verborgen
+    _publicPlanning = await res.json();
+    renderPublicAvailability(_publicPlanning);
+    // Staat de bezoeker al op de contactstap, dan de maanden bijwerken.
+    if (STEPS[state.step] && STEPS[state.step].id === 'contact') render();
+  } catch (e) { /* stil falen — puur cosmetisch blok */ }
+}
+loadPublicAvailability();
+laadAntispam();
+
 async function _postPricesToServer(pricesObj) {
   const pw = _getAdminPw();
   if (!pw) {
@@ -4111,7 +5676,7 @@ async function _postPricesToServer(pricesObj) {
     });
     if (res.ok) return true;
     if (res.status === 401) {
-      sessionStorage.removeItem('aeu_admin_pw');
+      sessionStorage.removeItem('aeu_admin_token');
       _adminLoggedIn = false;
       _showToast('Sessie verlopen — log opnieuw in', 'error');
       closeAdminPanel();
@@ -4192,7 +5757,9 @@ async function importAdminPrices(event) {
 }
 
 function logoutAdmin() {
-  sessionStorage.removeItem('aeu_admin_pw');
+  const token = _getAdminPw();
+  if (token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(() => {});
+  sessionStorage.removeItem('aeu_admin_token');
   _adminLoggedIn = false;
   closeAdminPanel();
   _showToast('Uitgelogd');
@@ -4224,6 +5791,33 @@ render();
 </script>
 
 <!-- 100% privacy-first analytics (Simple Analytics, geen cookies) -->
+<script>
+/* Versiestempel ophalen. Twee dingen worden hiermee zichtbaar:
+   - dat DIT bestand nieuw is (het element bestaat alleen in deze versie)
+   - welke versie de SERVER heeft (uit /bodemcheck/api/versie)
+   Wijken die na een upload niet mee, dan is de deploy niet aangekomen of kijk
+   je naar een gecachte pagina. */
+(function () {
+  var el = document.getElementById('siteVersie');
+  if (!el) return;
+  el.textContent = 'versie laden…';
+  fetch('/bodemcheck/api/versie', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+    .then(function (d) {
+      el.textContent = 'versie ' + (d.nummer || d.versie);
+      el.title = (d.nummer ? 'Controlecode ' + d.versie + ' · ' : '') + 'Gestart ' + String(d.gestart).replace('T', ' ').slice(0, 16) + ' UTC · klik voor details';
+      el.addEventListener('click', function () {
+        if (el.querySelector('pre')) { el.querySelector('pre').remove(); return; }
+        var pre = document.createElement('pre');
+        var regels = ['versie    ' + (d.nummer || '—') + (d.datum ? ' (' + d.datum + ')' : ''), 'site      ' + d.versie, 'assets    ' + d.assetVersie, 'node      ' + d.node, 'gestart   ' + d.gestart];
+        for (var k in d.bestanden) regels.push((k + '            ').slice(0, 20) + d.bestanden[k]);
+        pre.textContent = regels.join('\n');
+        el.appendChild(pre);
+      });
+    })
+    .catch(function () { el.textContent = 'versie onbekend'; });
+})();
+</script>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
 </body>
