@@ -103,6 +103,9 @@ const instellingen = {
   beschrijving:
     'Bekijk gratis welke grondlagen onder uw perceel zitten en op welke diepte de draagkrachtige zandlaag begint. Op basis van echte sonderingen uit de Basisregistratie Ondergrond.',
   terugLink: '/',
+  // Voor het voorbeeld bij delen (WhatsApp, Facebook) en voor zoekmachines
+  siteNaam: 'AanEnUitbouw.nl',
+  deelAfbeelding: '/img/og-image.png',
   kop: null,
   voet: null,
   onLead: null,
@@ -341,6 +344,46 @@ const MOCKBALK = `<div class="sd-mockbalk" role="status">
   <em>fictief</em> en alleen bedoeld om de werking te controleren.
 </div>`;
 
+// Open Graph-tags (het voorbeeld bij delen via WhatsApp, Facebook, LinkedIn) en
+// gestructureerde gegevens voor zoekmachines. Gebruikt alleen de titel en
+// beschrijving uit de instellingen; er komt geen nieuwe tekst bij.
+function deelTags(canonical, oorsprong) {
+  const paginaNaam = String(instellingen.titel).split(':')[0].trim();
+  const afbeelding = instellingen.deelAfbeelding ? `${oorsprong}${instellingen.deelAfbeelding}` : '';
+  const gegevens = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        '@id': canonical,
+        url: canonical,
+        name: instellingen.titel,
+        description: instellingen.beschrijving,
+        inLanguage: 'nl-NL',
+        isPartOf: { '@id': `${oorsprong}/#website` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: instellingen.siteNaam, item: `${oorsprong}/` },
+          { '@type': 'ListItem', position: 2, name: paginaNaam, item: canonical },
+        ],
+      },
+    ],
+  };
+  return [
+    '<meta property="og:type" content="website">',
+    `<meta property="og:url" content="${ontsnap(canonical)}">`,
+    `<meta property="og:title" content="${ontsnap(instellingen.titel)}">`,
+    `<meta property="og:description" content="${ontsnap(instellingen.beschrijving)}">`,
+    '<meta property="og:locale" content="nl_NL">',
+    `<meta property="og:site_name" content="${ontsnap(instellingen.siteNaam)}">`,
+    afbeelding ? `<meta property="og:image" content="${ontsnap(afbeelding)}">` : '',
+    `<meta name="twitter:card" content="${afbeelding ? 'summary_large_image' : 'summary'}">`,
+    `<script type="application/ld+json">${JSON.stringify(gegevens).replace(/</g, '\\u003c')}</script>`,
+  ].filter(Boolean).join('\n');
+}
+
 function bouwPagina(req, vooringevuld) {
   const pad = instellingen.pad;
 
@@ -358,6 +401,7 @@ function bouwPagina(req, vooringevuld) {
     TITEL: ontsnap(instellingen.titel),
     BESCHRIJVING: ontsnap(instellingen.beschrijving),
     CANONICAL: canonical ? `<link rel="canonical" href="${ontsnap(canonical)}">` : '',
+    DELEN: canonical ? deelTags(canonical, `${protocol}://${host}`) : '',
     ASSETS: `${pad}/assets`,
     VERSIE: ASSET_VERSIE,
     BASISPAD: pad,

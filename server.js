@@ -675,7 +675,10 @@ function serveStatic(req, res, urlPath) {
       'Content-Type': contentType,
       // HTML en het gedeelde fasenbestand altijd vers ophalen: een tekstwijziging
       // moet direct zichtbaar zijn, niet pas na een dag browsercache.
-      'Cache-Control': (ext === '.html' || urlPath === '/projectfasen.js') ? 'no-cache' : 'public, max-age=86400',
+      // Lettertypen veranderen nooit onder dezelfde naam en mogen een jaar blijven staan.
+      'Cache-Control': (ext === '.html' || urlPath === '/projectfasen.js') ? 'no-cache'
+        : ext === '.woff2' ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=86400',
     });
     fs.createReadStream(filePath).pipe(res);
   });

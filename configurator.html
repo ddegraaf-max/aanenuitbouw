@@ -27,32 +27,65 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<!-- Gefaseerd laden aanzetten, behalve als de link direct naar een sectie wijst (bijv. /#contact) -->
+<script>if (!location.hash) document.documentElement.className = 'laadt-gefaseerd';</script>
+<!-- 'defer': laadt op de achtergrond en houdt de opbouw van de pagina niet tegen.
+     Het script onderaan de pagina neemt PROJECTFASEN over zodra de pagina klaar is. -->
+<script src="/projectfasen.js?v=3" defer></script>
+<!-- Bedrijfsgegevens voor zoekmachines. Alles hierin staat ook zichtbaar op de
+     pagina; past u daar een dienst of gegeven aan, pas het dan ook hier aan. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "HomeAndConstructionBusiness",
-  "name": "AanEnUitbouw.nl",
-  "legalName": "Creditline B.V.",
-  "url": "https://aanenuitbouw.nl/",
-  "image": "https://aanenuitbouw.nl/img/og-image.png",
-  "description": "Vakkundige aan- en uitbouwen op maat. Stel online uw uitbouw samen en ontvang een prijsindicatie binnen 48 uur.",
-  "telephone": "+31646150160",
-  "vatID": "NL853603108B01",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Bussum",
-    "addressCountry": "NL"
-  },
-  "areaServed": {
-    "@type": "Country",
-    "name": "Nederland"
-  },
-  "priceRange": "€€"
+  "@graph": [
+    {
+      "@type": "HomeAndConstructionBusiness",
+      "@id": "https://aanenuitbouw.nl/#bedrijf",
+      "name": "AanEnUitbouw.nl",
+      "legalName": "Creditline B.V.",
+      "url": "https://aanenuitbouw.nl/",
+      "image": "https://aanenuitbouw.nl/img/og-image.png",
+      "description": "Vakkundige aan- en uitbouwen op maat. Stel online uw uitbouw samen en ontvang een prijsindicatie binnen 48 uur.",
+      "telephone": "+31646150160",
+      "vatID": "NL853603108B01",
+      "identifier": { "@type": "PropertyValue", "propertyID": "KvK", "value": "59683198" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Bussum",
+        "addressCountry": "NL"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Nederland"
+      },
+      "priceRange": "€€",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Onze diensten",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Aanbouw", "description": "Een uitbreiding aan de achterzijde van uw woning, waarbij de bestaande achtergevel intact blijft." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Uitbouw", "description": "Een uitbreiding aan de achterzijde van uw woning, geheel geïntegreerd met de bestaande ruimte." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ramen & Deuren" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Stuc, tegel & schilderwerk" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Elektrisch & dakwerk" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Rolluiken & screens" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dakkapellen" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dakramen & lichtkoepels" } }
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://aanenuitbouw.nl/#website",
+      "url": "https://aanenuitbouw.nl/",
+      "name": "AanEnUitbouw.nl",
+      "inLanguage": "nl-NL",
+      "publisher": { "@id": "https://aanenuitbouw.nl/#bedrijf" }
+    }
+  ]
 }
 </script>
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
 <meta name="twitter:description" content="Stel direct online uw aan- of uitbouw samen en ontvang een prijsindicatie binnen 48 uur.">
 <!-- Lettertypen staan in de map /fonts op de eigen server (niet meer bij Google):
@@ -464,6 +497,11 @@ img, svg { display: block; max-width: 100%; }
    SECTIONS — basis
    ═══════════════════════════════════════════════════ */
 .section { padding: 96px 0; }
+/* Gefaseerd laden: eerst het eerste scherm tonen, daarna rekent de browser de
+   secties eronder één voor één door (zie "GEFASEERD LADEN" in het script).
+   De inhoud staat gewoon in de pagina, ook voor zoekmachines. */
+.laadt-gefaseerd .section,
+.laadt-gefaseerd .site-footer { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 .section-light { background: var(--color-bg); }
 .section-paper { background: var(--color-paper); }
 .section-blue  { background: var(--color-primary); color: #fff; }
@@ -2915,9 +2953,6 @@ img, svg { display: block; max-width: 100%; }
 
 <div class="admin-toast" id="adminToast"></div>
 
-<!-- Staat bewust hier en niet in de <head>: daar hield het laden de opbouw van de pagina tegen.
-     Moet wel vóór het script hieronder blijven staan, want dat gebruikt PROJECTFASEN. -->
-<script src="/projectfasen.js?v=3"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // RECENT WERK — AAN/UIT SCHAKELAAR
@@ -2940,6 +2975,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const grid = sec ? sec.querySelector('.werk-grid') : null;
   if (grid && grid.querySelectorAll('.werk-card').length < 3) grid.classList.add('few');
 });
+
+// ═══════════════════════════════════════════════════
+// GEFASEERD LADEN
+// ───────────────────────────────────────────────────
+// Bij het openen toont de browser eerst alleen het eerste scherm. Zodra de
+// pagina geladen is, worden de secties eronder één voor één doorgerekend op
+// momenten dat de browser niets te doen heeft. Klikt de bezoeker eerder
+// ergens op, dan gebeurt de rest in één keer, zodat menulinks altijd op de
+// juiste plek uitkomen.
+(function () {
+  const root = document.documentElement;
+  if (!root.classList.contains('laadt-gefaseerd')) return;
+  const wacht = window.requestIdleCallback
+    ? (f) => requestIdleCallback(f, { timeout: 1000 })
+    : (f) => setTimeout(f, 50);
+  let delen = null;
+  function allesNu() {
+    root.classList.remove('laadt-gefaseerd');
+    document.removeEventListener('click', allesNu, true);
+  }
+  function volgende() {
+    if (!root.classList.contains('laadt-gefaseerd')) return;
+    const deel = delen.shift();
+    if (!deel) return allesNu();
+    deel.style.contentVisibility = 'visible';
+    wacht(volgende);
+  }
+  document.addEventListener('click', allesNu, true);
+  window.addEventListener('load', () => {
+    delen = Array.from(document.querySelectorAll('.section, .site-footer'));
+    setTimeout(() => wacht(volgende), 300);
+  });
+})();
 
 // Mobiel hamburgermenu
 document.addEventListener('DOMContentLoaded', () => {
@@ -4355,8 +4423,13 @@ let _prev = { step: -1, type: '', roof: '', plan: '', doors: '', doorColor: '', 
 function triggerMorph() {
   const wrap = document.querySelector('.preview-wrap');
   if (wrap) {
-    wrap.classList.remove('morphing');
-    void wrap.offsetWidth;
+    // Herstarten hoeft alleen als de animatie al eens gedraaid heeft. Bij het
+    // laden van de pagina dwingt offsetWidth de browser anders de hele pagina
+    // door te rekenen voordat er iets op het scherm staat.
+    if (wrap.classList.contains('morphing')) {
+      wrap.classList.remove('morphing');
+      void wrap.offsetWidth;
+    }
     wrap.classList.add('morphing');
   }
 }
@@ -5300,10 +5373,20 @@ async function totpUitschakelen() {
 // Fasen, typen en plannen staan in /projectfasen.js (gedeeld met server.js en
 // project.html). De fallback hieronder houdt het beheer werkend als dat
 // bestand onverhoopt niet geladen is.
-const _PF = window.PROJECTFASEN || null;
-const PROJECT_PHASES = _PF ? _PF.FASEN.map(f => f.titel) : ['Huisbezoek', 'Offerte', 'Vergunning & constructie', 'Start bouw: fundering', 'Draagbalken & gevel openen', 'Houten skelet', 'Buitenafwerking & element bestellen', 'Element plaatsen & binnenafwerking', 'Oplevering'];
-const PROJECT_TYPES = _PF ? _PF.TYPES : { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw' };
-const PROJECT_PLANNEN = _PF ? _PF.PLANNEN : { casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
+let _PF = null;
+let PROJECT_PHASES = ['Huisbezoek', 'Offerte', 'Vergunning & constructie', 'Start bouw: fundering', 'Draagbalken & gevel openen', 'Houten skelet', 'Buitenafwerking & element bestellen', 'Element plaatsen & binnenafwerking', 'Oplevering'];
+let PROJECT_TYPES = { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw' };
+let PROJECT_PLANNEN = { casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
+// projectfasen.js laadt met 'defer' en is er dus pas ná dit script. Daarom
+// hier pas overnemen zodra de pagina klaar is met laden.
+document.addEventListener('DOMContentLoaded', () => {
+  _PF = window.PROJECTFASEN || null;
+  if (!_PF) return;
+  PROJECT_PHASES = _PF.FASEN.map(f => f.titel);
+  PROJECT_TYPES = _PF.TYPES;
+  PROJECT_PLANNEN = _PF.PLANNEN;
+  _PF.vulSocialLinks(document);
+});
 let _projectsCache = null;
 
 async function renderProjectsTab(body) {
@@ -5664,7 +5747,6 @@ render();
     .catch(function () { el.textContent = 'versie onbekend'; });
 })();
 </script>
-<script>if (window.PROJECTFASEN) PROJECTFASEN.vulSocialLinks(document);</script>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
 </body>
