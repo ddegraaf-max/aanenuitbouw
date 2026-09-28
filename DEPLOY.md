@@ -104,6 +104,18 @@ Wil je het geheim liever niet op het volume maar als variabele? Zet dan `ADMIN_T
 4. Wacht 5-30 min op DNS-propagatie
 5. SSL wordt automatisch geregeld
 
+### www doorsturen naar aanenuitbouw.nl
+
+Zoekmachines zien `www.aanenuitbouw.nl` en `aanenuitbouw.nl` als twee verschillende sites. Daarom moet www altijd doorsturen (301) naar de versie zonder www. Het domein loopt via Cloudflare, dus daar regel je dit:
+
+1. Log in op https://dash.cloudflare.com en kies `aanenuitbouw.nl`
+2. **DNS** → **Records**: controleer dat er een record met de naam `www` bestaat en dat het wolkje **oranje** is (Proxied)
+3. **Rules** → **Redirect Rules** → **Create rule** → kies het sjabloon **Redirect from WWW to root**
+4. **Deploy**
+5. Test: open `https://www.aanenuitbouw.nl` — je hoort op `https://aanenuitbouw.nl` uit te komen
+
+`server.js` stuurt www zelf ook door, voor het geval www ooit rechtstreeks bij Railway uitkomt.
+
 ## Klaar 🎉
 
 Vanaf nu kun je vanaf elke device met internet inloggen op het beheer-paneel en prijzen wijzigen voor alle bezoekers tegelijk.

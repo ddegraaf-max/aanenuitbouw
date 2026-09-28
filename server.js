@@ -682,6 +682,19 @@ function serveStatic(req, res, urlPath) {
 }
 
 const server = http.createServer(async (req, res) => {
+  // www → zonder www, zodat er voor zoekmachines maar één versie van de site
+  // bestaat. Werkt pas als www.aanenuitbouw.nl ook echt bij deze server
+  // uitkomt; zolang Cloudflare www elders heen stuurt, regelt een Redirect
+  // Rule in Cloudflare dit (zie DEPLOY.md, stap 8).
+  const host = String(req.headers.host || '').toLowerCase();
+  if (host.startsWith('www.')) {
+    res.writeHead(301, {
+      'Location': `https://${host.slice(4)}${req.url}`,
+      'Cache-Control': 'public, max-age=3600',
+    });
+    return res.end();
+  }
+
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 

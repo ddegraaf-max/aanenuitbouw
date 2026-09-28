@@ -27,7 +27,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://aanenuitbouw.nl/img/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
-<script src="/projectfasen.js?v=3"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -56,10 +55,35 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AanEnUitbouw.nl — Vakkundige aan- en uitbouwen op maat">
 <meta name="twitter:description" content="Stel direct online uw aan- of uitbouw samen en ontvang een prijsindicatie binnen 48 uur.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Lettertypen staan in de map /fonts op de eigen server (niet meer bij Google):
+     de pagina hoeft dan niet op een andere website te wachten voordat de tekst verschijnt. -->
+<link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* ═══════════════════════════════════════════════════
+   LETTERTYPEN (eigen server, map /fonts)
+   ═══════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(/fonts/dm-sans-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(/fonts/dm-sans-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url(/fonts/manrope-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 400 800; font-display: swap;
+  src: url(/fonts/manrope-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ═══════════════════════════════════════════════════
    DESIGN TOKENS
    ═══════════════════════════════════════════════════ */
@@ -1500,7 +1524,7 @@ img, svg { display: block; max-width: 100%; }
   color: rgba(255,255,255,0.55);
   max-width: 280px;
 }
-.footer-col h5 {
+.footer-col h4 {
   font-family: var(--font-display);
   font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--color-accent-green); font-weight: 700;
@@ -2786,7 +2810,7 @@ img, svg { display: block; max-width: 100%; }
         </div>
       </div>
       <div class="footer-col">
-        <h5>Navigatie</h5>
+        <h4>Navigatie</h4>
         <a href="#start">Start</a>
         <a href="#diensten">Diensten</a>
         <a href="#plannen">Plannen</a>
@@ -2797,7 +2821,7 @@ img, svg { display: block; max-width: 100%; }
         <a href="#configurator">Configurator</a>
       </div>
       <div class="footer-col">
-        <h5>Bedrijf</h5>
+        <h4>Bedrijf</h4>
         <a href="#over-ons">Over ons</a>
         <a href="#samenwerking">Partner: Constructiehuis</a>
         <a href="#werk" data-nav="werk">Recent werk</a>
@@ -2806,7 +2830,7 @@ img, svg { display: block; max-width: 100%; }
         <a href="documenten/algemene-voorwaarden.pdf" target="_blank" rel="noopener">Algemene voorwaarden</a>
       </div>
       <div class="footer-col">
-        <h5>Contact</h5>
+        <h4>Contact</h4>
         <a href="tel:+31646150160">+31 646 150 160</a>
         <a data-social="whatsapp" href="https://wa.me/31646150160" target="_blank" rel="noopener">WhatsApp</a>
         <a href="mailto:project@aanenuitbouw.nl">project@aanenuitbouw.nl</a>
@@ -2891,6 +2915,9 @@ img, svg { display: block; max-width: 100%; }
 
 <div class="admin-toast" id="adminToast"></div>
 
+<!-- Staat bewust hier en niet in de <head>: daar hield het laden de opbouw van de pagina tegen.
+     Moet wel vóór het script hieronder blijven staan, want dat gebruikt PROJECTFASEN. -->
+<script src="/projectfasen.js?v=3"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // RECENT WERK — AAN/UIT SCHAKELAAR
