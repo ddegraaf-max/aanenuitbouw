@@ -2,7 +2,8 @@
 
 /**
  * Losse pagina's van AanEnUitbouw.nl: /aanbouw, /uitbouw, /plannen-en-prijzen,
- * /prefab-of-klassiek, /werkwijze, /projecten, /over-ons en /contact.
+ * /prefab-of-klassiek, /dak-en-dakrand, /gevelbekleding, /pui-en-kozijnen,
+ * /extras, /werkwijze, /veelgestelde-vragen, /projecten, /over-ons en /contact.
  *
  * Elk onderwerp heeft zo een eigen adres, titel en kop, zodat zoekmachines het
  * apart kunnen tonen. De homepage (configurator.html) blijft wat hij was.
@@ -16,14 +17,17 @@
  *   basis.css       vormgeving, overgenomen van de homepage
  *                   (opnieuw maken met: node tools/maak-pagina-css.js)
  *   paginas.css     eigen vormgeving van deze pagina's
+ *   opties.js       pagina's en blokken met opties, prijzen en vragen
+ *   configurator.js leest opties, prijzen en berekening uit configurator.html
  *   ../../projectfasen.js   de negen stappen en de social-media-links
- *   prijzen per m²  uit het beheerpaneel (DATA_DIR/prices.json)
+ *   prijzen         uit het beheerpaneel (DATA_DIR/prices.json)
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const T = require('./teksten');
+const CONFIGURATOR = require('./configurator');
 const PROJECTFASEN = require('../../projectfasen.js');
 
 const ROOT = path.join(__dirname, '..', '..');
@@ -63,13 +67,18 @@ function zonderOpmaak(t) {
 
 const euro = (n) => '€' + Math.round(n).toLocaleString('nl-NL');
 
-async function planPrijzen() {
-  let opgeslagen = {};
+// De prijzen zoals ze in het beheer zijn opgeslagen (leeg als er niets is ingesteld)
+async function leesPrijzen() {
   try {
-    opgeslagen = JSON.parse(await fs.promises.readFile(PRICES_FILE, 'utf8')) || {};
+    const opgeslagen = JSON.parse(await fs.promises.readFile(PRICES_FILE, 'utf8'));
+    return (opgeslagen && typeof opgeslagen === 'object') ? opgeslagen : {};
   } catch (e) {
     if (e.code !== 'ENOENT') console.error('[paginas] prices.json onleesbaar:', e.message);
+    return {};
   }
+}
+
+function planPrijzen(opgeslagen) {
   const uit = {};
   for (const plan of T.PLANNEN) {
     const waarde = opgeslagen[plan.prijsSleutel];
@@ -156,15 +165,13 @@ function voetbalk() {
           ${logo('#FFFFFF', '#FFFFFF', '#4ECD6B')}
         </a>
         <p>${esc(T.SITE.voettekst)}</p>
+        <div class="footer-contact">
+          <a href="tel:${esc(T.SITE.telefoonLink)}">${esc(T.SITE.telefoon)}</a>
+          <a href="mailto:${esc(T.SITE.email)}">${esc(T.SITE.email)}</a>
+        </div>
         ${social.length ? `<div class="footer-social">${social.join('')}</div>` : ''}
       </div>
       ${kolommen}
-      <div class="footer-col">
-        <div class="footer-kop">Contact</div>
-        <a href="tel:${esc(T.SITE.telefoonLink)}">${esc(T.SITE.telefoon)}</a>
-        <a href="${esc(whatsappLink())}" target="_blank" rel="noopener">WhatsApp</a>
-        <a href="mailto:${esc(T.SITE.email)}">${esc(T.SITE.email)}</a>
-      </div>
     </div>
     <div class="footer-bottom">
       <div>© ${new Date().getFullYear()} ${esc(T.SITE.bedrijf)}. Alle rechten voorbehouden.</div>
@@ -284,6 +291,7 @@ function blokKeuze(huidig, klasse) {
     <div class="diensten-hero-grid">
       ${volgorde.map(kaart).join('\n      ')}
     </div>
+    <p class="voetnoot">${esc(T.CONFIGURATOR.verschil)}</p>
   </div>
 </section>`;
 }
@@ -291,13 +299,21 @@ function blokKeuze(huidig, klasse) {
 // Wat er te kiezen valt: de punten uit het huisbezoek (projectfasen.js, stap 1)
 function blokSamenstellen(klasse) {
   const b = T.BLOKKEN.samenstellen;
-  const keuzes = PROJECTFASEN.FASEN[0].wat.filter((r) => /^(Afmetingen|Gevel en dakrand|Kozijnen en deuren|Afwerkingsniveau)/.test(r));
+  const doel = [
+    [/^Afmetingen/, T.PAGINAS.dak],
+    [/^Gevel en dakrand/, T.PAGINAS.gevel],
+    [/^Kozijnen en deuren/, T.PAGINAS.kozijn],
+    [/^Afwerkingsniveau/, T.PAGINAS.plannen],
+  ];
+  const keuzes = PROJECTFASEN.FASEN[0].wat
+    .map((r) => ({ tekst: r, pagina: (doel.find(([re]) => re.test(r)) || [])[1] }))
+    .filter((k) => k.pagina);
   return `<section class="section ${klasse}">
   <div class="container">
     <div class="section-eyebrow">${esc(b.kicker)}</div>
     <h2 class="section-title alleen">${esc(b.kop)}</h2>
     <ul class="punten">
-      ${keuzes.map((k) => `<li>${esc(k)}</li>`).join('\n      ')}
+      ${keuzes.map((k) => `<li>${esc(k.tekst)} <a class="meer-link" href="${esc(k.pagina.pad)}">${esc(k.pagina.broodkruimel)}</a></li>`).join('\n      ')}
     </ul>
     <div class="samenstel-kaart">
       <p>${esc(b.tekst)}</p>
@@ -461,13 +477,18 @@ function partnerKaart() {
 // De pagina's
 // ---------------------------------------------------------------------------
 
-function paginaDienst(soort, prijzen) {
+function paginaDienst(soort, ctx) {
+  const prijzen = ctx.prijzen;
   const p = T.PAGINAS[soort];
   const delen = [
     paginaKop(p),
     blokKeuze(soort, 'section-paper'),
-    blokSamenstellen('section-light'),
   ];
+  if (ctx.g) {
+    delen.push(OPTIES.blokRekenvoorbeelden(ctx.g, [soort], 'section-light'));
+    delen.push(OPTIES.blokOpbouw(ctx.g, soort, 'section-paper'));
+  }
+  delen.push(blokSamenstellen('section-light'));
   if (soort === 'uitbouw') {
     // Het openen van de gevel en de draagbalk: stap 5 uit projectfasen.js
     const f = PROJECTFASEN.FASEN.find((x) => x.id === 'draagbalk');
@@ -497,7 +518,8 @@ function paginaDienst(soort, prijzen) {
   return { p, inhoud: delen.join('\n\n'), soortGegevens: 'dienst', dienst: T.DIENSTEN[soort] };
 }
 
-function paginaPlannen(prijzen) {
+function paginaPlannen(ctx) {
+  const prijzen = ctx.prijzen;
   const p = T.PAGINAS.plannen;
   const afwerking = PROJECTFASEN.FASEN.find((x) => x.id === 'binnenafwerking');
   const offerte = PROJECTFASEN.FASEN.find((x) => x.id === 'offerte');
@@ -527,9 +549,14 @@ function paginaPlannen(prijzen) {
     </div>
   </div>
 </section>`,
-    blokSamenstellen('section-light'),
+    ...(ctx.g ? [
+      OPTIES.blokRekenvoorbeelden(ctx.g, ['aanbouw', 'uitbouw'], 'section-light'),
+      OPTIES.blokOpbouw(ctx.g, ctx.g.standaard.type, 'section-paper'),
+      OPTIES.blokPrijslijst(ctx.g, 'section-light'),
+      blokSamenstellen('section-paper'),
+    ] : [blokSamenstellen('section-light')]),
     contactBlok(),
-  ].join('\n\n');
+  ].filter(Boolean).join('\n\n');
   return { p, inhoud };
 }
 
@@ -655,11 +682,26 @@ function paginaContact() {
   return { p, inhoud: [paginaKop(p), contactBlok({ zonderKop: true })].join('\n\n') };
 }
 
+// Pagina's en blokken die hun inhoud uit de configurator halen
+const OPTIES = require('./opties')({
+  esc, rijk, euro, T, PROJECTFASEN,
+  paginaKop, contactBlok, blokSamenstellen, blokKlassiek, blokProjecten,
+});
+
+// Een pagina met 'nodig: configurator' bestaat alleen als de opties uit
+// configurator.html gelezen konden worden.
+const metOpties = (maak) => Object.assign((ctx) => (ctx.g ? maak(ctx.g) : null), { nodig: 'configurator' });
+
 const ROUTES = {
-  [T.PAGINAS.aanbouw.pad]: (prijzen) => paginaDienst('aanbouw', prijzen),
-  [T.PAGINAS.uitbouw.pad]: (prijzen) => paginaDienst('uitbouw', prijzen),
-  [T.PAGINAS.plannen.pad]: (prijzen) => paginaPlannen(prijzen),
+  [T.PAGINAS.aanbouw.pad]: (ctx) => paginaDienst('aanbouw', ctx),
+  [T.PAGINAS.uitbouw.pad]: (ctx) => paginaDienst('uitbouw', ctx),
+  [T.PAGINAS.plannen.pad]: (ctx) => paginaPlannen(ctx),
   [T.PAGINAS.bouwwijze.pad]: () => paginaBouwwijze(),
+  [T.PAGINAS.dak.pad]: metOpties((g) => OPTIES.paginaDak(g)),
+  [T.PAGINAS.gevel.pad]: metOpties((g) => OPTIES.paginaGevel(g)),
+  [T.PAGINAS.kozijn.pad]: metOpties((g) => OPTIES.paginaKozijn(g)),
+  [T.PAGINAS.extras.pad]: metOpties((g) => OPTIES.paginaExtras(g)),
+  [T.PAGINAS.vragen.pad]: metOpties((g) => OPTIES.paginaVragen(g)),
   [T.PAGINAS.werkwijze.pad]: () => paginaWerkwijze(),
   [T.PAGINAS.projecten.pad]: () => paginaProjecten(),
   [T.PAGINAS.over.pad]: () => paginaOver(),
@@ -692,6 +734,9 @@ function gegevens(pagina) {
       ],
     },
   ];
+  if (pagina.vragen && pagina.vragen.length) {
+    graph.push({ '@type': 'FAQPage', '@id': `${adres}#vragen`, mainEntity: pagina.vragen });
+  }
   if (pagina.dienst) {
     graph.push({
       '@type': 'Service',
@@ -773,7 +818,10 @@ ${voetbalk()}
 async function bouw(pad) {
   const maak = ROUTES[pad];
   if (!maak) return null;
-  return document_(maak(await planPrijzen()));
+  const opgeslagen = await leesPrijzen();
+  // Vanaf hier geen 'await' meer: de prijzen in 'g' gelden voor dit ene verzoek.
+  const pagina = maak({ prijzen: planPrijzen(opgeslagen), g: CONFIGURATOR.metPrijzen(opgeslagen) });
+  return pagina ? document_(pagina) : null;
 }
 
 /**
@@ -796,6 +844,7 @@ async function handle(req, res, url) {
 
   try {
     const html = await bouw(pad);
+    if (html == null) return false; // pagina nu niet beschikbaar: gewone 404
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-cache',
@@ -809,6 +858,6 @@ async function handle(req, res, url) {
   return true;
 }
 
-const PADEN = Object.keys(ROUTES);
+const PADEN = Object.keys(ROUTES).filter((pad) => !ROUTES[pad].nodig || CONFIGURATOR.beschikbaar());
 
-module.exports = { handle, bouw, PADEN, SITE_URL };
+module.exports = { handle, bouw, PADEN, SITE_URL, OPTIES, leesPrijzen };

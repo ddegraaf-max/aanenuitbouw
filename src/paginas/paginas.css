@@ -64,7 +64,7 @@
   border-bottom: 2.5px solid var(--color-success);
   transform: rotate(-45deg);
 }
-.voetnoot { max-width: 760px; margin: 32px auto 0; text-align: center; color: var(--color-mute); font-size: 14.5px; line-height: 1.6; }
+.voetnoot { max-width: 760px; margin: 32px auto 0; text-align: center; color: var(--color-ink-light); font-size: 14.5px; line-height: 1.6; }
 
 /* ─── Configurator-blok op een lichte achtergrond ─── */
 .samenstel-kaart {
@@ -163,3 +163,128 @@
 .volg-kaart h2 { font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: -0.02em; margin-bottom: 6px; }
 .volg-kaart p { color: var(--color-mute); font-size: 15px; line-height: 1.6; }
 .volg-kaart > div { flex: 1 1 320px; }
+
+/* ─── Opties uit de configurator ─── */
+.optie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.optie-grid.drie { grid-template-columns: repeat(3, 1fr); }
+.optie-grid.een { grid-template-columns: minmax(0, 620px); justify-content: center; }
+.optie {
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: 26px 26px 24px;
+}
+.section-paper .optie { background: var(--color-bg-soft); }
+.optie-kop { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 14px; flex-wrap: wrap; margin-bottom: 10px; }
+.optie-kop h3 { font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
+.optie p { color: var(--color-ink-light); font-size: 15px; line-height: 1.6; }
+.prijs-pil {
+  font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  color: var(--color-primary-dark); background: var(--color-primary-soft);
+  border-radius: 999px; padding: 4px 12px; white-space: nowrap;
+}
+.prijs-pil.neutraal { color: #1F5C32; background: rgba(78,205,107,0.16); }
+.per-plan { list-style: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--color-line); display: grid; gap: 4px; font-size: 14px; color: var(--color-ink-light); }
+.per-plan strong { color: var(--color-ink); font-weight: 700; }
+.kleuren-kop {
+  font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-ink-light); margin-top: 18px;
+}
+.kleuren { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 10px; font-size: 14px; color: var(--color-ink-light); }
+.kleuren li { display: inline-flex; align-items: center; gap: 8px; }
+.kleur-stip { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(26,37,64,0.2); flex: none; }
+.kleur-prijs { color: var(--color-ink); font-weight: 700; }
+.kleuren-blok { max-width: 760px; margin: 28px auto 0; text-align: center; }
+.kleuren-blok .kleuren { justify-content: center; }
+.kleuren-blok .kleuren-kop { margin-top: 0; }
+.kleuren-blok.groot { margin-top: 0; }
+.kleuren-blok.groot .kleuren { gap: 14px 28px; font-size: 15.5px; }
+.kleuren-blok.groot .kleur-stip { width: 26px; height: 26px; }
+.optie-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px; }
+.punten .meer-link { white-space: nowrap; margin-left: 4px; font-size: 14px; }
+.punten.ruim { margin-top: 28px; }
+.punten strong { color: var(--color-ink); }
+@media (max-width: 1000px) { .optie-grid.drie { grid-template-columns: 1fr; } }
+@media (max-width: 760px)  { .optie-grid { grid-template-columns: 1fr; } }
+
+/* ─── Tabellen: rekenvoorbeelden en prijslijst ─── */
+.tabellen { display: grid; gap: 24px; }
+.tabel-wrap {
+  max-width: 980px; margin: 0 auto; width: 100%;
+  overflow-x: auto;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.tabel-wrap.smal { max-width: 760px; }
+.tabel { width: 100%; border-collapse: collapse; font-size: 15px; }
+.tabel caption {
+  caption-side: top; text-align: left;
+  padding: 16px 20px;
+  font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -0.01em;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-line);
+}
+.caption-uitleg { display: block; margin-top: 4px; font-family: var(--font-sans); font-weight: 400; font-size: 14px; letter-spacing: 0; color: var(--color-ink-light); }
+.tabel th, .tabel td { padding: 14px 20px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--color-line); color: var(--color-ink-light); font-weight: 400; }
+.tabel thead th {
+  font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-ink-light); background: var(--color-bg-soft);
+}
+.tabel tbody th { color: var(--color-ink); font-weight: 600; }
+.tabel .bedrag { text-align: right; white-space: nowrap; font-family: var(--font-display); font-weight: 700; color: var(--color-ink); }
+.tabel thead .bedrag { color: var(--color-ink-light); }
+.tabel tbody tr:last-child th, .tabel tbody tr:last-child td { border-bottom: none; }
+.tabel tr.totaal th, .tabel tr.totaal td { background: var(--color-primary-soft); color: var(--color-primary-dark); font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+.tabel tr.groep th { background: var(--color-bg-soft); color: var(--color-ink); font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.tabel.prijslijst tbody th { background: var(--color-bg-soft); border-right: 1px solid var(--color-line); font-family: var(--font-display); font-weight: 700; width: 26%; }
+.tabel.prijslijst .bedrag { white-space: normal; }
+.tabel-bijschrift { max-width: 980px; margin: 12px auto 0; text-align: right; font-size: 13px; color: var(--color-ink-light); }
+.tabel-wrap.smal + .tabel-bijschrift { max-width: 760px; }
+@media (max-width: 640px) {
+  .tabel { font-size: 14px; }
+  .tabel th, .tabel td { padding: 12px 14px; }
+  .tabel caption { padding: 14px 16px; }
+
+  /* Op een telefoon onder elkaar in plaats van naast elkaar, zodat de prijs
+     altijd in beeld staat en er niet opzij gescrold hoeft te worden. */
+  .tabel.stapel thead, .tabel.prijslijst thead { display: none; }
+  .tabel.stapel, .tabel.stapel tbody, .tabel.stapel tr,
+  .tabel.prijslijst, .tabel.prijslijst tbody { display: block; }
+  .tabel.stapel caption, .tabel.prijslijst caption { display: block; }
+  .tabel.stapel tr { padding: 14px 16px; border-bottom: 1px solid var(--color-line); }
+  .tabel.stapel tbody tr:last-child { border-bottom: none; }
+  .tabel.stapel tbody th { display: block; padding: 0 0 6px; border: 0; font-family: var(--font-display); font-weight: 800; font-size: 15px; }
+  .tabel.stapel td { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; border: 0; }
+  .tabel.stapel td::before { content: attr(data-label); font-family: var(--font-sans); font-weight: 400; color: var(--color-ink-light); }
+
+  .tabel.prijslijst tr { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px; padding: 11px 16px; border-bottom: 1px solid var(--color-line); }
+  .tabel.prijslijst tbody tr:last-child { border-bottom: none; }
+  .tabel.prijslijst tr.eerste { padding-top: 16px; }
+  .tabel.prijslijst tbody th {
+    flex: 0 0 100%; width: auto; padding: 0 0 6px; border: 0; background: none;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary-dark);
+  }
+  .tabel.prijslijst td { padding: 0; border: 0; }
+  .tabel.prijslijst td.bedrag { margin-left: auto; text-align: right; }
+}
+
+/* ─── Veelgestelde vragen ─── */
+.vragen { max-width: 820px; margin: 0 auto; display: grid; gap: 18px; }
+.vraag {
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  padding: 30px 32px;
+  box-shadow: var(--shadow-card);
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+.vraag h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 12px; }
+.vraag p, .vraag li { color: var(--color-ink-light); font-size: 15.5px; line-height: 1.7; }
+.vraag p + p, .vraag ul + p, .vraag p + ul { margin-top: 10px; }
+.vraag ul { padding-left: 20px; display: grid; gap: 6px; }
+.vraag .meer-link { display: inline-block; margin-top: 18px; }
+@media (max-width: 640px) { .vraag { padding: 24px 22px; } .vraag h2 { font-size: 19px; } }

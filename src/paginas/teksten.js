@@ -4,14 +4,18 @@
  * TEKSTEN VAN DE LOSSE PAGINA'S — de enige plek waar ze staan.
  *
  * Pagina's: /aanbouw, /uitbouw, /plannen-en-prijzen, /prefab-of-klassiek,
- *           /werkwijze, /projecten, /over-ons en /contact.
+ *           /dak-en-dakrand, /gevelbekleding, /pui-en-kozijnen, /extras,
+ *           /werkwijze, /veelgestelde-vragen, /projecten, /over-ons, /contact.
  *
- * Alle teksten hieronder zijn overgenomen van de homepage (configurator.html).
- * Past u daar een tekst aan, pas hem dan ook hier aan — en andersom.
+ * Alle teksten hieronder zijn overgenomen van de homepage en uit de stappen
+ * van de configurator (configurator.html). Past u daar een tekst aan, pas hem
+ * dan ook hier aan — en andersom.
  *
- * Twee dingen staan hier NIET, omdat ze al een eigen plek hebben:
- *   - de negen stappen van een project  -> projectfasen.js
- *   - de prijzen per m² van de plannen  -> beheerpaneel (Prijsbeheer)
+ * Drie dingen staan hier NIET, omdat ze al een eigen plek hebben:
+ *   - de negen stappen van een project      -> projectfasen.js
+ *   - alle prijzen en meerprijzen           -> beheerpaneel (Prijsbeheer)
+ *   - de opties van de configurator (daken, gevels, puien, kleuren) met hun
+ *     omschrijving                          -> configurator.html
  * De pagina's lezen die automatisch uit.
  *
  * Per pagina:
@@ -279,6 +283,146 @@ const BLOKKEN = {
   },
 };
 
+// ─── Teksten uit de stappen van de configurator ─────────────────────────────
+// Letterlijk overgenomen uit configurator.html. De opties zelf (daktypes,
+// gevels, puien) en hun prijzen staan hier niet: die leest de pagina
+// rechtstreeks uit de configurator.
+const CONFIGURATOR = {
+  verschil: 'Het verschil zit in wat er met de bestaande achtergevel gebeurt: bij een aanbouw blijft die staan, bij een uitbouw wordt die verwijderd. Dit bepaalt het werk én de prijs.',
+  aanbouw: 'De bestaande achtergevel blijft intact — wij maken alleen waar gewenst een doorgang. De aanbouw wordt een aparte ruimte: ideaal voor slaapkamer, kantoor, berging of speelkamer.',
+  uitbouw: 'De volledige achtergevel wordt verwijderd voor een geïntegreerde leefruimte. Inclusief stalen draagbalk en al het aansluitwerk.',
+  uitbouwMeerprijs: 'per m¹ breedte',
+  bovenkozijn: {
+    metselwerk: {
+      label: 'Metselwerk met latei',
+      prijsSleutel: 'bovenkozijn_metselwerk',
+      tekst: 'Het bestaande metselwerk wordt boven het kozijn doorgetrokken, met stalen latei voor de draagkracht. Past naadloos bij uw bestaande gevel.',
+    },
+    trespa: {
+      label: 'Trespa-plaat',
+      prijsSleutel: 'bovenkozijn_trespa',
+      tekst: 'Vlakke composietplaat in antraciet voor een strakke, moderne afwerking boven het kozijn — een eigentijds contrast met het metselwerk.',
+    },
+  },
+  extras: {
+    lichtkoepel: {
+      label: 'Lichtkoepel',
+      prijsSleutel: 'extra_lichtkoepel',
+      tekst: 'Premium platdakraam (LUMIZEN®, 100×100 cm) met driedubbel HR+++ glas voor extra daglicht.',
+    },
+    vloerverwarming: {
+      label: 'Vloerverwarming',
+      prijsSleutel: 'extra_vloerverwarming_m2',
+      tekst: 'Comfortabele warmte zonder radiatoren — ideaal in combinatie met een tegelvloer.',
+      casco: 'Vloerverwarming vereist een dekvloer. Bij Casco (wind- en waterdicht) wordt geen dekvloer gelegd — kies C+ of C++ als u vloerverwarming wilt.',
+    },
+    buitenkraan: {
+      label: 'Buitenkraan',
+      prijsSleutel: 'extra_buitenkraan',
+      tekst: 'Vorstvrije buitenkraan voor tuin en terras.',
+    },
+  },
+  regenpijp: {
+    kop: 'Regenpijpen',
+    intro: 'Kies aan welke zijde(n) u een regenpijp wilt en in welk materiaal.',
+    pvc: { label: 'PVC', prijsSleutel: 'regenpijp_pvc', tekst: 'Kunststof regenpijp, beschikbaar in vijf kleuren.' },
+    zink: { label: 'Zink', prijsSleutel: 'regenpijp_zink', tekst: 'Klassieke zinken regenpijp in naturel grijs, lange levensduur en strakke look.' },
+    perPijp: 'per pijp',
+  },
+  elektra: {
+    binnenKop: 'Extra elektra binnen',
+    buitenKop: 'Extra elektra buiten',
+    contact: { label: 'Extra contactpunten', prijsSleutel: 'electra_contact', tekst: 'per stuk (boven het inbegrepen aantal)' },
+    licht: { label: 'Extra lichtpunten', prijsSleutel: 'electra_licht', tekst: 'per stuk' },
+    contactBuiten: { label: 'Buitenstopcontact', prijsSleutel: 'electra_contact_buiten', tekst: 'per stuk, waterdicht IP44' },
+    lichtBuiten: { label: 'Buitenlichtpunt', prijsSleutel: 'electra_licht_buiten', tekst: 'per stuk, geschikt voor gevel of overstek' },
+    buiten: 'Waterdichte (IP44) installaties voor terras, tuin of carport.',
+    plan: 'Wijkt uw elektra af van wat standaard in uw plan zit — meer of andere contact- en lichtpunten? Dan vragen wij u na de offerte een <strong>elektraplan</strong> aan te leveren: een tekening waarop staat waar de punten moeten komen.',
+    cascoKop: 'Elektra niet mogelijk bij Casco',
+    casco: 'Elektra (contactpunten, lichtpunten, buiteninstallaties) en vloerverwarming zijn daarom niet als extra te kiezen. Kies C+ of C++ als u dit door ons wilt laten verzorgen.',
+  },
+  kleuren: { dakrand: 'Kleur dakrand', kozijn: 'Kleur kozijn', pvc: 'Kleur PVC' },
+  koppen: { daktype: 'Daktype', dakrand: 'Afwerking dakrand', materiaal: 'Materiaal', bovenkozijn: 'Afwerking boven kozijn' },
+  labels: { standaard: 'standaard', inbegrepen: 'inbegrepen', nietBijCasco: 'Niet mogelijk bij Casco' },
+  prijs: {
+    totaal: 'Indicatieve totaalprijs',
+    toevoeging: 'indicatief, incl. btw',
+    voorbehoud: 'Prijzen zijn indicatief en worden definitief vastgesteld na bezoek ter plaatse en constructieberekening.',
+    // uit de bevestigingsmail die de klant na een aanvraag krijgt
+    richtprijs: 'De genoemde prijs is een richtprijs — na een vrijblijvend gesprek en eventueel een opname ter plaatse stellen we een definitieve offerte op.',
+  },
+  waarde: 'Elke m² extra woonoppervlak verhoogt direct de marktwaarde van uw woning, los van het extra wooncomfort.',
+  offerte: 'Vul uw gegevens in en wij nemen binnen 48 uur contact met u op met een gedetailleerde offerte op basis van uw configuratie.',
+};
+
+// ─── Bodemcheck (tekst van de homepage) ─────────────────────────────────────
+const BODEMCHECK = {
+  tekst: 'Elke sondering die in Nederland is uitgevoerd en aan de overheid is aangeleverd, is openbaar. Wij zoeken de metingen rond uw adres op en laten zien op welke diepte het zand begint waarop gefundeerd kan worden.',
+  voorbehoud: 'Een indicatie, geen geotechnisch advies — voor de vergunning blijft een sondering op uw eigen perceel nodig.',
+};
+
+// ─── Rekenvoorbeelden en prijslijst ─────────────────────────────────────────
+// De bedragen worden uitgerekend door de configurator zelf, met de prijzen
+// uit het beheer. Hier staan alleen de maten en de kopjes.
+const REKENVOORBEELD = {
+  kicker: 'Prijsindicatie',
+  kop: 'Rekenvoorbeelden',
+  // breedte × diepte in meters; 6 × 3 is de maat waarmee de configurator opent
+  maten: [[4, 3], [6, 3], [8, 4]],
+  uitleg: 'Berekend met de configurator, met de keuzes waarmee de configurator opent:',
+  kolomMaat: 'Afmeting',
+  regels: {
+    basis: 'Basisprijs',
+    uitbouw: 'Achtergevel verwijderen, stalen draagbalk en aansluitwerk',
+    dakrand: 'Afwerking dakrand',
+    bovenkozijn: 'Afwerking boven kozijn',
+  },
+  opbouwKop: 'Zo is de prijs opgebouwd',
+  link: 'Bereken uw eigen prijs in de configurator',
+};
+
+const PRIJSLIJST = {
+  kicker: 'Meerprijzen',
+  kop: 'Prijslijst van de opties',
+  kolommen: ['Onderdeel', 'Keuze', 'Prijs'],
+  groepen: {
+    type: 'Type',
+    dak: 'Daktype',
+    dakrand: 'Afwerking dakrand',
+    gevel: 'Gevelbekleding',
+    pui: 'Pui',
+    kleur: 'Kleur kozijn',
+    bovenkozijn: 'Afwerking boven kozijn',
+    extras: "Extra's",
+    regenpijp: 'Regenpijpen',
+    elektra: 'Elektra',
+  },
+};
+
+// ─── Veelgestelde vragen ────────────────────────────────────────────────────
+// Alleen de vragen staan hier. De antwoorden worden samengesteld uit teksten
+// die al vaststaan: de configurator, projectfasen.js en de homepage.
+// Zo kan een antwoord nooit iets anders zeggen dan de rest van de site.
+const VRAGEN = [
+  { id: 'verschil',    vraag: 'Wat is het verschil tussen een aanbouw en een uitbouw?' },
+  { id: 'kosten',      vraag: 'Wat kost een aanbouw of uitbouw?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
+  { id: 'plannen',     vraag: 'Wat is het verschil tussen Casco, C+ en C++?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
+  { id: 'offerte',     vraag: 'Hoe snel ontvang ik een offerte?' },
+  { id: 'vergunning',  vraag: 'Wie regelt de vergunning?' },
+  { id: 'constructie', vraag: 'Wie maakt de constructieberekening?', link: { pad: '/over-ons#samenwerking', label: 'Onze constructeur: Constructiehuis' } },
+  { id: 'tekeningen',  vraag: 'Welke bouwtekeningen zijn nodig?', link: { pad: '/woningcheck', label: 'Naar de woningcheck' } },
+  { id: 'sondering',   vraag: 'Is er een sondering nodig?', link: { pad: '/bodemcheck', label: 'Naar de bodemcheck' } },
+  { id: 'fundering',   vraag: 'Hoe wordt de fundering gemaakt?' },
+  { id: 'bouwwijze',   vraag: 'Bouwen jullie prefab of klassiek?', link: { pad: '/prefab-of-klassiek', label: 'Prefab of klassiek bouwen?' } },
+  { id: 'daken',       vraag: 'Welke daktypes zijn mogelijk?', link: { pad: '/dak-en-dakrand', label: 'Meer over dak en dakrand' } },
+  { id: 'puien',       vraag: 'Welke puien en deuren kan ik kiezen?', link: { pad: '/pui-en-kozijnen', label: 'Meer over pui en kozijnen' } },
+  { id: 'vloerverwarming', vraag: 'Kan ik vloerverwarming laten aanleggen?', link: { pad: '/extras', label: "Meer over de extra's" } },
+  { id: 'elektra',     vraag: 'Wat als ik meer of andere elektra wil dan standaard?' },
+  { id: 'huisbezoek',  vraag: 'Hoe bereid ik het huisbezoek voor?', link: { pad: '/werkwijze', label: 'Bekijk alle stappen' } },
+  { id: 'volgen',      vraag: 'Kan ik de voortgang van mijn project volgen?', link: { pad: '/project', label: 'Naar uw project' } },
+  { id: 'waarde',      vraag: 'Wat levert een aanbouw of uitbouw op?', link: { pad: '/#configurator', label: 'Naar de configurator' } },
+];
+
 // ─── De pagina's zelf ───────────────────────────────────────────────────────
 const PAGINAS = {
   aanbouw: {
@@ -318,6 +462,51 @@ const PAGINAS = {
     kicker: BOUWWIJZE.kicker,
     kop: BOUWWIJZE.kop,
     intro: BOUWWIJZE.intro,
+  },
+  dak: {
+    pad: '/dak-en-dakrand',
+    broodkruimel: 'Dak en dakrand',
+    titel: 'Daktypes en dakrand voor uw aan- of uitbouw | AanEnUitbouw.nl',
+    beschrijving: 'Plat dak, lessenaarsdak, zadeldak of schilddak: de daktypes voor uw aanbouw of uitbouw, de afwerking van de dakrand en de meerprijs per keuze.',
+    kicker: 'Dak & dakrand',
+    kop: 'Het dak en de dakafwerking',
+    intro: 'Kies het daktype, hoe de dakrand wordt afgewerkt en in welke kleur.',
+  },
+  gevel: {
+    pad: '/gevelbekleding',
+    broodkruimel: 'Gevelbekleding',
+    titel: 'Gevelbekleding: baksteen, kunststof rabat of hout | AanEnUitbouw.nl',
+    beschrijving: 'Baksteen, kunststof rabat (keralit) of hout: de gevelbekleding voor uw aanbouw of uitbouw, met kleuren en meerprijs. Wij werken uitsluitend met echte massieve bakstenen.',
+    kicker: 'Gevelbekleding',
+    kop: 'Welke gevelbekleding past bij uw woning?',
+    intro: 'Kies de hoofdcategorie en daarna de specifieke kleur of stijl. <strong>Wij werken uitsluitend met echte massieve bakstenen — geen steenstrips.</strong>',
+  },
+  kozijn: {
+    pad: '/pui-en-kozijnen',
+    broodkruimel: 'Pui en kozijnen',
+    titel: 'Schuifpui, openslaande deuren of harmonicadeur | AanEnUitbouw.nl',
+    beschrijving: 'Openslaande deuren, schuifpui, 4-delige schuifpui of harmonicadeur: de puien voor uw aanbouw of uitbouw, met kozijnkleuren en de meerprijs per keuze.',
+    kicker: 'Kozijn & afwerking',
+    kop: 'Pui, kleur en afwerking boven kozijn',
+    intro: 'Kies het type pui, de kozijnkleur en hoe de afwerking boven het kozijn eruit komt te zien.',
+  },
+  extras: {
+    pad: '/extras',
+    broodkruimel: "Extra's",
+    titel: "Extra's: lichtkoepel, vloerverwarming en elektra | AanEnUitbouw.nl",
+    beschrijving: 'Lichtkoepel, vloerverwarming, buitenkraan, regenpijpen en extra elektra voor uw aanbouw of uitbouw: wat in uw plan is inbegrepen en wat de meerprijs is.',
+    kicker: "Extra's",
+    kop: "Extra's voor uw aan- of uitbouw",
+    intro: 'Lichtkoepel, vloerverwarming, buitenkraan, regenpijpen en extra elektra: wat in uw plan is inbegrepen en wat u kunt toevoegen.',
+  },
+  vragen: {
+    pad: '/veelgestelde-vragen',
+    broodkruimel: 'Veelgestelde vragen',
+    titel: 'Veelgestelde vragen over aanbouw en uitbouw | AanEnUitbouw.nl',
+    beschrijving: 'Veelgestelde vragen over een aanbouw of uitbouw: het verschil, de kosten per m², de plannen, vergunning, constructieberekening en fundering.',
+    kicker: 'Vraag en antwoord',
+    kop: 'Veelgestelde vragen',
+    intro: 'Over het verschil tussen aanbouw en uitbouw, de prijzen, de plannen en de voorbereiding.',
   },
   werkwijze: {
     pad: '/werkwijze',
@@ -371,6 +560,16 @@ const VOET = [
     ],
   },
   {
+    kop: 'Opties',
+    links: [
+      { pad: '/dak-en-dakrand', label: 'Dak en dakrand' },
+      { pad: '/gevelbekleding', label: 'Gevelbekleding' },
+      { pad: '/pui-en-kozijnen', label: 'Pui en kozijnen' },
+      { pad: '/extras', label: "Extra's" },
+      { pad: '/veelgestelde-vragen', label: 'Veelgestelde vragen' },
+    ],
+  },
+  {
     kop: 'Online',
     links: [
       { pad: '/#configurator', label: 'Configurator' },
@@ -391,4 +590,4 @@ const VOET = [
   },
 ];
 
-module.exports = { SITE, MENU, DIENSTEN, PLANNEN, BOUWWIJZE, PROJECTEN, OVER, PARTNER, BLOKKEN, PAGINAS, VOET };
+module.exports = { SITE, MENU, DIENSTEN, PLANNEN, BOUWWIJZE, PROJECTEN, OVER, PARTNER, BLOKKEN, CONFIGURATOR, BODEMCHECK, REKENVOORBEELD, PRIJSLIJST, VRAGEN, PAGINAS, VOET };
