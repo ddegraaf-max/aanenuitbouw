@@ -186,7 +186,8 @@ img, svg { display: block; max-width: 100%; }
   height: var(--header-h);
 }
 .header-inner {
-  max-width: 1240px;
+  /* Breder dan de inhoud van de pagina (1240 px): het menu heeft die ruimte nodig */
+  max-width: 1720px;
   margin: 0 auto;
   padding: 0 32px;
   height: 100%;
@@ -277,14 +278,24 @@ img, svg { display: block; max-width: 100%; }
 .nav-toggle.open span:nth-child(2) { opacity: 0; }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
-@media (max-width: 1100px) {
+/* Het menu, het logo en de belknop passen alleen op een breed scherm voluit
+   naast elkaar. Daarom wordt de kop in stappen compacter; zo valt de belknop
+   nooit buiten beeld.
+     tot 1720 px  zonder de tekst "Uw huis uitbreiden"
+     tot 1500 px  menu compacter
+     tot 1320 px  belknop als rond pictogram
+     tot 1150 px  uitklapmenu (hamburger)                                   */
+.main-nav a { white-space: nowrap; }
+@media (max-width: 1719px) {
   .brand-tag { display: none; }
-  .main-nav { gap: 0; }
-  .main-nav a { padding: 8px 10px; font-size: 13px; }
 }
-@media (max-width: 880px) {
-  .nav-toggle { display: flex; }
-  /* Bel-knop wordt compact icoon-only op mobiel */
+@media (max-width: 1499px) {
+  .header-inner { gap: 20px; }
+  .main-nav { gap: 0; }
+  .main-nav a { padding: 8px 9px; font-size: 13.5px; }
+}
+@media (max-width: 1319px) {
+  /* Bel-knop wordt compact icoon-only */
   .contact-cta {
     font-size: 0;
     padding: 0;
@@ -304,6 +315,9 @@ img, svg { display: block; max-width: 100%; }
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E") no-repeat center / contain;
   }
+}
+@media (max-width: 1149px) {
+  .nav-toggle { display: flex; }
   .header-inner { gap: 12px; }
   /* Mobiel uitklapmenu */
   .main-nav {
@@ -535,6 +549,22 @@ img, svg { display: block; max-width: 100%; }
   line-height: 1.6;
 }
 .section-blue .section-sub { color: rgba(255,255,255,0.8); }
+
+/* Link naar een losse pagina (bijv. "Meer over een aanbouw") */
+.blok-link { text-align: center; margin-top: 40px; }
+.meer-link {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--color-primary-line);
+  padding-bottom: 2px;
+  transition: border-color 0.15s;
+}
+.meer-link:hover { border-color: var(--color-primary); }
+.meer-link::after { content: " →"; }
+.dienst-hero-body .meer-link { display: inline-block; margin-top: 16px; }
 
 @media (max-width: 640px) {
   .section { padding: 64px 0; }
@@ -1511,8 +1541,8 @@ img, svg { display: block; max-width: 100%; }
   font-size: 17px; font-weight: 700;
   color: #fff; margin-top: 2px;
 }
-.contact-info-item a { text-decoration: none; }
-.contact-info-item a:hover .value { color: var(--color-accent-green); }
+.contact-info-item a, a.contact-info-item { text-decoration: none; }
+.contact-info-item a:hover .value, a.contact-info-item:hover .value { color: var(--color-accent-green); }
 .contact-cta-block {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.18);
@@ -1587,6 +1617,20 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 540px) {
   .footer-top { grid-template-columns: 1fr; }
 }
+/* Voet met vijf kolommen (logo + vier rijen links) */
+.footer-col .footer-kop {
+  font-family: var(--font-display);
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-accent-green); font-weight: 700;
+  margin-bottom: 16px;
+}
+.footer-top.vijf { grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 32px; }
+@media (max-width: 1000px) {
+  .footer-top.vijf { grid-template-columns: 1fr 1fr 1fr; }
+  .footer-top.vijf .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) { .footer-top.vijf { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .footer-top.vijf { grid-template-columns: 1fr; } }
 
 /* ═══════════════════════════════════════════════════
    ADMIN PANEEL — Beheerder login + prijsbeheer
@@ -2264,6 +2308,7 @@ img, svg { display: block; max-width: 100%; }
         <div class="dienst-hero-body">
           <h3>Aanbouw</h3>
           <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, waarbij de bestaande achtergevel intact blijft — wij maken alleen waar gewenst een doorgang. Ideaal voor een extra slaapkamer, kantoor, berging of speelkamer.</p>
+          <a class="meer-link" href="/aanbouw">Meer over een aanbouw</a>
         </div>
       </div>
 
@@ -2299,6 +2344,7 @@ img, svg { display: block; max-width: 100%; }
         <div class="dienst-hero-body">
           <h3>Uitbouw</h3>
           <p>Een uitbreiding aan de <strong>achterzijde</strong> van uw woning, geheel geïntegreerd met de bestaande ruimte. De volledige achtergevel wordt verwijderd zodat woonkamer of keuken naadloos overgaat in de uitbouw.</p>
+          <a class="meer-link" href="/uitbouw">Meer over een uitbouw</a>
         </div>
       </div>
     </div>
@@ -2417,6 +2463,7 @@ img, svg { display: block; max-width: 100%; }
         <a href="#configurator" class="btn btn-secondary" data-plan="cplus2">Selecteer in configurator</a>
       </div>
     </div>
+    <div class="blok-link"><a class="meer-link" href="/plannen-en-prijzen">Alles over plannen en prijzen</a></div>
   </div>
 </section>
 
@@ -2519,6 +2566,7 @@ img, svg { display: block; max-width: 100%; }
         <p>Ook na oplevering staan we voor u klaar. Vragen of zorgen? Wij bieden uitgebreide nazorg en onderhoudsadvies.</p>
       </div>
     </div>
+    <div class="blok-link"><a class="meer-link" href="/werkwijze">Bekijk alle stappen</a></div>
   </div>
 </section>
 
@@ -2752,6 +2800,7 @@ img, svg { display: block; max-width: 100%; }
       </article>
 
     </div>
+    <div class="blok-link"><a class="meer-link" href="/projecten">Alle projecten</a></div>
   </div>
 </section>
 
@@ -2829,7 +2878,7 @@ img, svg { display: block; max-width: 100%; }
      ═══════════════════════════════════════════════════ -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-top">
+    <div class="footer-top vijf">
       <div class="footer-brand">
         <a href="#start" class="brand" aria-label="AanEnUitbouw.nl">
           <svg class="brand-logo" viewBox="0 0 360 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AanEnUitbouw.nl">
@@ -2847,23 +2896,29 @@ img, svg { display: block; max-width: 100%; }
           <a data-social="whatsapp" href="https://wa.me/31646150160" target="_blank" rel="noopener" aria-label="Stuur ons een WhatsApp-bericht" title="WhatsApp" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/></svg></a>
         </div>
       </div>
+      <!-- De kolommen hieronder staan ook onder de losse pagina's
+           (src/paginas/teksten.js, onderdeel VOET). Houd ze gelijk. -->
       <div class="footer-col">
-        <h4>Navigatie</h4>
-        <a href="#start">Start</a>
-        <a href="#diensten">Diensten</a>
-        <a href="#plannen">Plannen</a>
-        <a href="#bouwwijze">Prefab of klassiek</a>
-        <a href="#proces">Proces</a>
-        <a href="#bodemcheck">Bodemcheck</a>
-        <a href="/woningcheck">Woningcheck</a>
+        <h4>Aan- en uitbouw</h4>
+        <a href="/aanbouw">Aanbouw</a>
+        <a href="/uitbouw">Uitbouw</a>
+        <a href="/plannen-en-prijzen">Plannen en prijzen</a>
+        <a href="/prefab-of-klassiek">Prefab of klassiek</a>
+        <a href="/werkwijze">Werkwijze</a>
+        <a href="/projecten">Projecten</a>
+      </div>
+      <div class="footer-col">
+        <h4>Online</h4>
         <a href="#configurator">Configurator</a>
+        <a href="/bodemcheck">Bodemcheck</a>
+        <a href="/woningcheck">Woningcheck</a>
+        <a href="/project">Volg uw project</a>
       </div>
       <div class="footer-col">
         <h4>Bedrijf</h4>
-        <a href="#over-ons">Over ons</a>
-        <a href="#samenwerking">Partner: Constructiehuis</a>
-        <a href="#werk" data-nav="werk">Recent werk</a>
-        <a href="#contact">Contact</a>
+        <a href="/over-ons">Over ons</a>
+        <a href="/over-ons#samenwerking">Partner: Constructiehuis</a>
+        <a href="/contact">Contact</a>
         <a href="documenten/privacyverklaring.pdf" target="_blank" rel="noopener">Privacyverklaring</a>
         <a href="documenten/algemene-voorwaarden.pdf" target="_blank" rel="noopener">Algemene voorwaarden</a>
       </div>
@@ -3024,7 +3079,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sluit het menu zodra er op een link wordt getikt
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
   // Sluit bij verandering naar desktop-formaat
-  window.addEventListener('resize', () => { if (window.innerWidth > 880) setOpen(false); });
+  window.addEventListener('resize', () => { if (window.innerWidth >= 1150) setOpen(false); });
 });
 
 // ═══════════════════════════════════════════════════

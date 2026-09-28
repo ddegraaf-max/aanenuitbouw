@@ -1149,6 +1149,12 @@ const server = http.createServer(async (req, res) => {
   // /bodemcheck valt, dus serveStatic hieronder loopt dan gewoon door.
   if (await require('./src/sondeertool').handle(req, res, url)) return;
 
+  // ===== Losse pagina's (/aanbouw, /uitbouw, /plannen-en-prijzen, ...) =====
+  // Elk onderwerp een eigen adres, zodat zoekmachines het apart kunnen tonen.
+  // Teksten staan in src/paginas/teksten.js. Geeft false terug voor elk ander
+  // adres, dus serveStatic hieronder loopt dan gewoon door.
+  if (await require('./src/paginas').handle(req, res, url)) return;
+
   serveStatic(req, res, pathname);
 });
 

@@ -1,0 +1,20 @@
+<svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 60 38 L 260 38 L 260 105 L 60 105 Z" fill="#FFFFFF" stroke="#1E4FC7" stroke-width="2"/>
+  <line x1="60" y1="72" x2="170" y2="72" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+  <line x1="170" y1="38" x2="170" y2="105" stroke="#1E4FC7" stroke-width="0.8" opacity="0.35"/>
+  <rect x="72" y="48" width="20" height="16" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+  <rect x="180" y="48" width="36" height="22" fill="#E8EEFA" stroke="#1E4FC7" stroke-width="0.5" stroke-opacity="0.5"/>
+  <text x="160" y="92" font-family="Manrope" font-size="10" font-weight="600" fill="#1E4FC7" text-anchor="middle" opacity="0.85">Bestaande woning</text>
+  <line x1="60" y1="105" x2="260" y2="105" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7,4" opacity="0.55"/>
+  <rect x="60" y="105" width="200" height="75" fill="#4ECD6B" fill-opacity="0.18"/>
+  <line x1="60" y1="105" x2="60" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+  <line x1="260" y1="105" x2="260" y2="180" stroke="#4ECD6B" stroke-width="2"/>
+  <line x1="60" y1="180" x2="260" y2="180" stroke="#4ECD6B" stroke-width="3"/>
+  <line x1="120" y1="178" x2="200" y2="178" stroke="rgba(78,205,107,0.6)" stroke-width="1.5"/>
+  <rect x="100" y="118" width="120" height="22" fill="rgba(78,205,107,0.35)" stroke="#4ECD6B" stroke-width="0.5"/>
+  <text x="160" y="163" font-family="Manrope" font-size="11" font-weight="700" fill="#2E7D45" text-anchor="middle">NIEUW</text>
+  <g transform="translate(160, 202)">
+    <rect x="-90" y="-9" width="180" height="18" rx="9" fill="#dc2626"/>
+    <text x="0" y="3.5" font-family="Manrope" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.4">ACHTERGEVEL WORDT VERWIJDERD</text>
+  </g>
+</svg>
