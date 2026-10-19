@@ -373,7 +373,15 @@ module.exports = function maakOpties(h) {
     const plannen = Object.values(g.PLANS);
     const constructie = fase('constructie');
     const fundering = fase('fundering');
+    const draagbalk = fase('draagbalk');
+    const skelet = fase('skelet');
+    const buiten = fase('buitenafwerking');
+    const binnen = fase('binnenafwerking');
+    const oplevering = fase('oplevering');
     const K = T.BOUWWIJZE.klassiek;
+    const R = C.regenpijp;
+    // "Kies de hoofdcategorie ... stijl. <strong>Wij werken uitsluitend ...</strong>" -> alleen de tweede zin
+    const alleenBaksteen = T.PAGINAS.gevel.intro.replace(/^[^<]*\. (?=<strong>)/, '');
     return {
       verschil: [C.verschil, `${T.DIENSTEN.aanbouw.naam}: ${C.aanbouw}`, `${T.DIENSTEN.uitbouw.naam}: ${C.uitbouw}`],
       kosten: [
@@ -388,12 +396,23 @@ module.exports = function maakOpties(h) {
       tekeningen: [regel(constructie.nodig, /^Bouwtekeningen/), regel(constructie.nodig, /^Heeft u geen tekeningen/)],
       sondering: [zonderLabel(regel(constructie.nodig, /^Sondering:/)), T.BODEMCHECK.tekst, T.BODEMCHECK.voorbehoud],
       fundering: [fundering.kort, ...fundering.wat, regel(fase('offerte').wat, /schroefpalen/i)],
+      // Stap 5 uit projectfasen.js, zonder de regel die over een aanbouw gaat; die staat apart als slot
+      achtergevel: [draagbalk.kort, ...draagbalk.wat.filter((r) => !/^Bij een aanbouw/.test(r)), draagbalk.nvt],
       bouwwijze: [T.BOUWWIJZE.intro.split('. ').slice(0, 2).join('. ') + '.', K.tekst],
       daken: [Object.values(g.ROOF_TYPES).map((r) => `${r.label} (${dakLabel(r)}): ${r.desc}`)],
+      dakrand: [Object.values(g.DAKRAND_TYPES).map((d) => `${d.label} (${plus(d.extra)}): ${d.desc}`), regel(buiten.wat, /^Dakrand:/)],
+      gevels: [Object.values(g.GEVEL_TYPES).map((t) => `${t.label} (${meerprijs(t.extra, C.labels.standaard)}): ${t.desc}`), alleenBaksteen],
       puien: [Object.values(g.DOORS).map((d) => `${d.label} (${meerprijs(d.extra, C.labels.inbegrepen)}): ${d.desc}`)],
-      vloerverwarming: [C.extras.vloerverwarming.casco, regel(fase('binnenafwerking').wat, /^Vloerverwarming en lichtkoepel/)],
+      bovenkozijn: [Object.values(C.bovenkozijn).map((b) => `${b.label} (${plus(P[b.prijsSleutel])}): ${b.tekst}`)],
+      lichtkoepel: [C.extras.lichtkoepel.tekst, regel(binnen.wat, /^Vloerverwarming en lichtkoepel/), `${g.PLANS.cplus2.name}: ${regel((T.PLANNEN.find((x) => x.id === 'cplus2') || {}).punten, /^Lichtkoepel/)}`],
+      vloerverwarming: [C.extras.vloerverwarming.casco, regel(binnen.wat, /^Vloerverwarming en lichtkoepel/)],
+      regenpijp: [R.intro, [R.pvc, R.zink].map((r) => `${r.label} (${euro(P[r.prijsSleutel])} ${R.perPijp}): ${r.tekst}`)],
       elektra: [C.elektra.plan],
+      isolatie: [regel(binnen.wat, /^Isolatie/), regel(binnen.wat, /^Casco:/)],
+      windwaterdicht: [regel(binnen.wat, /^Het element wordt gesteld/), zonderLabel((binnen.perPlan || {}).casco)],
       huisbezoek: [fase('huisbezoek').nodig],
+      voorbereiding: [fundering.nodig, regel(skelet.nodig, /elektraplan/i)],
+      nazorg: [oplevering.kort, regel(oplevering.wat, /^Nazorg/)],
       volgen: [T.BLOKKEN.volgen.tekst],
       waarde: [C.waarde, T.BLOKKEN.samenstellen.tekst],
     };

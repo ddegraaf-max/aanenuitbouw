@@ -13,12 +13,19 @@ Naast de homepage heeft de site dertien losse pagina's. Elk onderwerp heeft zo e
 | `/pui-en-kozijnen` | Openslaande deuren, schuifpui, harmonicadeur, kozijnkleur |
 | `/extras` | Lichtkoepel, vloerverwarming, buitenkraan, regenpijpen, elektra |
 | `/werkwijze` | De negen stappen van een project |
-| `/veelgestelde-vragen` | Zeventien vragen met antwoord |
+| `/veelgestelde-vragen` | Zevenentwintig vragen met antwoord |
 | `/projecten` | Gerealiseerde projecten |
 | `/over-ons` | Over ons en partner Constructiehuis |
 | `/contact` | Contactgegevens |
 
 De homepage (`configurator.html`) met de configurator, het beheer en de projectmonitor is niet veranderd van opzet.
+
+Dezelfde module maakt ook:
+
+- `/sitemap.xml`: alle openbare adressen (homepage, deze pagina's, bodemcheck en woningcheck) met als datum de datum uit `versie.json`. Er is geen los bestand meer dat bijgehouden hoeft te worden.
+- de pagina **niet gevonden** (404) in de vormgeving van de site, met links naar alle pagina's. Zoekmachines slaan hem over.
+
+Alleen de homepage, `/project`, `projectfasen.js`, `qr.js`, het favicon, `robots.txt` en de mappen `fonts`, `img`, `projecten` en `documenten` zijn als bestand op te vragen. Alles wat verder in de map van de site staat (documentatie, tests, oude kopieën) geeft 404; de lijst staat in `server.js` (`OPENBAAR`).
 
 ## Waar komt de inhoud vandaan
 
@@ -86,6 +93,7 @@ De tests controleren onder meer dat:
 - elke tekst op de losse pagina's letterlijk op de homepage, in de configurator of in `projectfasen.js` staat;
 - de rekenvoorbeelden gelijk zijn aan de uitkomst van de configurator;
 - de antwoorden op de veelgestelde vragen geen toezegging bevatten over vergunning of sondering;
-- koppen geen niveau overslaan en elke pagina in de sitemap staat.
+- koppen geen niveau overslaan en elke pagina in de sitemap staat;
+- de 404-pagina status 404 geeft, niet in Google komt en naar bestaande pagina's linkt.
 
 `configurator.js` zoekt in `configurator.html` naar `const state = {`, `const DEFAULT_PRICES = {` en het kopje `// VIEW CONFIG`. Verandert de opbouw daar, dan meldt de test dat de opties niet te lezen zijn; de vijf pagina's die ervan afhangen geven dan een 404 in plaats van verkeerde bedragen.

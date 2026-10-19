@@ -644,18 +644,32 @@ async function sendQuoteEmails(data) {
   }
 }
 
+// Alleen deze bestanden en mappen zijn openbaar. Alles wat verder in de map van
+// de site staat (broncode, documentatie, tests, oude kopieën zoals snippets.html)
+// geeft 404. Zo kan niemand het uitlezen en maakt Google er geen pagina van.
+// Nieuw openbaar bestand? Zet het in een van deze mappen of voeg het hier toe.
+const OPENBAAR = /^\/(configurator\.html|project\.html|projectfasen\.js|qr\.js|favicon\.ico|robots\.txt|(fonts|img|projecten|documenten)\/.+)$/i;
+
+// Pagina "niet gevonden" in de vormgeving van de site (src/paginas); voor
+// /api/-adressen blijft het antwoord JSON.
+function nietGevonden(req, res) {
+  require('./src/paginas').stuur404(req, res);
+}
+
 function serveStatic(req, res, urlPath) {
+  // De homepage en de projectpagina hebben één adres. Wie het bestand zelf
+  // opvraagt, gaat daarheen: zo bestaat elke pagina voor Google maar één keer.
+  if (urlPath === '/configurator.html' || urlPath === '/project.html') {
+    res.writeHead(301, {
+      'Location': urlPath === '/configurator.html' ? '/' : '/project',
+      'Cache-Control': 'public, max-age=3600',
+    });
+    return res.end();
+  }
   if (urlPath === '/' || urlPath === '') urlPath = '/configurator.html';
   if (urlPath === '/project' || urlPath === '/project/') urlPath = '/project.html';
 
-  // Broncode en projectbestanden niet uitleveren. serveStatic serveert alles
-  // onder ROOT, dus zonder deze check zijn /server.js, /package.json en de
-  // inhoud van /src publiek leesbaar.
-  if (/^\/(server\.js|package(-lock)?\.json|src\/|node_modules\/|\.git|\.env)/i.test(urlPath)) {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Niet gevonden');
-    return;
-  }
+  if (!OPENBAAR.test(urlPath)) return nietGevonden(req, res);
 
   const filePath = path.normalize(path.join(ROOT, urlPath));
   if (!filePath.startsWith(ROOT)) {
@@ -664,11 +678,7 @@ function serveStatic(req, res, urlPath) {
     return;
   }
   fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Niet gevonden');
-      return;
-    }
+    if (err || !stat.isFile()) return nietGevonden(req, res);
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     res.writeHead(200, {

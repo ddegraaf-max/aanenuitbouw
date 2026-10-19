@@ -148,6 +148,10 @@ test('veelgestelde vragen: elk antwoord staat letterlijk op de site', () => {
     ...Object.values(d.PLANS).map((x) => x.name),
     ...Object.values(d.ROOF_TYPES).map((x) => x.label),
     ...Object.values(d.DOORS).map((x) => x.label),
+    ...Object.values(d.GEVEL_TYPES).map((x) => x.label),
+    ...Object.values(d.DAKRAND_TYPES).map((x) => x.label),
+    ...Object.values(T.CONFIGURATOR.bovenkozijn).map((x) => x.label),
+    T.CONFIGURATOR.regenpijp.pvc.label, T.CONFIGURATOR.regenpijp.zink.label,
     T.DIENSTEN.aanbouw.naam, T.DIENSTEN.uitbouw.naam,
   ].sort((a, b) => b.length - a.length);
   const zonderNaam = (t) => {
@@ -192,7 +196,7 @@ test('veelgestelde vragen staan ook als gegevens voor zoekmachines op de pagina'
 });
 
 test('de stappen waaruit geciteerd wordt, bestaan in projectfasen.js', () => {
-  for (const id of ['huisbezoek', 'offerte', 'constructie', 'fundering', 'draagbalk', 'buitenafwerking', 'binnenafwerking']) {
+  for (const id of ['huisbezoek', 'offerte', 'constructie', 'fundering', 'draagbalk', 'skelet', 'buitenafwerking', 'binnenafwerking', 'oplevering']) {
     assert.ok(PROJECTFASEN.FASEN.find((f) => f.id === id), `stap "${id}" ontbreekt`);
   }
 });

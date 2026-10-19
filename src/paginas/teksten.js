@@ -32,6 +32,8 @@ const SITE = {
   naam: 'AanEnUitbouw.nl',
   url: 'https://aanenuitbouw.nl',
   slogan: 'Uw huis uitbreiden',
+  ondertitel: 'Vakkundige aan- en uitbouwen op maat',
+  plaats: 'Bussum', // vestigingsplaats, zoals in de bedrijfsgegevens op de homepage
   telefoon: '+31 646 150 160',
   telefoonLink: '+31646150160',
   email: 'project@aanenuitbouw.nl',
@@ -404,23 +406,37 @@ const PRIJSLIJST = {
 // die al vaststaan: de configurator, projectfasen.js en de homepage.
 // Zo kan een antwoord nooit iets anders zeggen dan de rest van de site.
 const VRAGEN = [
+  // Aanbouw, uitbouw en prijs
   { id: 'verschil',    vraag: 'Wat is het verschil tussen een aanbouw en een uitbouw?' },
   { id: 'kosten',      vraag: 'Wat kost een aanbouw of uitbouw?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
   { id: 'plannen',     vraag: 'Wat is het verschil tussen Casco, C+ en C++?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
+  { id: 'windwaterdicht', vraag: 'Wat betekent wind- en waterdicht (Casco)?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
   { id: 'offerte',     vraag: 'Hoe snel ontvang ik een offerte?' },
+  { id: 'waarde',      vraag: 'Wat levert een aanbouw of uitbouw op?', link: { pad: '/#configurator', label: 'Naar de configurator' } },
+  // Vergunning, constructie en fundering
   { id: 'vergunning',  vraag: 'Wie regelt de vergunning?' },
   { id: 'constructie', vraag: 'Wie maakt de constructieberekening?', link: { pad: '/over-ons#samenwerking', label: 'Onze constructeur: Constructiehuis' } },
   { id: 'tekeningen',  vraag: 'Welke bouwtekeningen zijn nodig?', link: { pad: '/woningcheck', label: 'Naar de woningcheck' } },
   { id: 'sondering',   vraag: 'Is er een sondering nodig?', link: { pad: '/bodemcheck', label: 'Naar de bodemcheck' } },
   { id: 'fundering',   vraag: 'Hoe wordt de fundering gemaakt?' },
+  { id: 'achtergevel', vraag: 'Wat gebeurt er met de achtergevel bij een uitbouw?', link: { pad: '/uitbouw', label: 'Meer over een uitbouw' } },
   { id: 'bouwwijze',   vraag: 'Bouwen jullie prefab of klassiek?', link: { pad: '/prefab-of-klassiek', label: 'Prefab of klassiek bouwen?' } },
+  // Dak, gevel, pui en extra's
   { id: 'daken',       vraag: 'Welke daktypes zijn mogelijk?', link: { pad: '/dak-en-dakrand', label: 'Meer over dak en dakrand' } },
+  { id: 'dakrand',     vraag: 'Hoe wordt de dakrand afgewerkt?', link: { pad: '/dak-en-dakrand', label: 'Meer over dak en dakrand' } },
+  { id: 'gevels',      vraag: 'Welke gevelbekleding kan ik kiezen?', link: { pad: '/gevelbekleding', label: 'Meer over gevelbekleding' } },
   { id: 'puien',       vraag: 'Welke puien en deuren kan ik kiezen?', link: { pad: '/pui-en-kozijnen', label: 'Meer over pui en kozijnen' } },
+  { id: 'bovenkozijn', vraag: 'Wat komt er boven het kozijn: metselwerk of Trespa?', link: { pad: '/pui-en-kozijnen', label: 'Meer over pui en kozijnen' } },
+  { id: 'lichtkoepel', vraag: 'Is een lichtkoepel mogelijk?', link: { pad: '/extras', label: "Meer over de extra's" } },
   { id: 'vloerverwarming', vraag: 'Kan ik vloerverwarming laten aanleggen?', link: { pad: '/extras', label: "Meer over de extra's" } },
+  { id: 'regenpijp',   vraag: 'Welke regenpijpen zijn mogelijk?', link: { pad: '/extras', label: "Meer over de extra's" } },
   { id: 'elektra',     vraag: 'Wat als ik meer of andere elektra wil dan standaard?' },
+  { id: 'isolatie',    vraag: 'Wordt de aan- of uitbouw geïsoleerd?', link: { pad: '/plannen-en-prijzen', label: 'Alles over plannen en prijzen' } },
+  // Het project
   { id: 'huisbezoek',  vraag: 'Hoe bereid ik het huisbezoek voor?', link: { pad: '/werkwijze', label: 'Bekijk alle stappen' } },
+  { id: 'voorbereiding', vraag: 'Wat moet ik regelen voordat de bouw start?', link: { pad: '/werkwijze#stap-4', label: 'Bekijk alle stappen' } },
+  { id: 'nazorg',      vraag: 'Wat gebeurt er bij de oplevering?', link: { pad: '/werkwijze#stap-9', label: 'Bekijk alle stappen' } },
   { id: 'volgen',      vraag: 'Kan ik de voortgang van mijn project volgen?', link: { pad: '/project', label: 'Naar uw project' } },
-  { id: 'waarde',      vraag: 'Wat levert een aanbouw of uitbouw op?', link: { pad: '/#configurator', label: 'Naar de configurator' } },
 ];
 
 // ─── De pagina's zelf ───────────────────────────────────────────────────────
@@ -446,8 +462,8 @@ const PAGINAS = {
   plannen: {
     pad: '/plannen-en-prijzen',
     broodkruimel: 'Plannen en prijzen',
-    titel: 'Plannen en prijzen: Casco, C+ en C++ | AanEnUitbouw.nl',
-    beschrijving: 'Drie afwerkingsniveaus van casco tot volledig sleutelklaar, met een prijs per m². U bepaalt waar uw budget naartoe gaat.',
+    titel: 'Kosten aanbouw en uitbouw: Casco, C+ en C++ per m² | AanEnUitbouw.nl',
+    beschrijving: 'Wat kost een aanbouw of uitbouw? Drie afwerkingsniveaus van casco tot volledig sleutelklaar met een prijs per m², rekenvoorbeelden en de prijslijst van alle opties.',
     kicker: 'Aanbouw en uitbouw',
     kop: 'Plannen en prijzen',
     intro: 'Drie afwerkingsniveaus van casco tot volledig sleutelklaar. U bepaalt waar uw budget naartoe gaat.',
@@ -503,7 +519,7 @@ const PAGINAS = {
     pad: '/veelgestelde-vragen',
     broodkruimel: 'Veelgestelde vragen',
     titel: 'Veelgestelde vragen over aanbouw en uitbouw | AanEnUitbouw.nl',
-    beschrijving: 'Veelgestelde vragen over een aanbouw of uitbouw: het verschil, de kosten per m², de plannen, vergunning, constructieberekening en fundering.',
+    beschrijving: 'Veelgestelde vragen over een aanbouw of uitbouw: het verschil, de kosten per m², de plannen, vergunning, constructieberekening, fundering, dak, gevel, pui en isolatie.',
     kicker: 'Vraag en antwoord',
     kop: 'Veelgestelde vragen',
     intro: 'Over het verschil tussen aanbouw en uitbouw, de prijzen, de plannen en de voorbereiding.',
@@ -590,4 +606,16 @@ const VOET = [
   },
 ];
 
-module.exports = { SITE, MENU, DIENSTEN, PLANNEN, BOUWWIJZE, PROJECTEN, OVER, PARTNER, BLOKKEN, CONFIGURATOR, BODEMCHECK, REKENVOORBEELD, PRIJSLIJST, VRAGEN, PAGINAS, VOET };
+// ─── Pagina niet gevonden (404) ─────────────────────────────────────────────
+// Wie een adres intypt dat niet bestaat, krijgt deze pagina met de weg terug.
+// Zoekmachines slaan hem over (noindex).
+const NIET_GEVONDEN = {
+  titel: 'Pagina niet gevonden | AanEnUitbouw.nl',
+  kicker: 'Foutmelding 404',
+  kop: 'Deze pagina bestaat niet',
+  intro: 'Het adres is verkeerd getypt of de pagina is verplaatst. Hieronder vindt u al onze pagina’s, of ga terug naar de startpagina.',
+  kopLinks: 'Misschien zocht u een van deze pagina’s',
+  knopStart: 'Naar de startpagina',
+};
+
+module.exports = { SITE, MENU, DIENSTEN, PLANNEN, BOUWWIJZE, PROJECTEN, OVER, PARTNER, BLOKKEN, CONFIGURATOR, BODEMCHECK, REKENVOORBEELD, PRIJSLIJST, VRAGEN, PAGINAS, VOET, NIET_GEVONDEN };

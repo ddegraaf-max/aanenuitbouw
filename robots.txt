@@ -4,9 +4,10 @@
 User-agent: *
 Allow: /
 
-# Beheerpaneel en API-endpoints buiten de index houden
+# Gegevens achter de schermen (geen pagina's) buiten de index houden
 Disallow: /api/
-Disallow: /admin
+Disallow: /bodemcheck/api/
+Disallow: /woningcheck/api/
 
-# Verwijzing naar sitemap
+# De sitemap wordt door de server gemaakt en bevat alle openbare pagina's
 Sitemap: https://aanenuitbouw.nl/sitemap.xml

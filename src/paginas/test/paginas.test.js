@@ -13,7 +13,8 @@ const PROJECTFASEN = require('../../../projectfasen.js');
 
 const ROOT = path.join(__dirname, '..', '..', '..');
 const homepage = fs.readFileSync(path.join(ROOT, 'configurator.html'), 'utf8').replace(/\r\n/g, '\n');
-const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+const versie = JSON.parse(fs.readFileSync(path.join(ROOT, 'versie.json'), 'utf8'));
+const sitemap = paginas.sitemap();
 
 const zonderTags = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
 const plat = (t) => String(t).replace(/<\/?strong>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
@@ -68,13 +69,34 @@ test('koppen slaan geen niveau over', async () => {
   }
 });
 
-test('gestructureerde gegevens zijn geldige JSON', async () => {
+test('gestructureerde gegevens zijn geldige JSON, met het bedrijf op elke pagina', async () => {
   const html = await allePaginas();
   for (const pad of paginas.PADEN) {
     const blok = html[pad].match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
     assert.ok(blok, `${pad}: geen gegevens`);
-    const soorten = JSON.parse(blok[1])['@graph'].map((g) => g['@type']);
+    const graph = JSON.parse(blok[1])['@graph'];
+    const soorten = graph.map((g) => g['@type']);
     assert.ok(soorten.includes('WebPage') && soorten.includes('BreadcrumbList'), `${pad}: ${soorten}`);
+    const bedrijf = graph.find((g) => g['@type'] === 'HomeAndConstructionBusiness');
+    assert.ok(bedrijf, `${pad}: bedrijf ontbreekt`);
+    assert.equal(bedrijf.telephone, T.SITE.telefoonLink);
+    assert.equal(bedrijf.email, T.SITE.email);
+    assert.ok(bedrijf.sameAs.includes(PROJECTFASEN.SOCIAL.facebook) && bedrijf.sameAs.includes(PROJECTFASEN.SOCIAL.instagram), `${pad}: sameAs`);
+    // Elke verwijzing (@id) wijst naar iets dat op dezelfde pagina staat
+    const ids = new Set(graph.map((g) => g['@id']).filter(Boolean));
+    for (const ref of JSON.stringify(graph).matchAll(/"@id":"([^"]+)"/g)) assert.ok(ids.has(ref[1]), `${pad}: ${ref[1]} is nergens gedefinieerd`);
+  }
+});
+
+test('sociale media krijgen op elke pagina titel, beschrijving en afbeelding', async () => {
+  const html = await allePaginas();
+  for (const pad of paginas.PADEN) {
+    for (const naam of ['og:title', 'og:description', 'og:image', 'og:image:alt']) {
+      assert.match(html[pad], new RegExp(`<meta property="${naam}" content="[^"]+"`), `${pad}: ${naam}`);
+    }
+    for (const naam of ['twitter:title', 'twitter:description', 'twitter:image']) {
+      assert.match(html[pad], new RegExp(`<meta name="${naam}" content="[^"]+"`), `${pad}: ${naam}`);
+    }
   }
 });
 
@@ -93,10 +115,61 @@ test('interne links wijzen naar een pagina of bestand dat bestaat', async () => 
 test('elke pagina staat in de sitemap en in de voet', async () => {
   const html = await allePaginas();
   for (const pad of paginas.PADEN) {
-    assert.ok(sitemap.includes(`<loc>${paginas.SITE_URL}${pad}</loc>`), `${pad} ontbreekt in sitemap.xml`);
+    assert.ok(sitemap.includes(`<loc>${paginas.SITE_URL}${pad}</loc>`), `${pad} ontbreekt in de sitemap`);
     assert.ok(html['/contact'].includes(`href="${pad}"`), `${pad} ontbreekt in de voet`);
     assert.ok(homepage.includes(`href="${pad}"`), `${pad} ontbreekt op de homepage`);
   }
+});
+
+test('sitemap: homepage, tools en de datum van de laatste versie; geen dubbele adressen', async () => {
+  assert.match(sitemap, /^<\?xml version="1.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
+  for (const pad of ['/', '/bodemcheck', '/woningcheck']) {
+    assert.ok(sitemap.includes(`<loc>${paginas.SITE_URL}${pad}</loc>`), `${pad} ontbreekt in de sitemap`);
+  }
+  const adressen = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  assert.equal(new Set(adressen).size, adressen.length, 'dubbel adres');
+  assert.equal(adressen.length, paginas.sitemapAdressen().length);
+  assert.ok(sitemap.includes(`<lastmod>${versie.datum}</lastmod>`), 'lastmod is de datum uit versie.json');
+  assert.doesNotMatch(sitemap, /<lastmod>(?!(\d{4}-\d{2}-\d{2})<)/, 'elke lastmod is een datum');
+  assert.ok(!sitemap.includes('/project<') && !sitemap.includes('/api/'), 'persoonlijke en technische adressen horen er niet in');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'sitemap.xml')), 'de oude vaste sitemap.xml zou de nieuwe verwarren');
+
+  const v = verzoek('/sitemap.xml');
+  assert.equal(await paginas.handle(v.req, v.res, v.url), true);
+  assert.equal(v.res.status, 200);
+  assert.match(v.res.headers['Content-Type'], /application\/xml/);
+  assert.equal(v.res.body, sitemap);
+});
+
+test('pagina niet gevonden: status 404, noindex, één h1 en de weg terug', async () => {
+  const html = paginas.pagina404();
+  assert.equal((html.match(/<h1[\s>]/g) || []).length, 1);
+  assert.match(html, /<meta name="robots" content="noindex, follow">/);
+  assert.ok(!html.includes('rel="canonical"'), 'een 404 heeft geen canonical');
+  assert.ok(!html.includes('application/ld+json'), 'een 404 heeft geen gegevens voor zoekmachines');
+  for (const pad of ['/', '/aanbouw', '/uitbouw', '/plannen-en-prijzen', '/veelgestelde-vragen', '/contact', '/bodemcheck', '/woningcheck']) {
+    assert.ok(html.includes(`href="${pad}"`), `${pad} ontbreekt op de 404-pagina`);
+  }
+  const links = [...html.matchAll(/(?:href|src)="(\/[^"#?]*)/g)].map((m) => m[1]);
+  const bekend = new Set(['/', '/bodemcheck', '/woningcheck', '/project', ...paginas.PADEN]);
+  for (const l of links) assert.ok(bekend.has(l) || fs.existsSync(path.join(ROOT, l)), `404-pagina: ${l} bestaat niet`);
+
+  let v = verzoek('/bestaat-niet');
+  paginas.stuur404(v.req, v.res, v.url);
+  assert.equal(v.res.status, 404);
+  assert.match(v.res.headers['Content-Type'], /text\/html/);
+  assert.equal(v.res.body, html);
+
+  v = verzoek('/api/bestaat-niet');
+  paginas.stuur404(v.req, v.res, v.url);
+  assert.equal(v.res.status, 404);
+  assert.match(v.res.headers['Content-Type'], /application\/json/);
+  assert.deepEqual(JSON.parse(v.res.body), { error: 'Niet gevonden' });
+
+  v = verzoek('/bestaat-niet', 'HEAD');
+  paginas.stuur404(v.req, v.res, v.url);
+  assert.equal(v.res.status, 404);
+  assert.equal(v.res.body, undefined);
 });
 
 // De afspraak met de eigenaar: op deze pagina's staat alleen tekst die al op

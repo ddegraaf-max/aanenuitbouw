@@ -8,9 +8,16 @@
  * Elk onderwerp heeft zo een eigen adres, titel en kop, zodat zoekmachines het
  * apart kunnen tonen. De homepage (configurator.html) blijft wat hij was.
  *
+ * Deze module maakt ook /sitemap.xml (alle openbare adressen, met de datum
+ * uit versie.json) en de pagina "niet gevonden" (404) in dezelfde vormgeving.
+ *
  * Aansluiten in server.js, vóór serveStatic:
  *
  *     if (await require('./src/paginas').handle(req, res, url)) return;
+ *
+ * en voor een adres dat niet bestaat:
+ *
+ *     require('./src/paginas').stuur404(req, res);
  *
  * Waar staat wat:
  *   teksten.js      alle teksten van deze pagina's
@@ -33,7 +40,11 @@ const PROJECTFASEN = require('../../projectfasen.js');
 const ROOT = path.join(__dirname, '..', '..');
 const DATA_DIR = process.env.DATA_DIR || '/data';
 const PRICES_FILE = path.join(DATA_DIR, 'prices.json');
+const VERSIE_FILE = path.join(ROOT, 'versie.json');
 const SITE_URL = String(process.env.SITE_URL || T.SITE.url).replace(/\/+$/, '');
+
+// Openbare adressen buiten deze module die ook in de sitemap horen
+const ANDERE_ADRESSEN = ['/bodemcheck', '/woningcheck'];
 
 const lees = (naam) => fs.readFileSync(path.join(__dirname, naam), 'utf8').replace(/\r\n/g, '\n');
 const CSS = lees('basis.css') + '\n' + lees('paginas.css');
@@ -712,10 +723,44 @@ const ROUTES = {
 // Het geheel
 // ---------------------------------------------------------------------------
 
+// Het bedrijf, zoals het ook in de gegevens op de homepage staat. Op elke
+// pagina meegegeven, zodat een zoekmachine die één losse pagina leest ook
+// weet van wie die is. Alles hierin staat zichtbaar op de site: naam, telefoon,
+// e-mail, KvK en btw in de voet; Facebook en Instagram via projectfasen.js.
+function bedrijf() {
+  const s = PROJECTFASEN.SOCIAL || {};
+  const sameAs = [s.facebook, s.instagram].filter(Boolean);
+  const uit = {
+    '@type': 'HomeAndConstructionBusiness',
+    '@id': `${SITE_URL}/#bedrijf`,
+    name: T.SITE.naam,
+    legalName: T.SITE.bedrijf,
+    url: `${SITE_URL}/`,
+    image: `${SITE_URL}/img/og-image.png`,
+    telephone: T.SITE.telefoonLink,
+    email: T.SITE.email,
+    vatID: T.SITE.btw,
+    identifier: { '@type': 'PropertyValue', propertyID: 'KvK', value: T.SITE.kvk },
+    address: { '@type': 'PostalAddress', addressLocality: T.SITE.plaats, addressCountry: 'NL' },
+    areaServed: { '@type': 'Country', name: 'Nederland' },
+  };
+  if (sameAs.length) uit.sameAs = sameAs;
+  return uit;
+}
+
 function gegevens(pagina) {
   const p = pagina.p;
   const adres = SITE_URL + p.pad;
   const graph = [
+    bedrijf(),
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: `${SITE_URL}/`,
+      name: T.SITE.naam,
+      inLanguage: 'nl-NL',
+      publisher: { '@id': `${SITE_URL}/#bedrijf` },
+    },
     {
       '@type': 'WebPage',
       '@id': adres,
@@ -725,6 +770,7 @@ function gegevens(pagina) {
       inLanguage: 'nl-NL',
       isPartOf: { '@id': `${SITE_URL}/#website` },
       about: { '@id': `${SITE_URL}/#bedrijf` },
+      primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE_URL}/img/og-image.png` },
     },
     {
       '@type': 'BreadcrumbList',
@@ -750,18 +796,13 @@ function gegevens(pagina) {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
 }
 
-function document_(pagina) {
+// De regels in <head> waarmee zoekmachines en sociale media de pagina
+// herkennen. Een 404-pagina krijgt ze niet: die hoort niet in Google.
+function zoekmachineKop(pagina) {
   const p = pagina.p;
   const adres = SITE_URL + p.pad;
   const afbeelding = `${SITE_URL}/img/og-image.png`;
-  return `<!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(p.titel)}</title>
-<meta name="description" content="${esc(p.beschrijving)}">
-<link rel="canonical" href="${esc(adres)}">
+  return `<link rel="canonical" href="${esc(adres)}">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${esc(adres)}">
@@ -772,11 +813,27 @@ function document_(pagina) {
 <meta property="og:image" content="${esc(afbeelding)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(T.SITE.naam)} — ${esc(T.SITE.ondertitel)}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(p.titel)}">
+<meta name="twitter:description" content="${esc(p.beschrijving)}">
+<meta name="twitter:image" content="${esc(afbeelding)}">
+<script type="application/ld+json">${gegevens(pagina)}</script>`;
+}
+
+function document_(pagina, opties = {}) {
+  const p = pagina.p;
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(p.titel)}</title>
+<meta name="description" content="${esc(p.beschrijving)}">
+${opties.nietGevonden ? '<meta name="robots" content="noindex, follow">' : zoekmachineKop(pagina)}
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
-<script type="application/ld+json">${gegevens(pagina)}</script>
 <style>
 ${CSS}
 </style>
@@ -824,15 +881,116 @@ async function bouw(pad) {
   return pagina ? document_(pagina) : null;
 }
 
+// ---------------------------------------------------------------------------
+// Sitemap
+// ---------------------------------------------------------------------------
+
+// De datum van de laatste versie (versie.json). Elke versie kan teksten of
+// prijzen raken, dus die datum geldt als "laatst gewijzigd" voor alle pagina's.
+function laatstGewijzigd() {
+  try {
+    const v = JSON.parse(fs.readFileSync(VERSIE_FILE, 'utf8'));
+    if (v && /^\d{4}-\d{2}-\d{2}$/.test(String(v.datum))) return v.datum;
+  } catch (e) {
+    if (e.code !== 'ENOENT') console.error('[paginas] versie.json onleesbaar:', e.message);
+  }
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Alle openbare adressen: de homepage, deze pagina's en de twee tools.
+function sitemapAdressen() {
+  return ['/', ...PADEN, ...ANDERE_ADRESSEN];
+}
+
+function sitemap() {
+  const datum = laatstGewijzigd();
+  const regels = sitemapAdressen().map((pad) => `  <url>
+    <loc>${esc(SITE_URL + pad)}</loc>
+    <lastmod>${datum}</lastmod>
+  </url>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${regels.join('\n')}
+</urlset>
+`;
+}
+
+// ---------------------------------------------------------------------------
+// Pagina niet gevonden (404)
+// ---------------------------------------------------------------------------
+
+function pagina404() {
+  const n = T.NIET_GEVONDEN;
+  const p = { pad: '/niet-gevonden', titel: n.titel, beschrijving: n.intro, broodkruimel: n.kop };
+  // Alle pagina's uit de voet, zonder de documenten (pdf) en de ankers
+  const links = T.VOET.flatMap((k) => k.links).filter((l) => !l.nieuwTabblad && !l.pad.includes('#'));
+  const inhoud = `<section class="hero pagina-hero">
+  <div class="container hero-inner">
+    <div>
+      <div class="hero-eyebrow">${esc(n.kicker)}</div>
+      <h1>${esc(n.kop)}</h1>
+      <p class="hero-sub">${esc(n.intro)}</p>
+      <div class="hero-actions">
+        <a href="/" class="btn btn-white">${esc(n.knopStart)}</a>
+        <a href="/#configurator" class="btn btn-ghost">${esc(T.BLOKKEN.knoppen.configurator)}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-light">
+  <div class="container">
+    <h2 class="section-title alleen">${esc(n.kopLinks)}</h2>
+    <ul class="punten">
+      ${links.map((l) => `<li><a class="meer-link" href="${esc(l.pad)}">${esc(l.label)}</a></li>`).join('\n      ')}
+    </ul>
+  </div>
+</section>
+
+${contactBlok()}`;
+  return document_({ p, inhoud }, { nietGevonden: true });
+}
+
 /**
- * Handelt een verzoek af als het om een van de losse pagina's gaat.
- * Geeft true terug als het antwoord is verstuurd, anders false.
+ * Stuurt de pagina "niet gevonden" met status 404. Voor adressen onder /api/
+ * blijft het antwoord JSON, zodat scripts er iets mee kunnen.
+ */
+function stuur404(req, res, url) {
+  const pad = url && typeof url.pathname === 'string' ? url.pathname : String(req.url || '');
+  if (/^\/api\//.test(pad)) {
+    res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-cache' });
+    res.end(JSON.stringify({ error: 'Niet gevonden' }));
+    return;
+  }
+  let html = null;
+  try {
+    html = pagina404();
+  } catch (e) {
+    console.error('[paginas] 404-pagina niet te maken:', e && e.stack ? e.stack : e);
+  }
+  if (!html) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Niet gevonden');
+    return;
+  }
+  res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+  res.end(req.method === 'HEAD' ? undefined : html);
+}
+
+/**
+ * Handelt een verzoek af als het om een van de losse pagina's of de sitemap
+ * gaat. Geeft true terug als het antwoord is verstuurd, anders false.
  */
 async function handle(req, res, url) {
   if (!url || typeof url.pathname !== 'string') return false;
   if (req.method !== 'GET' && req.method !== 'HEAD') return false;
 
   let pad = url.pathname;
+  if (pad === '/sitemap.xml') {
+    res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+    res.end(req.method === 'HEAD' ? undefined : sitemap());
+    return true;
+  }
   if (pad.length > 1 && pad.endsWith('/')) {
     const zonder = pad.replace(/\/+$/, '');
     if (!ROUTES[zonder]) return false;
@@ -860,4 +1018,4 @@ async function handle(req, res, url) {
 
 const PADEN = Object.keys(ROUTES).filter((pad) => !ROUTES[pad].nodig || CONFIGURATOR.beschikbaar());
 
-module.exports = { handle, bouw, PADEN, SITE_URL, OPTIES, leesPrijzen };
+module.exports = { handle, bouw, stuur404, pagina404, sitemap, sitemapAdressen, PADEN, SITE_URL, OPTIES, leesPrijzen };
