@@ -1,5 +1,5 @@
 {
-  "nummer": "2026-010",
+  "nummer": "2026-011",
   "datum": "2026-10-19",
-  "omschrijving": "Beter vindbaar: sitemap wordt door de server gemaakt, nette 404-pagina, bronbestanden niet meer openbaar, bedrijfsgegevens op elke pagina, tien extra veelgestelde vragen, scherpere titels voor Google"
+  "omschrijving": "Projectfoto's op de homepage weer 4:3: de hoogte uit versie 2026-010 werd letterlijk genomen (height: auto ontbrak)"
 }

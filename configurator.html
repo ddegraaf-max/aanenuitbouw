@@ -862,8 +862,12 @@ img, svg { display: block; max-width: 100%; }
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(26,37,64,0.12);
 }
+.werk-card picture { display: block; }
 .werk-card-img {
   width: 100%;
+  /* height: auto is nodig: de foto heeft width/height-attributen tegen het
+     verspringen, en zonder deze regel wordt die hoogte letterlijk genomen */
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
