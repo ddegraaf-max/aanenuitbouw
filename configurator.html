@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Ads-tag (account Polodom.pl, 4 nov 2026); conversie-event bij een verstuurde aanvraag in de configurator -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18521175925"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag("js", new Date()); gtag("config", "AW-18521175925");</script>
+
 <title>Aanbouw of uitbouw laten bouwen | AanEnUitbouw.nl</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 56'><path d='M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z' fill='%231E4FC7'/><rect x='36' y='32' width='24' height='18' fill='%234ECD6B'/></svg>">
 <meta name="description" content="Vakkundige aan- en uitbouwen op maat, klassiek gebouwd met echte baksteen. Stel uw aanbouw of uitbouw online samen en ontvang direct een prijsindicatie.">
@@ -4918,6 +4922,8 @@ async function submitConfig() {
     });
     if (res.ok) {
       state.submitted = true;
+      // Google Ads: een verstuurde aanvraag is de conversie (zie de tag in <head>).
+      if (typeof gtag === "function") gtag("event", "conversion", { send_to: "AW-18521175925/YSIXCNr9iLIdEPXuyv9E", value: 1.0, currency: "EUR" });
       render();
     } else {
       const err = await res.json().catch(() => ({}));
