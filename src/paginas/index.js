@@ -120,8 +120,8 @@ const ICOON = {
 function logo(kleurTekst, kleurHuis, kleurNl) {
   return `<svg class="brand-logo" viewBox="0 0 360 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(T.SITE.naam)}">
         <g transform="translate(2, 7)">
-          <path d="M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z" fill="${kleurHuis}"/>
-          <rect x="36" y="32" width="24" height="18" fill="#4ECD6B"/>
+          <path d="M 4 22 L 20 5 L 36 22 L 36 50 L 4 50 Z" fill="none" stroke="${kleurHuis}" stroke-width="5" stroke-linejoin="round"/>
+          <rect x="14" y="32" width="12" height="18" fill="${kleurHuis}"/>
         </g>
         <text x="76" y="44" font-family="Manrope, system-ui, sans-serif" font-size="30" font-weight="800" fill="${kleurTekst}" letter-spacing="-0.8">AanEnUitbouw<tspan fill="${kleurNl}">.nl</tspan></text>
       </svg>`;
@@ -137,7 +137,7 @@ function kopbalk(huidigPad) {
   return `<header class="site-header">
   <div class="header-inner">
     <a href="/" class="brand" aria-label="${esc(T.SITE.naam)} - terug naar start">
-      ${logo('#1A2540', '#1E4FC7', '#1E4FC7')}
+      ${logo('#FFFFFF', '#F47A14', '#F7891F')}
       <span class="brand-tag">${esc(T.SITE.slogan)}</span>
     </a>
     <nav class="main-nav" id="mainNav" aria-label="Hoofdmenu">
@@ -173,7 +173,7 @@ function voetbalk() {
     <div class="footer-top vijf">
       <div class="footer-brand">
         <a href="/" aria-label="${esc(T.SITE.naam)}">
-          ${logo('#FFFFFF', '#FFFFFF', '#4ECD6B')}
+          ${logo('#FFFFFF', '#F47A14', '#F7891F')}
         </a>
         <p>${esc(T.SITE.voettekst)}</p>
         <div class="footer-contact">
@@ -837,6 +837,7 @@ ${opties.nietGevonden ? '<meta name="robots" content="noindex, follow">' : zoekm
 <style>
 ${CSS}
 </style>
+<link rel="stylesheet" href="/img/ontwerp.css?v=3">
 </head>
 <body>
 

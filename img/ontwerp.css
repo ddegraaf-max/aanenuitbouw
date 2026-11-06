@@ -1,0 +1,113 @@
+/*
+ * AanEnUitbouw.nl — de look van het ontwerp van 6 november 2026
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * Ligt over de stijl in configurator.html heen. Het blauw en groen maken
+ * plaats voor antraciet en oranje; de kop krijgt een foto van een uitbouw
+ * bij avond.
+ *
+ * Contrast: wit op het felle oranje (#F47A14) haalt maar 2,8:1. Knoppen met
+ * witte letters gebruiken daarom #C4510A (4,7:1). Het felle oranje staat
+ * alleen als accent: in koppen op donker, iconen, randen en vinkjes.
+ */
+
+:root {
+  --color-primary:       #C4510A;
+  --color-primary-hover: #A8450A;
+  --color-primary-dark:  #8A3807;
+  --color-primary-soft:  #FFF1E6;
+  --color-primary-line:  #F8D2B3;
+  --color-accent-green:  #F7891F;
+  --aeu-oranje:          #F47A14;
+  --aeu-oranje-licht:    #F7891F;
+  --aeu-antraciet:       #1F2329;
+  --aeu-antraciet-2:     #2A2F37;
+}
+
+/* ══ Menubalk: antraciet met wit logo ═══════════════════════════════════ */
+
+.site-header { background: var(--aeu-antraciet); border-bottom: 1px solid rgba(255,255,255,.08); }
+.main-nav a { color: #E9ECF1; }
+.main-nav a:hover, .main-nav a.active { color: #fff; }
+.brand-tag { color: #AEB5C0; }
+.contact-cta {
+  background: linear-gradient(135deg, #E0650A, var(--color-primary));
+  border-radius: 10px; box-shadow: 0 8px 20px -8px rgba(244,122,20,.6);
+}
+.nav-toggle span { background: #fff; }
+
+/* ══ De kop: de foto van een uitbouw bij avond ══════════════════════════ */
+
+.hero {
+  background:
+    linear-gradient(90deg, #1a1c20 0%, rgba(26,28,32,.9) 30%, rgba(26,28,32,.25) 52%, rgba(26,28,32,0) 70%),
+    url('/img/hero-uitbouw.webp') right bottom / auto 100% no-repeat,
+    var(--aeu-antraciet);
+  padding: 96px 0 120px;
+}
+.hero::before, .hero::after { display: none; }
+.hero-illustration { display: none; }
+.hero-inner { grid-template-columns: minmax(0, 640px); }
+.hero-eyebrow { color: #fff; letter-spacing: .12em; font-size: 15px; }
+.hero-eyebrow span { color: var(--aeu-oranje); margin: 0 10px; }
+.hero h1 { font-size: clamp(44px, 5.6vw, 78px); line-height: 1; text-shadow: 0 2px 20px rgba(0,0,0,.4); }
+.hero h1 .highlight { background: none; padding: 0; color: var(--aeu-oranje); }
+.hero-sub2 { margin: 14px 0 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 2.4vw, 32px); color: #fff; }
+.hero-sub { color: #E9ECF1; margin-top: 14px; }
+.hero .btn-white {
+  background: linear-gradient(135deg, #E0650A, var(--color-primary)); color: #fff; border: 0;
+  box-shadow: 0 10px 24px -10px rgba(244,122,20,.7); border-radius: 10px;
+}
+.hero .btn-white:hover { filter: brightness(1.08); }
+.hero .btn-ghost { border-color: rgba(255,255,255,.6); border-radius: 10px; }
+.hero-vinken { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 26px 0 0; padding: 0; }
+.hero-vinken li {
+  display: inline-flex; align-items: center; gap: 9px; font-size: 15px; color: #fff; font-weight: 500;
+}
+.hero-vinken li::before {
+  content: ''; width: 22px; height: 22px; flex: 0 0 22px; border-radius: 11px;
+  border: 2px solid var(--aeu-oranje);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F47A14' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4L18 8'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+.hero-stats { border-top-color: rgba(255,255,255,.18); }
+.hero-stat-num { color: var(--aeu-oranje-licht); }
+
+/* ══ Kaarten, knoppen, vinkjes ══════════════════════════════════════════ */
+
+.btn { border-radius: 10px; }
+.btn-primary { background: linear-gradient(135deg, #D85C0A, var(--color-primary)); }
+.btn-primary:hover { filter: brightness(1.08); }
+.section-eyebrow { color: var(--color-primary); }
+
+.plan-card { border-radius: 16px; box-shadow: 0 18px 40px -26px rgba(31,35,41,.45); }
+.plan-card.featured { border-color: var(--aeu-oranje); box-shadow: 0 22px 50px -24px rgba(244,122,20,.45); }
+.plan-badge { background: var(--aeu-oranje); color: #1F2329; border-radius: 999px; }
+.plan-price-main { color: var(--color-primary); }
+.plan-features li::before { color: var(--aeu-oranje); }
+
+/* Het contactblok onderaan was blauw. */
+.section-blue { background: linear-gradient(160deg, var(--aeu-antraciet-2), var(--aeu-antraciet)); }
+
+/* De voet: antraciet zoals de menubalk. */
+.site-footer { background: #17191D; }
+
+@media (max-width: 900px) {
+  .hero { background:
+    linear-gradient(180deg, rgba(18,20,24,.1) 0%, rgba(18,20,24,.35) 180px, #1F2329 340px),
+    url('/img/hero-uitbouw.webp') 72% top / auto 340px no-repeat, var(--aeu-antraciet);
+    padding: 260px 0 80px; }
+}
+.main-nav a:hover { background: rgba(255,255,255,.08); }
+
+/* ══ De configurator ════════════════════════════════════════════════════ */
+
+/* Het live-overzicht was een vlak in de hoofdkleur; zoals in het ontwerp nu
+   antraciet, met het totaal in oranje. */
+.summary { background: linear-gradient(170deg, var(--aeu-antraciet-2), var(--aeu-antraciet)); border-radius: 18px; }
+.summary .summary-eyebrow { color: var(--aeu-oranje-licht); }
+.total-value { color: var(--aeu-oranje-licht); }
+.live-dot { background: var(--aeu-oranje); }
+.preview-wrap { border-radius: 14px; }
+.stepper, .main { border-radius: 16px; }
+.main { box-shadow: 0 18px 40px -28px rgba(31,35,41,.4); }
+.value-gain { border-radius: 18px; }
