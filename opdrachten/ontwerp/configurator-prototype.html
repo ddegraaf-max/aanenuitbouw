@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Uitbouw configurator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F3F5}
+a{color:#C4510A}a:hover{color:#8A3807}
+button,input{font-family:inherit}
+.k-stap:hover{background:rgba(255,255,255,.06)}
+.k-kaart:hover{border-color:#F47A14}
+.k-knop:hover{filter:brightness(1.08)}
+.k-licht:hover{background:#FFF6EE}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,#F47A14 var(--p),#E3E6EA var(--p));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:12px;background:#F47A14;border:4px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:12px;background:#F47A14;border:4px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+input[type=text],input[type=email],input[type=tel]{width:100%;box-sizing:border-box;height:46px;padding:0 14px;border:1px solid #D6DAE0;border-radius:10px;font-size:15px;color:#1F2329;background:#fff}
+input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus{outline:2px solid #F47A14;outline-offset:1px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F2F3F5; color: #1F2329; font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; display: flex; flex-direction: column">
+
+  <!-- Menubalk -->
+  <header style="background: #1F2329; color: #fff; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding: 14px clamp(16px, 3vw, 40px); border-bottom: 1px solid rgba(255,255,255,.08)">
+    <a href="#" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff">
+      <svg width="40" height="40" viewBox="0 0 44 50" aria-hidden="true"><path d="M4 22 L22 4 L40 22 L40 46 L4 46 Z" fill="none" stroke="#F47A14" stroke-width="5" stroke-linejoin="round"></path><rect x="16" y="28" width="12" height="18" fill="#F47A14"></rect></svg>
+      <span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -.02em">AanEnUitbouw<span style="color: #F7891F">.nl</span></span>
+    </a>
+    <nav aria-label="Hoofdmenu" style="display: flex; flex-wrap: wrap; gap: 6px 26px; margin-left: auto; font-family: Manrope, sans-serif; font-weight: 600; font-size: 16px">
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Aanbouw</a>
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Uitbouw</a>
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Plannen</a>
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Projecten</a>
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Werkwijze</a>
+      <a href="#" style="color: #E9ECF1; text-decoration: none">Contact</a>
+    </nav>
+    <a class="k-knop" href="tel:+31646150160" style="display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 10px; background: #C4510A; color: #fff; font-family: Manrope, sans-serif; font-weight: 700; text-decoration: none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>Bel ons</a>
+  </header>
+
+  <!-- Titelband -->
+  <section style="background: #2A2F37; color: #fff; padding: 22px clamp(16px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 40px">
+    <div>
+      <h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: clamp(30px, 3.4vw, 44px); letter-spacing: -.02em; line-height: 1.05">Uitbouw <span style="color: #F7891F">configurator</span></h1>
+      <p style="margin: 6px 0 0; color: #D9DDE3; font-size: 17px">Stel uw ideale uitbouw samen, bekijk direct het resultaat en de prijs.</p>
+    </div>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 30px; font-family: Manrope, sans-serif; font-weight: 600; font-size: 15px">
+      <li style="display: flex; align-items: center; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F47A14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>20+ jaar ervaring</li>
+      <li style="display: flex; align-items: center; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F47A14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>Transparante prijzen</li>
+      <li style="display: flex; align-items: center; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F47A14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.5 2.5L16 9.5"></path></svg>Maatwerk &amp; advies</li>
+      <li style="display: flex; align-items: center; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F47A14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path></svg>Van ontwerp tot realisatie</li>
+    </ul>
+  </section>
+
+  <!-- Werkvlak: stappen | stap | beeld -->
+  <main style="flex: 1; display: flex; flex-wrap: wrap; gap: 0; align-items: stretch; padding: 0 clamp(0px, 1vw, 12px)">
+
+    <nav aria-label="Stappen" style="flex: 1 1 250px; max-width: 270px; background: #1F2329; color: #fff; padding: 14px 12px; box-sizing: border-box; border-radius: 0 0 0 0; display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{stappen}}" as="s" hint-placeholder-count="8">
+        <button class="k-stap" type="button" onClick="{{s.kies}}" style="display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 10px 14px; border: 0; border-radius: 12px; background: {{s.vlak}}; color: #fff; text-align: left; cursor: pointer; border-bottom: 1px solid {{s.lijn}}">
+          <span style="width: 38px; height: 38px; flex: 0 0 38px; border-radius: 19px; display: flex; align-items: center; justify-content: center; font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px; background: {{s.bolVlak}}; color: {{s.bolLetter}}">{{s.teken}}</span>
+          <span style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-family: Manrope, sans-serif; font-weight: 700; font-size: 17px">{{s.titel}}</span><span style="font-size: 13.5px; color: {{s.sub}}">{{s.uitleg}}</span></span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <section style="flex: 1 1 420px; min-width: 0; background: #fff; padding: 28px clamp(18px, 2.4vw, 34px); box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <span style="font-family: Manrope, sans-serif; font-weight: 700; color: #C4510A; font-size: 16px">Stap {{stapNr}} van 8</span>
+        <span style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4B5563">
+          <span style="display: flex; gap: 3px"><sc-for list="{{balk}}" as="b" hint-placeholder-count="8"><span style="width: 18px; height: 7px; border-radius: 4px; background: {{b}}"></span></sc-for></span>
+          {{stapNr}} / 8
+        </span>
+      </div>
+
+      <!-- 1 Afmetingen -->
+      <sc-if value="{{is1}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 22px">
+          <div><h2 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em">Afmetingen</h2><p style="margin: 6px 0 0; color: #4B5563">Bepaal de breedte en diepte van uw uitbouw.</p></div>
+          <div style="border-top: 1px solid #E5E7EB; padding-top: 18px; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+              <label for="breedte" style="font-weight: 700; font-size: 16px">↔ Breedte <span style="font-weight: 400; color: #4B5563">(langs de gevel)</span></label>
+              <div style="display: flex; align-items: center; border: 1px solid #D6DAE0; border-radius: 10px; overflow: hidden">
+                <button class="k-licht" type="button" aria-label="Smaller" onClick="{{breedteMin}}" style="width: 44px; height: 44px; border: 0; background: #fff; font-size: 22px; cursor: pointer">−</button>
+                <span style="min-width: 86px; text-align: center; font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">{{breedteTekst}}</span>
+                <button class="k-licht" type="button" aria-label="Breder" onClick="{{breedtePlus}}" style="width: 44px; height: 44px; border: 0; background: #fff; font-size: 22px; cursor: pointer">+</button>
+              </div>
+            </div>
+            <input id="breedte" type="range" min="3" max="7" step="0.25" value="{{breedte}}" onInput="{{zetBreedte}}" style="--p: {{breedteP}}">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6B7280"><span>3,00 m</span><span>4,00 m</span><span>5,00 m</span><span>6,00 m</span><span>7,00 m</span></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+              <label for="diepte" style="font-weight: 700; font-size: 16px">↕ Diepte <span style="font-weight: 400; color: #4B5563">(richting tuin)</span></label>
+              <div style="display: flex; align-items: center; border: 1px solid #D6DAE0; border-radius: 10px; overflow: hidden">
+                <button class="k-licht" type="button" aria-label="Minder diep" onClick="{{diepteMin}}" style="width: 44px; height: 44px; border: 0; background: #fff; font-size: 22px; cursor: pointer">−</button>
+                <span style="min-width: 86px; text-align: center; font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">{{diepteTekst}}</span>
+                <button class="k-licht" type="button" aria-label="Dieper" onClick="{{dieptePlus}}" style="width: 44px; height: 44px; border: 0; background: #fff; font-size: 22px; cursor: pointer">+</button>
+              </div>
+            </div>
+            <input id="diepte" type="range" min="1.5" max="4" step="0.25" value="{{diepte}}" onInput="{{zetDiepte}}" style="--p: {{diepteP}}">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6B7280"><span>1,50 m</span><span>2,00 m</span><span>2,50 m</span><span>3,00 m</span><span>3,50 m</span><span>4,00 m</span></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 22px; padding: 20px 24px; border-radius: 14px; background: #FFF4EA">
+            <svg width="70" height="64" viewBox="0 0 70 64" fill="none" stroke="#1F2329" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 24 L36 12 L62 24 L36 36 Z"></path><path d="M10 24 V46 L36 58 V36"></path><path d="M62 24 V46 L36 58"></path></svg>
+            <div style="font-size: 16px; line-height: 1.5"><strong style="font-family: Manrope, sans-serif">Uw afmetingen</strong><br><span style="color: #C4510A; font-weight: 700; font-size: 20px">{{breedteTekst}}</span> × <span style="color: #C4510A; font-weight: 700; font-size: 20px">{{diepteTekst}}</span><br>= <span style="color: #C4510A; font-weight: 800; font-size: 22px">{{m2Tekst}}</span></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- 2..7: keuzekaarten -->
+      <sc-if value="{{isKeuze}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div><h2 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em">{{keuze.titel}}</h2><p style="margin: 6px 0 0; color: #4B5563">{{keuze.uitleg}}</p></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px">
+            <sc-for list="{{keuze.opties}}" as="o" hint-placeholder-count="4">
+              <button class="k-kaart" type="button" onClick="{{o.kies}}" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 14px; border: 2px solid {{o.rand}}; background: {{o.vlak}}; text-align: left; cursor: pointer; color: #1F2329">
+                <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">{{o.naam}}</span><span style="width: 22px; height: 22px; border-radius: 11px; border: 2px solid {{o.bolRand}}; background: {{o.bolVlak}}; box-sizing: border-box"></span></span>
+                <span style="font-size: 13.5px; color: #4B5563; line-height: 1.45">{{o.uitleg}}</span>
+                <span style="margin-top: auto; padding-top: 6px; font-weight: 700; font-size: 14px; color: #C4510A">{{o.prijs}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{keuze.heeftKleuren}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <span style="font-weight: 700">Kleur</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px">
+                <sc-for list="{{keuze.kleuren}}" as="k" hint-placeholder-count="4">
+                  <button type="button" onClick="{{k.kies}}" aria-label="{{k.naam}}" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px 0 8px; border-radius: 22px; border: 2px solid {{k.rand}}; background: #fff; cursor: pointer; font-size: 14px; color: #1F2329">
+                    <span style="width: 26px; height: 26px; border-radius: 13px; background: {{k.hex}}; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15)"></span>{{k.naam}}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- 8 Offerte -->
+      <sc-if value="{{is8}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div><h2 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em">Uw uitbouw is klaar</h2><p style="margin: 6px 0 0; color: #4B5563">Laat uw gegevens achter. Binnen 48 uur ontvangt u een persoonlijke offerte.</p></div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Naam<input type="text" placeholder="Uw naam"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Telefoon<input type="tel" placeholder="06 …"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">E-mail<input type="email" placeholder="naam@voorbeeld.nl"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Postcode en huisnummer<input type="text" placeholder="1234 AB 5"></label>
+          </div>
+          <p style="margin: 0; font-size: 13px; color: #6B7280">Prijzen zijn indicatief en worden definitief na een bezoek ter plaatse en de constructieberekening.</p>
+        </div>
+      </sc-if>
+
+      <div style="margin-top: auto; display: flex; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid #E5E7EB">
+        <button class="k-licht" type="button" onClick="{{vorige}}" style="height: 48px; padding: 0 20px; border-radius: 10px; border: 1px solid #D6DAE0; background: #fff; font-weight: 600; font-size: 15px; cursor: pointer; color: #1F2329">← Vorige</button>
+        <span style="font-size: 13px; color: #6B7280; align-self: center">Alles blijft bewaard als u terugklikt</span>
+      </div>
+    </section>
+
+    <section aria-label="Impressie" style="flex: 999 1 460px; min-width: 0; background: #fff; padding: 18px 18px 18px 0; box-sizing: border-box">
+      <div style="position: relative; height: 100%; min-height: 420px; border-radius: 16px; overflow: hidden; background: #2A2F37">
+        <img src="/_blob/0462babe2b799d7c8f9d5ded517bc39e" alt="Impressie van een uitbouw met schuifpui" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+        <div style="position: absolute; top: 14px; right: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end">
+          <sc-for list="{{weergaven}}" as="w" hint-placeholder-count="3">
+            <button type="button" onClick="{{w.kies}}" style="height: 42px; padding: 0 16px; border-radius: 10px; border: 0; background: {{w.vlak}}; color: {{w.letter}}; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.18)">{{w.naam}}</button>
+          </sc-for>
+        </div>
+        <span style="position: absolute; left: 14px; bottom: 14px; padding: 6px 12px; border-radius: 8px; background: rgba(31,35,41,.75); color: #fff; font-size: 12.5px">Impressie — in de echte configurator wisselt dit beeld per keuze</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- Keuzestrook -->
+  <section aria-label="Uw keuzes" style="background: #fff; border-top: 1px solid #E5E7EB; padding: 10px clamp(12px, 2vw, 24px); display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px">
+    <sc-for list="{{strook}}" as="r" hint-placeholder-count="7">
+      <button type="button" onClick="{{r.kies}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-radius: 12px; border: 2px solid {{r.rand}}; background: {{r.vlak}}; cursor: pointer; text-align: left; color: #1F2329">
+        <span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 15px">{{r.titel}}</span>
+        <span style="font-size: 13.5px; color: #4B5563">{{r.waarde}}</span>
+      </button>
+    </sc-for>
+  </section>
+
+  <!-- Prijsbalk -->
+  <section aria-label="Prijs" style="position: sticky; bottom: 0; background: #1F2329; color: #fff; padding: 14px clamp(16px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px">
+    <div style="flex: 1 1 260px">
+      <div style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 24px">Uw uitbouw</div>
+      <div style="color: #D9DDE3; font-size: 15px">{{samenvatting}}</div>
+    </div>
+    <div style="display: flex; align-items: baseline; gap: 12px">
+      <span style="font-size: 15px; color: #D9DDE3">Indicatieprijs</span>
+      <span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: clamp(30px, 3vw, 42px); color: #F7891F">{{totaal}}</span>
+      <span style="font-size: 13px; color: #D9DDE3">incl. btw</span>
+    </div>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: auto">
+      <button type="button" onClick="{{naarOfferte}}" style="height: 52px; padding: 0 22px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.75); background: transparent; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer">Offerte aanvragen</button>
+      <button class="k-knop" type="button" onClick="{{volgende}}" style="height: 52px; padding: 0 24px; border-radius: 10px; border: 0; background: #C4510A; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer">{{volgendeTekst}}</button>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { stap: 1, breedte: 6, diepte: 3, type: 'uitbouw', dak: 'plat', gevel: 'baksteen', gevelKleur: 'rood',
+      pui: 'openslaand', puiKleur: 'wit', extra: { lichtkoepel: false, vloerverwarming: false, buitenkraan: false }, plan: 'cplus', weergave: 'achter' };
+  }
+  renderVals() {
+    const s = this.state, zet = (o) => () => this.setState(o);
+    const P = { casco: 2500, cplus: 3000, cplus2: 3500 }, DAK = { plat: 1, lessenaar: 1.06, zadel: 1.12, schild: 1.18 };
+    const PUI = { openslaand: 0, schuifpui: 3500, schuifpui4: 5500, harmonica: 7500 }, GEVEL = { baksteen: 0, rabat: 350, hout: 1800 };
+    const eur = (n) => '€ ' + Math.round(n).toLocaleString('nl-NL');
+    const m = (n) => n.toFixed(2).replace('.', ',') + ' m';
+    const opp = s.breedte * s.diepte;
+    let tot = opp * P[s.plan] * DAK[s.dak] + PUI[s.pui] + GEVEL[s.gevel] + 1250 + 1100;
+    if (s.type === 'uitbouw') tot += s.breedte * 450;
+    if (s.puiKleur !== 'wit') tot += 850;
+    if (s.extra.lichtkoepel && s.plan !== 'cplus2') tot += 1500;
+    if (s.extra.vloerverwarming && s.plan === 'cplus') tot += opp * 85;
+    if (s.extra.buitenkraan && s.plan === 'casco') tot += 450;
+
+    const kaart = (aan) => ({ rand: aan ? '#F47A14' : '#E5E7EB', vlak: aan ? '#FFF6EE' : '#fff', bolRand: aan ? '#F47A14' : '#C9CED6', bolVlak: aan ? '#F47A14' : '#fff' });
+    const optie = (sleutel, id, naam, uitleg, prijs) => Object.assign({ naam, uitleg, prijs, kies: zet({ [sleutel]: id }) }, kaart(s[sleutel] === id));
+    const extraOptie = (id, naam, uitleg, prijs) => Object.assign({ naam, uitleg, prijs, kies: () => this.setState({ extra: Object.assign({}, s.extra, { [id]: !s.extra[id] }) }) }, kaart(!!s.extra[id]));
+    const kleur = (sleutel, id, naam, hex) => ({ naam, hex, rand: s[sleutel] === id ? '#F47A14' : '#E5E7EB', kies: zet({ [sleutel]: id }) });
+
+    const KEUZES = {
+      2: { titel: 'Aanbouw of uitbouw?', uitleg: 'Blijft de achtergevel staan, of gaat hij open voor één grote leefruimte?', opties: [
+        optie('type', 'aanbouw', 'Aanbouw', 'De achtergevel blijft staan; een aparte ruimte voor slaapkamer, kantoor of speelkamer.', 'standaard'),
+        optie('type', 'uitbouw', 'Uitbouw', 'De achtergevel gaat eruit, met stalen draagbalk. Woonkamer of keuken loopt door.', '+ € 450 per m¹ breedte')] },
+      3: { titel: 'Dak', uitleg: 'Kies de vorm van het dak.', opties: [
+        optie('dak', 'plat', 'Plat dak', 'Strakke, moderne lijn; optioneel met lichtkoepel.', 'standaard'),
+        optie('dak', 'lessenaar', 'Lessenaarsdak', 'Eén schuin dakvlak, hoger aan de gevel.', '+6 %'),
+        optie('dak', 'zadel', 'Zadeldak', 'Twee schuine vlakken met nok in het midden.', '+12 %'),
+        optie('dak', 'schild', 'Schilddak', 'Vier hellende vlakken, klassiek.', '+18 %')] },
+      4: { titel: 'Gevel', uitleg: 'Materiaal en kleur van de buitenkant.', opties: [
+        optie('gevel', 'baksteen', 'Baksteen', 'Metselwerk dat aansluit op uw woning.', 'standaard'),
+        optie('gevel', 'rabat', 'Kunststof rabat', 'Keralit: onderhoudsarm, strak.', '+ € 350'),
+        optie('gevel', 'hout', 'Hout', 'Warme uitstraling, natuurlijk materiaal.', '+ € 1.800')],
+        heeftKleuren: true, kleuren: [kleur('gevelKleur', 'rood', 'Rood', '#B5413C'), kleur('gevelKleur', 'geel', 'Geel', '#C9B58E'), kleur('gevelKleur', 'zwart', 'Zwart', '#2A2A2C'), kleur('gevelKleur', 'creme', 'Crème', '#D8CDB8')] },
+      5: { titel: 'Kozijnen', uitleg: 'De pui naar de tuin.', opties: [
+        optie('pui', 'openslaand', 'Openslaande deuren', 'Vast glas links en rechts, deuren in het midden.', 'standaard'),
+        optie('pui', 'schuifpui', 'Schuifpui', 'Brede glaspartij die zijdelings opent.', '+ € 3.500'),
+        optie('pui', 'schuifpui4', 'Schuifpui 4-delig', 'Vier panelen voor een extra brede opening.', '+ € 5.500'),
+        optie('pui', 'harmonica', 'Harmonicadeur', 'Volledig vouwbare wand.', '+ € 7.500')],
+        heeftKleuren: true, kleuren: [kleur('puiKleur', 'wit', 'Wit', '#F5F2ED'), kleur('puiKleur', 'creme', 'Crème (+ € 850)', '#E8DFC9'), kleur('puiKleur', 'antra', 'Antraciet (+ € 850)', '#3A3A3C'), kleur('puiKleur', 'zwart', 'Zwart (+ € 850)', '#0F0F0F')] },
+      6: { titel: 'Extra’s', uitleg: 'Opties en comfort. Klik om aan of uit te zetten.', opties: [
+        extraOptie('lichtkoepel', 'Lichtkoepel', 'Extra daglicht van boven.', s.plan === 'cplus2' ? 'inbegrepen bij C++' : '+ € 1.500'),
+        extraOptie('vloerverwarming', 'Vloerverwarming', 'Comfortabele warmte in de hele ruimte.', s.plan === 'cplus' ? '+ € 85 per m²' : (s.plan === 'cplus2' ? 'inbegrepen bij C++' : 'niet bij Casco')),
+        extraOptie('buitenkraan', 'Buitenkraan', 'Vorstvrij, aan de gevel.', s.plan === 'casco' ? '+ € 450' : 'inbegrepen')] },
+      7: { titel: 'Afwerking', uitleg: 'Hoe ver wij de binnenkant afmaken.', opties: [
+        optie('plan', 'casco', 'Casco', 'Wind- en waterdicht, zonder isolatie.', '€ 2.500 per m²'),
+        optie('plan', 'cplus', 'C+', 'Geïsoleerd, schilderklaar, dekvloer en basis elektra.', '€ 3.000 per m²'),
+        optie('plan', 'cplus2', 'C++', 'Volledig sleutelklaar, met lichtkoepel en vloerverwarming.', '€ 3.500 per m²')] },
+    };
+
+    const NAMEN = [['Afmetingen', 'Breedte en diepte'], ['Model', 'Aanbouw of uitbouw'], ['Dak', 'Type en afwerking'], ['Gevel', 'Materiaal en kleur'],
+      ['Kozijnen', 'Ramen en deuren'], ['Extra’s', 'Opties en comfort'], ['Afwerking', 'Binnenzijde'], ['Offerte', 'Impressie en prijs']];
+    const stappen = NAMEN.map(([titel, uitleg], i) => {
+      const n = i + 1, aan = n === s.stap, klaar = n < s.stap;
+      return { titel, uitleg, teken: klaar ? '✓' : String(n), kies: zet({ stap: n }),
+        vlak: aan ? 'linear-gradient(135deg,#F47A14,#D85C0A)' : 'transparent', lijn: aan ? 'transparent' : 'rgba(255,255,255,.08)',
+        bolVlak: aan ? '#fff' : (klaar ? '#F47A14' : '#3A3F48'), bolLetter: aan ? '#C4510A' : '#fff', sub: aan ? '#FFF1E6' : '#AEB5C0' };
+    });
+    const label = { aanbouw: 'Aanbouw', uitbouw: 'Uitbouw', plat: 'Plat dak', lessenaar: 'Lessenaarsdak', zadel: 'Zadeldak', schild: 'Schilddak',
+      baksteen: 'Baksteen', rabat: 'Kunststof rabat', hout: 'Hout', openslaand: 'Openslaande deuren', schuifpui: 'Schuifpui', schuifpui4: 'Schuifpui 4-delig', harmonica: 'Harmonicadeur',
+      casco: 'Casco', cplus: 'C+', cplus2: 'C++' };
+    const ex = Object.keys(s.extra).filter((k) => s.extra[k]);
+    const strookData = [[1, 'Afmetingen', m(s.breedte) + ' × ' + m(s.diepte)], [2, 'Model', label[s.type]], [3, 'Dak', label[s.dak]], [4, 'Gevel', label[s.gevel]],
+      [5, 'Kozijnen', label[s.pui]], [6, 'Extra’s', ex.length ? ex.length + ' gekozen' : 'Geen'], [7, 'Afwerking', label[s.plan]]];
+    const strook = strookData.map(([n, titel, waarde]) => ({ titel, waarde, kies: zet({ stap: n }), rand: n === s.stap ? '#F47A14' : 'transparent', vlak: n === s.stap ? '#FFF6EE' : '#fff' }));
+    const weergaven = [['achter', 'Achteraanzicht'], ['3d', '3D-weergave'], ['plat', 'Plattegrond']].map(([id, naam]) => ({ naam, kies: zet({ weergave: id }),
+      vlak: s.weergave === id ? '#C4510A' : 'rgba(255,255,255,.95)', letter: s.weergave === id ? '#fff' : '#1F2329' }));
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, Math.round(v * 4) / 4));
+    const volgendeNaam = s.stap < 8 ? 'Volgende stap: ' + NAMEN[s.stap][0] + ' →' : 'Offerte versturen →';
+    return {
+      stappen, strook, weergaven, stapNr: s.stap,
+      balk: NAMEN.map((_, i) => i < s.stap ? '#F47A14' : '#E3E6EA'),
+      is1: s.stap === 1, is8: s.stap === 8, isKeuze: !!KEUZES[s.stap], keuze: KEUZES[s.stap] || { opties: [], kleuren: [] },
+      breedte: s.breedte, diepte: s.diepte, breedteTekst: m(s.breedte), diepteTekst: m(s.diepte),
+      m2Tekst: opp.toFixed(2).replace('.', ',') + ' m²',
+      breedteP: ((s.breedte - 3) / 4 * 100) + '%', diepteP: ((s.diepte - 1.5) / 2.5 * 100) + '%',
+      zetBreedte: (e) => this.setState({ breedte: clamp(+e.target.value, 3, 7) }),
+      zetDiepte: (e) => this.setState({ diepte: clamp(+e.target.value, 1.5, 4) }),
+      breedteMin: () => this.setState({ breedte: clamp(s.breedte - 0.25, 3, 7) }), breedtePlus: () => this.setState({ breedte: clamp(s.breedte + 0.25, 3, 7) }),
+      diepteMin: () => this.setState({ diepte: clamp(s.diepte - 0.25, 1.5, 4) }), dieptePlus: () => this.setState({ diepte: clamp(s.diepte + 0.25, 1.5, 4) }),
+      vorige: () => this.setState({ stap: Math.max(1, s.stap - 1) }),
+      volgende: () => this.setState({ stap: Math.min(8, s.stap + 1) }),
+      naarOfferte: zet({ stap: 8 }), volgendeTekst: volgendeNaam,
+      totaal: eur(tot),
+      samenvatting: label[s.type] + '  |  ' + m(s.breedte) + ' × ' + m(s.diepte) + ' (' + opp.toFixed(2).replace('.', ',') + ' m²)  |  ' + label[s.plan],
+    };
+  }
+}
+</script>
+</body>
+</html>
