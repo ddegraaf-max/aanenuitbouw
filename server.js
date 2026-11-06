@@ -456,40 +456,41 @@ function buildQuoteEmail(data) {
   const rows = Array.isArray(cfg.rows) ? cfg.rows : [];
   const rowsHtml = rows.map(r =>
     `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">${esc(r.label)}</td>` +
-    `<td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(r.value)}</td></tr>`
+    `<td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(r.value)}</td></tr>`
   ).join('');
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
-    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
-      <div style="background:#1E4FC7;padding:24px 28px;">
-        <h1 style="margin:0;color:#fff;font-size:20px;">Nieuwe offerte-aanvraag</h1>
-        <p style="margin:6px 0 0;color:#cdd9f5;font-size:13px;">via de configurator op AanEnUitbouw.nl</p>
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#F2F3F5;padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(31,35,41,.08);">
+      <div style="background:#1F2329;padding:24px 28px;border-top:5px solid #F47A14;">
+        <img src="https://aanenuitbouw.nl/img/mail-logo.png" alt="AanEnUitbouw.nl" width="279" height="44" style="display:block;border:0;max-width:100%;height:auto;">
+        <h1 style="margin:18px 0 0;color:#fff;font-size:20px;">Nieuwe offerte-aanvraag</h1>
+        <p style="margin:6px 0 0;color:#D9DDE3;font-size:13px;">via de configurator op AanEnUitbouw.nl</p>
       </div>
       <div style="padding:24px 28px;">
-        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Contactgegevens</h2>
+        <h2 style="font-size:15px;color:#1F2329;margin:0 0 12px;">Contactgegevens</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Naam</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.name)}</td></tr>
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">E-mail</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.email)}</td></tr>
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Telefoon</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.phone) || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Naam</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(data.name)}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">E-mail</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(data.email)}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Telefoon</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(data.phone) || '—'}</td></tr>
         </table>
         ${(data.startMonth || data.listingUrl || (data.photos && data.photos.length)) ? `
-        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Woning en planning</h2>
+        <h2 style="font-size:15px;color:#1F2329;margin:0 0 12px;">Woning en planning</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
-          ${data.adres ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Adres woning</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(data.adres)}${data.gemeente ? ' (gemeente ' + esc(data.gemeente) + ')' : ''}</td></tr>` : ''}
-          ${data.tekeningen ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Bouwtekeningen</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(TEKENING_LABEL[data.tekeningen] || data.tekeningen)}</td></tr>` : ''}
-          ${data.startMonth ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Gewenste start</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(startmaandLabel(data.startMonth))}${data.startMonthStatus ? ' — ' + esc(data.startMonthStatus) : ''}</td></tr>` : ''}
-          ${data.listingUrl ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Woning online</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;"><a href="${esc(data.listingUrl)}" style="color:#1E4FC7;">${esc(data.listingUrl)}</a></td></tr>` : ''}
-          ${(data.photos && data.photos.length) ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Foto's achterzijde</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${data.photos.length} bijgevoegd als bijlage</td></tr>` : ''}
+          ${data.adres ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Adres woning</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(data.adres)}${data.gemeente ? ' (gemeente ' + esc(data.gemeente) + ')' : ''}</td></tr>` : ''}
+          ${data.tekeningen ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Bouwtekeningen</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(TEKENING_LABEL[data.tekeningen] || data.tekeningen)}</td></tr>` : ''}
+          ${data.startMonth ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Gewenste start</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(startmaandLabel(data.startMonth))}${data.startMonthStatus ? ' — ' + esc(data.startMonthStatus) : ''}</td></tr>` : ''}
+          ${data.listingUrl ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Woning online</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;"><a href="${esc(data.listingUrl)}" style="color:#C4510A;">${esc(data.listingUrl)}</a></td></tr>` : ''}
+          ${(data.photos && data.photos.length) ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">Foto's achterzijde</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${data.photos.length} bijgevoegd als bijlage</td></tr>` : ''}
         </table>` : ''}
-        ${data.message ? `<h2 style="font-size:15px;color:#1A2540;margin:0 0 8px;">Bericht</h2><p style="font-size:14px;color:#333;line-height:1.6;background:#f7f9fb;padding:12px 16px;border-radius:8px;margin:0 0 24px;">${esc(data.message)}</p>` : ''}
-        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Configuratie</h2>
+        ${data.message ? `<h2 style="font-size:15px;color:#1F2329;margin:0 0 8px;">Bericht</h2><p style="font-size:14px;color:#333;line-height:1.6;background:#F6F7F9;padding:12px 16px;border-radius:8px;margin:0 0 24px;">${esc(data.message)}</p>` : ''}
+        <h2 style="font-size:15px;color:#1F2329;margin:0 0 12px;">Configuratie</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           ${rowsHtml}
-          <tr><td style="padding:10px 12px;color:#1A2540;font-weight:700;font-size:15px;">Indicatieve totaalprijs</td><td style="padding:10px 12px;font-weight:800;color:#1E4FC7;font-size:16px;">${esc(cfg.total)}</td></tr>
+          <tr><td style="padding:14px 12px;background:#FFF4EA;color:#1F2329;font-weight:700;font-size:15px;border-radius:8px 0 0 8px;">Indicatieve totaalprijs <span style="font-weight:400;color:#555;font-size:12px;">incl. btw</span></td><td style="padding:14px 12px;background:#FFF4EA;font-weight:800;color:#C4510A;font-size:20px;border-radius:0 8px 8px 0;">${esc(cfg.total)}</td></tr>
         </table>
       </div>
-      <div style="background:#0F1A2E;padding:16px 28px;">
-        <p style="margin:0;color:#8493ad;font-size:12px;">Deze aanvraag is automatisch gegenereerd. Reageer rechtstreeks naar ${esc(data.email)} om de klant te bereiken.</p>
+      <div style="background:#15181D;padding:16px 28px;">
+        <p style="margin:0;color:#AEB5C0;font-size:12px;">Deze aanvraag is automatisch gegenereerd. Reageer rechtstreeks naar ${esc(data.email)} om de klant te bereiken.</p>
       </div>
     </div>
   </body></html>`;
@@ -514,36 +515,36 @@ function buildCustomerEmail(data) {
   const rows = Array.isArray(cfg.rows) ? cfg.rows : [];
   const rowsHtml = rows.map(r =>
     `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#555;">${esc(r.label)}</td>` +
-    `<td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1A2540;">${esc(r.value)}</td></tr>`
+    `<td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#1F2329;">${esc(r.value)}</td></tr>`
   ).join('');
 
   const firstName = oneLine(data.name).split(' ')[0] || '';
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;padding:24px;">
-    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
-      <div style="background:#1E4FC7;padding:28px;">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFkAAABOCAYAAABL2LqMAAAEDklEQVR4nO2cPYgkRRTH/697ZvZDWDRQMFK5TEHU4JITdjPNRDE38DgzETEQk9kxukBQNBPBS0wOBAPBQOFY4SIzRQxcYQ0XwVPudMfpj79Bv7LL3hlv79x93dPzfjD0NN0z/fo3VdVdr6sGcBzHcRznbCApJJO24+glJKWx7qJPEy29qb7/hOSb+n7YbmQ9guRAl5dZ82K8zfkfhNJK8m2VOyOZk8xIPq/bXPTdEgl+QwVnuiz1lZPc0X1c9J0SCb4YCS6j5qLQ9V9Jntd9XfRJiQS/1BDapNDlDZJP6mdc9O2ILnLPaOldJDiQ6/KA5MP62bTVk+gyDcHTqO29HUH0PsmH9DtcdBPW98FPkPyj0RychHBR/I7kln6Xd1gCkeDHSR7eheCm6Oskt+hd8IpI8COR4Py4vzsW/TXJdOVFR4IfJPn9KQgOzHR5NUhmI/exEoTSRfL+UxYcCCX6qh4nXSnRkeANVtU6lnKahBL9nh5vNUSzqroJyU2SX52h4Kbod/T4/e6s8N8py88aEs6ScIy39Nj9TJGq4NDZuGIomKw6NKG2vKox9Et0Q/BHerJn2UQsEh0urJc0lv6IjgSHnLC14EAQnbPORS+/aNYZtUnLggNxLvo5jW15L4asS/AreoLNnHBbhMzeEetc9PIllFgLfllPrCuCA3EuuvOij93ck0xFpCD5AoBPARQAknn7tkyJKq4bAM6LyD7JRETKluM6xrzxEARwAcCXAEa6T9cEBwoAKYCfADwN4BAARIRtBtWkmeFKNMALANZRnURXBQOV4BLAOQDnNPbOZe0WBXSEqkR3WXBAUInO2g5kEYskd7EN/i86HW/nqlYfcckGuGQDXLIBLtkAl2yASzbAJRuwvLnYBkc4SrevjQfv//hFun1tbN8x2QF2gHIik2MJqmaCaCAiOcnXALwLIEf3f4jQ/X9URH5oO5h5dF3giShY4vL+hxef/ebSwWa6nmQsjNOd5NrWukxvZt9+/tQHexiPE0zqEr3UkrUIS8ECB+nh66N715FghDXjTCfzEqP7NvDXb9OPAext7yDZm6AfkmOKW1mRZVOKFCDM08m5pDKAyM15G3sjGYK0vecLBEQGsuBuzW/hDHDJBrhkA1yyAS7ZAJdsgEs2wCUb4JINcMkGuGQDXLIBLtkAl2yASzbAJRvgkg1wyQa4ZAMWPeMjqvkinZ4zEgZckPxnPbwsEaAgICKYOxRhkeQRqkkvnZ0bB9TVcC0dYbg5wnAwxFCG5k+rWZTp8J4RZr9PN+Ztb0oO0f0M4DrqKVydZlbmyP6cIZvNkAjtJYsU6a1ZKqhGMD3wy2OdmuK2Esxtb1n9DU1n2+J57O7uYgJg3GIMk90JIfYjaxzHcRzHWTX+Bhq6zFcSK8tdAAAAAElFTkSuQmCC" alt="AanEnUitbouw.nl" width="50" height="44" style="display:block;border:0;">
-        <h1 style="margin:14px 0 0;color:#fff;font-size:22px;">Bedankt voor uw aanvraag${firstName ? ', ' + esc(firstName) : ''}!</h1>
-        <p style="margin:8px 0 0;color:#cdd9f5;font-size:14px;line-height:1.5;">We hebben uw configuratie goed ontvangen en nemen zo snel mogelijk contact met u op.</p>
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#F2F3F5;padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(31,35,41,.08);">
+      <div style="background:#1F2329;padding:28px;border-top:5px solid #F47A14;">
+        <img src="https://aanenuitbouw.nl/img/mail-logo.png" alt="AanEnUitbouw.nl" width="279" height="44" style="display:block;border:0;max-width:100%;height:auto;">
+        <h1 style="margin:20px 0 0;color:#fff;font-size:24px;">Bedankt voor uw aanvraag${firstName ? ', ' + esc(firstName) : ''}!</h1>
+        <p style="margin:8px 0 0;color:#D9DDE3;font-size:14px;line-height:1.5;">We hebben uw configuratie goed ontvangen en nemen zo snel mogelijk contact met u op.</p>
       </div>
       <div style="padding:28px;">
         <p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;">
           Hieronder vindt u een overzicht van de configuratie die u heeft samengesteld. De genoemde prijs is een richtprijs — na een vrijblijvend gesprek en eventueel een opname ter plaatse stellen we een definitieve offerte op.
         </p>
-        ${data.startMonth ? `<p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;padding:14px 18px;background:#eef3fd;border-radius:10px;">Uw voorkeur voor de start van de werkzaamheden: <strong>${esc(startmaandLabel(data.startMonth))}</strong>. Wij houden daar in de planning rekening mee en laten u weten wat haalbaar is.</p>` : ''}
-        <h2 style="font-size:15px;color:#1A2540;margin:0 0 12px;">Uw configuratie</h2>
+        ${data.startMonth ? `<p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 20px;padding:14px 18px;background:#FFF4EA;border-radius:10px;">Uw voorkeur voor de start van de werkzaamheden: <strong>${esc(startmaandLabel(data.startMonth))}</strong>. Wij houden daar in de planning rekening mee en laten u weten wat haalbaar is.</p>` : ''}
+        <h2 style="font-size:15px;color:#1F2329;margin:0 0 12px;">Uw configuratie</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           ${rowsHtml}
-          <tr><td style="padding:10px 12px;color:#1A2540;font-weight:700;font-size:15px;">Indicatieve totaalprijs</td><td style="padding:10px 12px;font-weight:800;color:#1E4FC7;font-size:16px;">${esc(cfg.total)}</td></tr>
+          <tr><td style="padding:14px 12px;background:#FFF4EA;color:#1F2329;font-weight:700;font-size:15px;border-radius:8px 0 0 8px;">Indicatieve totaalprijs <span style="font-weight:400;color:#555;font-size:12px;">incl. btw</span></td><td style="padding:14px 12px;background:#FFF4EA;font-weight:800;color:#C4510A;font-size:20px;border-radius:0 8px 8px 0;">${esc(cfg.total)}</td></tr>
         </table>
-        <div style="margin:24px 0 0;padding:16px 20px;background:#f7f9fb;border-radius:10px;">
+        <div style="margin:24px 0 0;padding:16px 20px;background:#F6F7F9;border-radius:10px;border-left:4px solid #F47A14;">
           <p style="margin:0 0 4px;font-size:13px;color:#555;">Heeft u een vraag of wilt u sneller schakelen?</p>
-          <p style="margin:0;font-size:15px;color:#1A2540;font-weight:700;">Bel ons gerust op +31 646 150 160</p>
+          <p style="margin:0;font-size:15px;color:#1F2329;font-weight:700;">Bel ons gerust op +31 646 150 160</p>
         </div>
       </div>
-      <div style="background:#0F1A2E;padding:20px 28px;">
-        <p style="margin:0 0 4px;color:#fff;font-size:14px;font-weight:700;">AanEnUitbouw.nl</p>
-        <p style="margin:0;color:#8493ad;font-size:12px;line-height:1.6;">Creditline BV · KvK 59683198 · BTW NL853603108B01<br>project@aanenuitbouw.nl · +31 646 150 160</p>
+      <div style="background:#15181D;padding:20px 28px;">
+        <p style="margin:0 0 4px;color:#fff;font-size:14px;font-weight:700;">AanEnUitbouw<span style="color:#F7891F;">.nl</span></p>
+        <p style="margin:0;color:#AEB5C0;font-size:12px;line-height:1.6;">Creditline BV · KvK 59683198 · BTW NL853603108B01<br>project@aanenuitbouw.nl · +31 646 150 160</p>
       </div>
     </div>
   </body></html>`;
